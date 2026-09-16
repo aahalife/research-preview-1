@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The floating liquid-glass dock — five destinations. A single capsule of
+/// The floating liquid-glass dock — four destinations. A single capsule of
 /// true Liquid Glass on iOS 26; the selected tab is marked only by a quiet
 /// tinted highlight behind its icon — no big sliding pill.
 /// The companion is not here; it lives everywhere.
@@ -46,7 +46,7 @@ struct NudgeDock: View {
 
     private func dockItem(_ tab: AppModel.Tab) -> some View {
         let selected = model.tab == tab
-        let badge = tab == .care ? model.careUnreadCount : 0
+        let badge = tab == .messages ? model.messageUnreadCount : (tab == .care ? model.recordUpdateCount : 0)
         return Button {
             tapped.toggle()
             withAnimation(NudgeSpring.ui) { model.tab = tab }
@@ -85,5 +85,6 @@ struct NudgeDock: View {
         .buttonStyle(NudgeButtonStyle())
         .accessibilityLabel(badge > 0 ? "\(tab.rawValue), \(badge) new" : tab.rawValue)
         .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityIdentifier("tab.\(tab.rawValue.lowercased())")
     }
 }

@@ -79,7 +79,7 @@ struct CareTeamView: View {
                                     .background(Theme.gold.opacity(0.13), in: .capsule)
                             }
                             if appointment.prepReady {
-                                NavigationLink(value: YouDestination.visitPrep) {
+                                NavigationLink(value: YouDestination.visitPrep(appointment.id)) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "sparkles")
                                             .font(.system(size: 12, weight: .medium))
@@ -150,8 +150,10 @@ struct CareTeamView: View {
 /// requires explicit user approval — hard rule.
 struct VisitPrepView: View {
     @Environment(AppModel.self) private var model
-    @State private var sent = false
-    @State private var confirming = false
+    let appointmentID: UUID
+    @State private var showingDeliveryInfo: Bool = false
+
+    private var appointment: Appointment? { model.appointment(withID: appointmentID) }
 
     var body: some View {
         ScrollView {
@@ -166,6 +168,7 @@ struct VisitPrepView: View {
                 }
                 .padding(.top, 8)
 
+                if appointment != nil {
                 prepSection(kicker: "What's changed", color: Theme.sky, items: changedItems)
                 prepSection(
                     kicker: "Worth asking — from your guide", color: Theme.warm,
@@ -173,36 +176,26 @@ struct VisitPrepView: View {
                 )
                 prepSection(kicker: "Bring", color: Theme.life, items: bringItems)
 
-                if sent {
-                    Label("Topics sent ahead — they'll be on the desk before you are.", systemImage: "checkmark")
-                        .font(NudgeType.rounded(13.5, .medium))
-                        .foregroundStyle(Theme.life)
-                } else {
-                    Button {
-                        confirming = true
-                    } label: {
-                        Text("Send these topics ahead")
-                            .font(NudgeType.rounded(15, .semibold))
-                            .foregroundStyle(Theme.base)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(Theme.ink, in: .capsule)
-                    }
-                    .buttonStyle(NudgeButtonStyle())
-                    .confirmationDialog(
-                        "Send these topics to \(model.persona.officeName)? You can edit them first in your discussion guide.",
-                        isPresented: $confirming,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Send ahead") {
-                            sent = true
-                            Haptics.success()
-                        }
-                        Button("Not now", role: .cancel) {}
-                    }
+                NavigationLink(value: YouDestination.guide) {
+                    Label("Edit discussion guide", systemImage: "square.and.pencil")
+                        .font(NudgeType.rounded(14, .medium))
+                        .frame(minHeight: 44)
                 }
-
-                ProvenanceChip(text: "Built from your records, logs, and our conversations")
+                Button("Send to care team") { showingDeliveryInfo = true }
+                    .font(NudgeType.rounded(14, .semibold))
+                    .frame(minHeight: 44)
+                    .alert("EHR delivery isn't connected yet", isPresented: $showingDeliveryInfo) {
+                        Button("OK", role: .cancel) {}
+                    } message: {
+                        Text("Nothing has been sent to \(appointment?.with ?? "your care team"). Your guide remains available to review and bring to the visit.")
+                    }
+                Text("Sample preparation · not sent to a provider")
+                    .font(NudgeType.rounded(12))
+                    .foregroundStyle(Theme.inkMuted)
+                } else {
+                    ContentUnavailableView("This appointment isn't available", systemImage: "calendar",
+                        description: Text("Return to Appointments to choose a visit. Your discussion guide is unchanged."))
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 120)
@@ -211,10 +204,8 @@ struct VisitPrepView: View {
     }
 
     private var visitLine: String {
-        if let next = model.appointments.first {
-            return "\(next.with) · \(next.date.formatted(.dateTime.weekday(.wide).month(.wide).day()))"
-        }
-        return "Your next visit"
+        guard let appointment else { return "" }
+        return "\(appointment.with) · \(appointment.date.formatted(.dateTime.weekday(.wide).month(.wide).day()))"
     }
 
     private var changedItems: [String] {

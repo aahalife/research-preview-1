@@ -26,9 +26,9 @@ The findings come from source inspection. They do not establish clinical safety,
 
 The attached product-requirements guide applies only to the requirements file. It does not restrict this reference's design or technical detail. This revision uses the supplied [Unslop](https://skillsllm.com/skill/unslop) and [ASD-STE100 writing reference](https://github.com/danyuchn/asd-ste100-skill) to improve clarity. Exact code names, values, source quotes and uncertainty are retained. No certified STE compliance is claimed.
 
-**Audit date:** September 16, 2026. **App source baseline:** `e11670626f181a73c120118d28eb9d09d3a960ac`. The initial working tree was clean. This documentation revision started from `d0f62d427e333e6d0a3219e86170574c7e791ea8`. Application source was not changed during either documentation pass.
+**Audit date:** September 16, 2026. **App source baseline:** `e11670626f181a73c120118d28eb9d09d3a960ac`. The initial working tree was clean. This documentation revision started from `d0f62d427e333e6d0a3219e86170574c7e791ea8`. Application source was not changed during either documentation pass. The subsequent approved first implementation stage changes navigation, reply drafts, selected-visit preparation and demo-scenario snapshot handling as described below. Older line ranges remain baseline locators, not current line numbers.
 
-The source review covers 56 native Swift view files, 11 models, three view models, five services, six utilities and three shaders. It also covers the separate web app, Worker, configuration, assets and declared tests.
+The original source review covered 56 native Swift view files, 11 models, three view models, five services, six utilities and three shaders. It also covers the separate web app, Worker, configuration, assets and declared tests.
 
 Paths are relative to the repository root. In tables, **N/** means `ios/Nudge/`, **V/** means `ios/Nudge/Views/`, **M** means `ios/Nudge/ViewModels/AppModel.swift`, and **W/** means `web/src/sano/`. Line ranges refer to the inspected snapshot. Use named symbols to locate code after later edits.
 
@@ -83,7 +83,9 @@ Programs, raw records, sources, consent entries and initial memory largely use s
 
 ## Current information architecture
 
-This is the current navigation map. The [change specification](RUMI_RESCOPE.md#proposed-information-architecture) owns the proposed map. Repeated destinations below often share a view, but their navigation stacks are not necessarily retained.
+**First implementation stage:** both platforms now expose Today / Care / Messages / You. Native shares `CareRouteView` and `YouRouteView`; Care, Messages and You navigation paths live in `AppModel`. Web retains scoped `useStack` paths in `SanoProvider`; these remain internal routes, not browser URLs. Reply drafts are persisted separately from sent/demo messages. The [change specification](RUMI_RESCOPE.md#proposed-information-architecture) owns further target changes.
+
+The map below retains the detailed historical route inventory for compatibility. Its hierarchy is the **pre-change baseline**, not the current visible menu. Current entry-point ownership is: four Care tiles (Appointments, Care plan, Meds & refills, Records & results); Messages owns inbox/requests; You has Journeys, Currents, Life, Connections and Settings; visits retain Guide/reports; Records retains Documents; Bills retains Wallet.
 
 ```text
 Launch
@@ -134,11 +136,11 @@ Route-only: Savings (no discovered native entry control).
 
 ### Navigation and return behavior
 
-- Native Care and You use conditionally mounted `NavigationStack`s. Changing tabs can discard nested navigation. Root bars are hidden; most pushed views do not supply an explicit Back button. Source alone cannot guarantee a visible back affordance in all states. The dock supplies a root escape; interactive back behavior was not exercised.
+- Native Care, Messages and You use conditionally mounted `NavigationStack`s with session paths retained in `AppModel`. Changing tabs no longer discards those paths. Root bars are hidden; most pushed views do not supply an explicit Back button. Source alone cannot guarantee a visible back affordance in all states. The dock supplies a root escape; interactive back behavior was not exercised.
 - Quick Log/settings/network are presented modally; recap and voice are covers. Most sheets rely on system dismissal as well as any explicit controls. Agent detail explicitly hides its navigation bar without adding a Back control; dismissal is the reliable source-defined exit.
-- Today switches to You and immediately posts a condition/Life notification. You consumes it only while mounted and with an empty path. There is no queued destination; the handoff can be lost. Insight moments select You, not its Insights segment.
-- Missing appointment/thread/bill/document IDs show unavailable content. Missing series/medication IDs can produce only the destination background.
-- `CareDestination` contains **17 cases**, including `.savings(String)`. A case in this enum is not evidence of a reachable screen. `openCare` has no discovered production caller; pending destination handling does not create a working deep-link system.
+- Today condition/Life shortcuts set the retained destination before selecting You. Insight moments clear stale You detail paths and select Insights; they still do not focus an exact insight item.
+- Missing appointment/thread/bill/document IDs show unavailable content. Shared native You routing now also supplies unavailable states for missing series and medication IDs.
+- `CareDestination` contains **17 cases**, including `.savings(String)`. A case in this enum is not evidence of a reachable screen. `openCare` is called by Today updates and sends communication destinations to Messages. This is internal contextual routing, not verified external deep-link support.
 
 Sources: `V/RootView.swift:14–95`; `V/Today/TodayCanvasView.swift:141–145,257–262`; `V/Today/MomentCard.swift:127–145`; `V/You/YouView.swift:47–60,156–188`; `V/Care/CareHubView.swift:243–293`; `N/Models/CareHubModels.swift:12–30`.
 
@@ -158,19 +160,19 @@ The eight stage identifiers are welcome, aboutYou, path, shaping, connect, healt
 
 ### Today and global entry points
 
-`V/Today/TodayCanvasView.swift:32–111,133–183,215–270,332–475` renders a header with Settings, a condition chip and a direct music toggle. Below it are the large orb, greeting and pull-to-talk hint. Below are the care alert, first proposed action, network pulse, up to three moments and Life strip. The plus button sits outside the scroll content. A bottom spacer clears the dock.
+`V/Today/TodayCanvasView.swift:32–111,133–183,215–270,332–475` renders a header with Settings, a condition chip and a direct music toggle. Below it are the large orb, greeting and pull-to-talk hint. Below are one consolidated updates area (first item plus expandable remaining routine updates), first proposed action, a quiet helper link with waiting-request count, up to three moments and Life strip. Empty Thread no longer inserts a filler card. The plus button sits outside the scroll content. A bottom spacer clears the dock.
 
 Pull progress is `translation.height × 0.7 / 110`. Releasing at progress ≥0.95 opens conversation, which requires approximately 149.3pt of downward translation. The orb scales with progress. This source-defined gesture has not been verified as a scrolling fix on all devices.
 
-- Orb/tap/pull enters conversation. Settings presents a sheet. Care alert selects Care root, not the exact unread item. Plus opens generic Quick Log.
+- Orb/tap/pull enters conversation. Settings presents a sheet. Today updates open their stored destination: exact threads, bills and appointments; result/refill targets remain category-level and need further work. Plus opens generic Quick Log.
 - First proposed action uses `AgentActionCard`: approval/decline modifies session state and acknowledges. It does not perform a payment/refill/message.
 - `LifeThumb` entries route to the shared Life shortcut rather than the selected item. Thumbnail media is bundled/locally resolved.
-- `V/Today/MomentCard.swift:50–63,127–160` supports swipe dismissal, local melt, and a single action. Insight selects You; habit keeps the first habit in the first journey; task always seeds refill conversation; check-in opens generic conversation. These are not per-moment typed business operations. Dismissals/kept dates are session-only; there is no undo.
+- `V/Today/MomentCard.swift:50–63,127–160` supports swipe dismissal, local melt, and a single action. Insight selects You/Insights; habit keeps the first habit in the first journey; task always seeds refill conversation; check-in opens generic conversation. These are not per-moment typed business operations. Dismissals/kept dates are session-only; there is no undo.
 - `V/RootView.swift` also defines `CompanionAckToast`: log acknowledgements appear above the dock; tapping clears them and opens a generic pattern-seeded conversation. Quick Log does not schedule automatic clearance. Some action/report/payment handlers separately clear their acknowledgements after approximately five seconds; the toast itself has no universal timer. The acknowledgement itself is not a delivery receipt or data-quality check.
 
 ### Care hub and attention
 
-`V/Care/CareHubView.swift:20–47,79–168,222–293,357–421` includes `CareTile` and `LookingAheadCard`. Eleven tiles lead to Messages, Appointments, Care plan, Medications, Records, Bills, Documents, Visit prep, Reports, Wallet and Connections. Requests is reached from Messages; Savings is not exposed by a tile.
+`V/Care/CareHubView.swift:20–47,79–168,222–293,357–421` includes `CareTile` and `LookingAheadCard`. Four tiles lead to Appointments, Care plan, Meds & refills, and Records & results. Care team and Bills & wallet are quiet secondary links. Messages/Requests have their own primary home. Visit prep and reports are with appointments, Documents with Records, and Connections with You. Savings retains its renderer but still lacks a discovered native entry control.
 
 `M.needsYou` builds attention items from unread threads, an unacknowledged result, low supply, unpaid bills and pending appointments. `careUnreadCount` is narrower: new care-team messages plus result. This is derived fixture/local state, not a clinical alert service. The result acknowledgement method exists but no current UI caller was found; opening Records need not clear the result.
 
@@ -181,10 +183,10 @@ Looking-ahead explains a fixture population basis and can add a guide question, 
 | Surface | Journey and content | Actual effects and dead ends |
 |---|---|---|
 | `V/Care/MessagesView.swift` — Messages, ModeChip | Care/attention → inbox, showing practice/member, latest text, time, unread and channel mode. Requests link opens request list. | Fixture threads and local additions. Channel labels distinguish in-app from portal drafts but establish no transport. See `22–51`. |
-| Same file — MessageThread, MessageBubble | Open thread → chronological care/user messages; origin/attachment labels; composer → send or save draft. Dismiss/pop returns to inbox. | Read flag changes without immediate save. Send appends a locally persisted `.sent` or `.draft` message and clears composer. No delivery, retry, attachment handling, new recipient/thread UI or portal copy/open handoff. Attachment is a string label, not a file. See `119–319`; M.`sendMessage`, `markThreadRead`. |
+| Same file — MessageThread, MessageBubble | Open thread → chronological care/user messages; origin/attachment labels; composer → send or save draft. Dismiss/pop returns to inbox. | Read flags and reply drafts now save immediately; reply draft text survives tab changes/relaunch within its saved scenario. Send appends a locally persisted `.sent` or `.draft` message and clears composer. No delivery, retry, attachment handling, new recipient/thread UI or portal copy/open handoff. Attachment is a string label, not a file. See `119–319`; M.`sendMessage`, `markThreadRead`. |
 | `V/Care/RequestsView.swift` — Requests, RequestProgress, ComposeRequestSheet | Messages → Requests → create refill/appointment/records/form request; optional subject/detail → Send → sheet closes; read-only three-step progress. | Persists a local submitted request with constructed routing text. Blank subject defaults to kind. No actual office submission, request detail, cancellation, receipt, or transition from submitted to resolved. See `24–246`; M.`submitRequest`. |
 
-Symptom support, Guide and Visit prep have separate send-like controls. Their success states are view-local and do not create persisted Messages entries. They are not connected to one communication workflow.
+Symptom support still has a separate view-local send-success control. Guide and Visit prep now explain that EHR delivery is not connected and do not claim success or create a Messages entry. They are not connected to one communication workflow.
 
 ### Appointments and visit logistics
 
@@ -194,14 +196,14 @@ Symptom support, Guide and Visit prep have separate send-like controls. Their su
 2. Confirm updates session appointment status and may add a local completed agent task. Reschedule selects a time and confirms in a sheet, then returns to detail. Neither contacts the office or Calendar. Trip departure data is not recalculated after a new appointment date. There is no ordinary booking/cancel UI, despite a model helper for booking.
 3. Telehealth Join is enabled by `canJoin` when kind/link qualify and the Calendar whole-minute difference is between −90 and +15. This is approximately 15 minutes before through 90 minutes after, but truncation admits a portion of the adjacent minute rather than enforcing exact elapsed seconds. There is no appointment-status check or dedicated ticking refresh; fixture join URLs use `.example`. The URL handoff is real API code, not a real virtual visit.
 4. Trip detail shows fixed depart-by/travel/route/parking/checklist/conflict/ride content. Checklist completion is view-local. Maps opens a query; ride opens a generic Uber page. No route calculation, ride booking, calendar query, conflict resolution or telehealth device-readiness check occurs.
-5. Prep opens `VisitPrepView`, which uses `appointments.first` rather than the selected visit. A later visit can show the wrong appointment's brief.
+5. Prep carries the appointment UUID into `VisitPrepView` and resolves only that visit. Missing selections show unavailability rather than substituting the first appointment. The underlying clinical summary remains sample text, not a generated reviewed EHR artifact.
 
-`V/You/CareTeamView.swift:17–126,151–271` defines both CareTeam and VisitPrep. You/Records → team displays people and appointments. Every Call control invokes the same persona office number via `tel://`, not a verified member-specific number. Prep-ready visits link to a brief; Guide is shared. The brief's changes and packing list are fixture text; its question list contains unresolved Guide items of kind question, excluding unresolved observations. Confirming Send flips a local flag; no office delivery occurs. There is no separate HCP/staff app in this repository.
+`V/You/CareTeamView.swift:17–126,151–271` defines both CareTeam and VisitPrep. You/Records → team displays people and appointments. Every Call control invokes the same persona office number via `tel://`, not a verified member-specific number. Prep-ready visits link to a brief; Guide is shared. The brief's changes and packing list are fixture text; its question list contains unresolved Guide items of kind question, excluding unresolved observations. Send now explains that EHR delivery is unavailable; no office delivery or success flag occurs. There is no separate HCP/staff app in this repository.
 
 ### Care plan and discussion guide
 
 - `V/Care/CarePlanView.swift:10–106`: author/update/intro/goals and current progress. Deriving a tiny journey immediately maps the goal to a behavioral habit and saves a goal marker; no preview, undo/removal or immediate Journey navigation. The journey object is session-only while its marker persists, producing a relaunch inconsistency. Source: M.`deriveJourney`, `behavioralHabit`.
-- `V/You/DiscussionGuideView.swift:28–215`: open via You, care team, or looking-ahead. Add question/observation, mark covered/uncovered, delete; these call persisted Guide handlers. Text editing is missing. It identifies the first appointment as next visit. Send confirmation changes only `sent` in the view. Conversation guide tags can insert items automatically, without an additional review step.
+- `V/You/DiscussionGuideView.swift:28–215`: open via You, care team, or looking-ahead. Add question/observation, mark covered/uncovered, delete; these call persisted Guide handlers. Text editing is missing. The general Guide no longer assigns itself to the first appointment. Send explains that delivery is not connected without claiming a sent outcome. Conversation guide tags can insert items automatically, without an additional review step.
 - `V/You/ConditionOverviewView.swift:9–43,85–254`: separate read-only condition/phase/plan/expectations view. Metric rows open labs; bottom door opens Records. It does not provide the Care plan's journey-derivation action or condition editing.
 
 ### Bills, wallet and savings
@@ -386,38 +388,38 @@ Many fixture entities generate UUIDs at initialization. Bills use explicit stabl
 
 ### Native
 
-`N/Services/PersistenceService.swift:7–54` writes `sano_user_data.json` in Documents using ISO-8601 dates and atomic writes. It has no schema version, migration, account scope or remote sync. Save failure is not shown to the patient. A failed decode returns nil, which can cause startup to reseed fixtures.
+`N/Services/PersistenceService.swift` writes `sano_demo_<pathway>.json` in Documents using ISO-8601 dates and atomic writes. A matching legacy `sano_user_data.json` is read as fallback and left intact. Saved scenarios no longer overwrite one another. This is limited prototype scenario preservation, not account/mode isolation, a complete migration system or remote sync. Save failure is not shown to the patient. A failed decode returns nil, which can cause startup to reseed fixtures.
 
 | Storage | Contents / actual boundary |
 |---|---|
 | UserDefaults | Onboarding flag/date, tone, epsilon, era warmth, sound, music, appearance, looking-ahead opt-out, pathway, profile and per-pathway result acknowledgment. Profile includes names, optional birthday, Health Boolean and provider-name list. |
-| JSON snapshot | Pathway, entries, logs, memories, guideItems, memoryNotes, threads, requests, documents, paidBillKeys, derivedJourneyGoals. |
+| JSON snapshot | Pathway, entries, logs, memories, guideItems, memoryNotes, threads, requests, documents, paidBillKeys, derivedJourneyGoals, optional messageDrafts. |
 | Separate local files | User-selected held photos; temporary microphone audio; lifted-image PNG cache. These are not deleted by `wipe`. |
 | Session/view only | Chat, moments, insights, full journeys/habit dates, program enrollment/declines, medication adherence/supply changes, appointments, savings, wallet/connections, agent toggles/tasks/actions, report-sent keys, Currents bookmarks/taste, notification classes/quiet hours, most consent ledger state and send/export confirmation Booleans. |
 
 Defaults: not onboarded; Straight talk; epsilon true; era warmth Subtle; sound/music true; Auto appearance; looking-ahead opt-out false; metabolic pathway. Missing onboarding time falls back to 60 days ago. These are source facts, not recommended privacy defaults.
 
-M.`persistUserData:258–271` runs after entry, log, memory, Guide, message, request, document, paid-bill and derived-goal operations. It does not run after every model write. A later snapshot can incidentally save thread-read state and enrollment memory.
+M.`persistUserData:258–271` runs after entry, log, memory, Guide, message, request, document, paid-bill and derived-goal operations. It does not run after every model write. Thread-read state and reply drafts now save directly. A later snapshot can still incidentally save enrollment memory.
 
-`M.init:237–249` restores most arrays only when they contain items. Deleting the last item can therefore bring fixtures back on relaunch. Logs are restored even when empty.
+`M.init` now restores saved collections even when empty, preserving deletion of the last item. The optional new draft field keeps earlier snapshots decodable. Missing/corrupt snapshots still require a stronger recovery boundary before regular use.
 
-`switchPathway:282–320` replaces many arrays and resets conversation. It neither saves the outgoing snapshot nor loads a separately retained incoming profile. Some shared programs, raw records and memory notes remain. The next save overwrites the single snapshot.
+`switchPathway` saves the outgoing supported collections, clears session paths/drafts, seeds the new scenario and restores its matching saved collections, including drafts. Unpersisted arrays still reseed; some shared source/program/profile information remains. This does not satisfy full unified-record or account isolation requirements.
 
 Derived-goal keys can survive without their Journey objects. The retained key can then prevent recreating the missing journey. Export and deletion have the limitations described above.
 
 ### Web
 
-`W/store.tsx:122–127,152–207,225–233` reads/writes one `localStorage` key, `sano.web.v1`. The complete 19-key payload is:
+`W/store.tsx:122–127,152–207,225–233` reads/writes active `localStorage` snapshot `sano.web.v1` plus a saved snapshot for each visited demo scenario at `sano.web.v1.demo.<pathway>`. The payload is:
 
 ```text
 hasOnboarded, pathway, profile, tone, appearance, musicOn, soundOn,
 epsilon, eraWarmth, notifs, justBloomed,
-entries, logs, memories, guideItems, memory, threads, requests, documents
+entries, logs, memories, guideItems, memory, threads, requests, documents, messageDrafts
 ```
 
 Web has no schema validation, migration, account scope or server sync. Storage failures are ignored. It does not persist bills/paid state, derived-goal keys, habits, appointments, programs/declines, agents/connections, report sent state, saved Currents, insights, result acknowledgment, quiet hours or chat. The two platforms differ even when their interfaces both appear to save an action.
 
-Pathway switching overwrites this one data set. `cost` remains the initial bundle because it has no setter; some shared memory/program/profile fields remain. Wipe removes this key and reloads: browser reset, not cloud/account deletion. Existing platform storage protections should not be confused with an audited app encryption/retention policy.
+Pathway switching saves the outgoing supported collections and restores the matching incoming scenario, including unsent reply drafts. `cost` remains the initial bundle because it has no setter; some shared memory/program/profile fields remain. Wipe removes the active key and four scenario keys and reloads: browser reset, not cloud/account deletion. Existing platform storage protections should not be confused with an audited app encryption/retention policy.
 
 ## Web implementation and parity
 
@@ -430,9 +432,9 @@ All 13 files under `W/screens/` are covered here; they are not 13 URL routes.
 | File | Rendered surfaces and flows |
 |---|---|
 | `Onboarding.tsx` | Welcome → aboutYou → path → shaping → connect → health → two-question talk → epsilon. Provider picker/sign-in/match are local; declared found phase is not entered. No working social/phone authentication. Provider text fields have empty controlled values/no-op change handlers. Health waits 900ms then appends a label; any connection can incorrectly imply Health connected. |
-| `Today.tsx` | Settings, condition→You, orb→chat, care alert→Care, proposed action, network pulse, moments, Life shortcut, Quick Log. Immediate event dispatch after selecting You can lose the Life destination; insight does not select Insights. |
-| `Care.tsx` | Hub's same 11 tiles; Messages→thread/requests; appointments→detail/prep; carePlan; meds/detail; records/category/lab; bills/detail/payment; documents/detail; reports/review; wallet; connections/network; Savings renderer without incoming UI. Requests lacks composition; documents lacks add/confirm/remove UI despite store functions. The visitPrep route renders GuideScreen rather than native's separate changes/packing-list brief. |
-| `You.tsx` | Story/Insights; conditions, Guide, team, medications, Life. Records/category renderers exist without a You-side entry. `appointmentDetail` renders another CareTeamScreen, so team appointment taps do not open true visit detail. |
+| `Today.tsx` | Settings, condition→retained Conditions route, orb→chat, consolidated updates, proposed action, helper link with waiting count, moments, Life shortcut, Quick Log. Life/Conditions destinations no longer depend on mount-time events; insight opens Insights. |
+| `Care.tsx` | Four-workspace Care hub plus separate Messages root using the shared renderer; Messages→thread/requests; appointments→detail/prep; carePlan; meds/detail; records/category/lab; bills/detail/payment; documents/detail; reports/review; wallet; connections/network; Savings renderer without incoming UI. Requests lacks composition; documents lacks add/confirm/remove UI despite store functions. The visitPrep route renders an appointment-scoped GuideScreen rather than native's separate sample changes/packing-list brief. Missing IDs do not silently substitute another visit. |
+| `You.tsx` | Story/Insights; direct Journeys, Currents, Life and Connections; Settings control. Clinical aliases remain. `appointmentDetail` now opens the selected AppointmentDetail, not another team list. Embedded Journeys/Currents use a device-frame overlay portal for viewers/readers. |
 | `shared.tsx` | MedicationsScreen, MedDetailScreen, RecordsScreen, RecordCategoryScreen, LabDetailScreen, CarePlanScreen/GoalCard, GuideScreen, ConditionsScreen, CareTeamScreen, LifeCatalogScreen/LifeDetail. Explanations open sheets then chat; Life filters/detail/remove but no add-from-Life. |
 | `Conversation.tsx` | Text overlay, rich chart/habit/refill/guide/action/program elements, VoiceOverlay. Approval on most inline cards only resolves their visuals. |
 | `QuickLog.tsx` | Pick→symptom→support, or pick→entry→done; body map/severity/note and searchable libraries. Support can create a local care thread unlike native's view-only sent state, but the claimed attached log is not actually attached. |
@@ -556,7 +558,7 @@ All files in this table live under `V/Components/`; together with the screen map
 | `LivingGradientView.swift` | Metal color effect at 20Hz, time factor 0.011; pauses for reduced motion/background. |
 | `MeltModifier.swift` | Animatable shader alpha erosion for moment dismissal; not physical fluid geometry. |
 | `MemoryOrbView.swift` | Photo inside iOS 26 circular glass or shaded fallback; arc viewer/PhotosPicker described above. |
-| `NudgeDock.swift` | Five native buttons, cool-tinted glass capsule and warm selection; Care dot derives from local unread count. Not a standard retained tab-stack controller. |
+| `NudgeDock.swift` | Four native buttons, cool-tinted glass capsule and warm selection; Messages dot counts unread threads and Care dot indicates a new result. Paths are retained separately in AppModel. |
 | `OrbView.swift` | Three procedural shader shells, additive blend, specular highlight, breath/halo and HaloRing; supplied state drives rendering. |
 | `ProgressiveBlur.swift` | Three gradient-masked material layers with 2.5/7/14 blur. Approximation, not continuous variable blur. `topMist` helper unused. |
 | `RippleEffect.swift` | RippleModifier, RippleEffect, RippleOnTap; radial distortion plus local touch light, 1.2s keyframes, spatial tap; reduced-motion bypass. Applied selectively to moments/action/Life/garden, not universally. |
@@ -697,10 +699,10 @@ The priorities below are audit recommendations, not approved implementation scop
 | Chat correctness — high | Web omits latest typed prompt; action parser not semantically validated; fallback undisclosed. | Correct request history, safe malformed-tag handling, explicit degraded mode and action/response evaluation. |
 | Voice — high | Multipart forwarding defect; permission-grant cancellation race and other lifecycle/error/temporary-audio gaps; post-record transcript animated to resemble live transcription. | Successful consented STT/TTS contracts, cancellation/error recovery, retention cleanup, truthful transcript behavior. |
 | Service security — before public endpoint use | Voice proxy unauthenticated/unbounded; unhandled upstream failures. | Authorized/rate-limited requests, validated inputs, bounded cost, sanitized monitoring and operational runbook. |
-| Persistence — high | Habits/journeys/appointments/declines unsaved; empty collections reseed; pathway mixing. | Round-trip/migration/recovery checks, stable ownership and honest save failure/retry; delete-empty stays empty. |
+| Persistence — high | Habits/journeys/appointments/declines remain unsaved; source/account boundaries and corruption/save-failure recovery remain incomplete. Saved empty collections and separate scenario snapshots are implemented. | Round-trip/migration/recovery checks, stable ownership and honest save failure/retry; delete-empty stays empty. |
 | Account rights — before real users | Export/deletion are cosmetic/partial. | Usable export artifact; complete scoped deletion/session clearing, declared legal exceptions and provider retention handling. |
 | Messaging/requests — high | Local sent/submitted flags; Guide/Prep/support separate dead ends. | Actual reviewed payload/recipient, receipt/error/retry/history; portal draft handoff never reported as sent. |
-| Appointments — high | Local confirmation/reschedule, stale trip, wrong prep appointment, placeholder join; web recursive team route. | Provider-confirmed status, selected-visit context, timezone/window rules and real join/logistics handoffs. |
+| Appointments — high | Local confirmation/reschedule, stale trip and placeholder join remain. Selected prep context and web recursive team route are repaired. | Provider-confirmed status, selected-visit context, timezone/window rules and real join/logistics handoffs. |
 | Results — high | Acknowledgment method unwired; invalid metric IDs can blank destination. | Attention deep link to exact result, durable acknowledgment distinct from clinical resolution, unavailable-data exit. |
 | Actions/network — high | Approval creates done state; inactive/disconnected agents can approve; no background work. | Authorized execution with idempotent result reconciliation, durable decline/cancel/failure/receipt and true pause state. |
 | Reports — high | Range filters only some data; persona names; future data; no PDF/delivery/version. | Correct patient/range/provenance, review snapshot, artifact/version and verified recipient delivery. |
@@ -708,7 +710,7 @@ The priorities below are audit recommendations, not approved implementation scop
 | Documents — high | Typed metadata only; no field correction/record merge; web mutations unreachable. | Actual source artifact, reviewable extraction/correction, provenance-preserving updates and consistent delete behavior. |
 | Savings/sponsorship — before real offers | Savings route unreachable; local application flag; no durable decline/ranking. | Reachable neutral alternatives, eligibility/PII approval, outcome tracking and disclosure/governance evidence. |
 | Connections — integration gate | Toggles manufacture accounts. | Approved provider access/scopes/revocation/sync health; unsupported channels disclosed rather than faked. |
-| Navigation — high | Today event race; hidden Back; web internal routes not addressable; missing destinations. | Stable destination identity, correct return/restoration, direct/back navigation, empty/unavailable escape. |
+| Navigation — high | Today Life/Conditions event race and tab-path loss are repaired. Native Back visibility still needs UI validation; browser internal routes remain non-addressable; exact insight/result/refill focus remains incomplete. | Stable destination identity, correct return/restoration, direct/back navigation, empty/unavailable escape. |
 | Tracking — high | No history/editing; estimated facts presented with specific numbers; med logs don't update tide. | Correctable timestamps/units/entries, provenance and truthful computed versus estimated summaries. |
 | Content — medium | Static Currents; save-to-story no-op beyond flag; timer-only web players. | Actual content/media availability, durable saves/taste, honest media controls and finite-set refresh policy. |
 | Accessibility/parity — high | Partial motion/text/semantic support; 21 activity-art gap; modal/voice differences. | Device/assistive-tech evaluation and explicit platform support contract, not just matching screenshots. |
@@ -719,7 +721,7 @@ The priorities below are audit recommendations, not approved implementation scop
 
 ### What a faithful recreation requires
 
-1. Preserve the five-destination shell, omnipresent companion, bounded Today moments, conditional onboarding and independent Care/You flows described above. Recreating current defects deliberately is different from remedying them; label that choice.
+1. Preserve the four-destination shell, omnipresent companion, bounded Today moments, conditional onboarding and independently retained Care/Messages/You paths described above. Recreating current defects deliberately is different from remedying them; label that choice.
 2. Carry the native and browser data models/fixture bundles and **their differences**. Preserve persisted raw values, stable bill keys and legacy image aliases. Do not replace fixtures with assumed real data sources.
 3. Reuse the recorded fonts, images, videos, audio, design tokens, shader/component construction and cache behavior. Native glass/Metal effects and browser CSS approximations are not interchangeable implementations.
 4. Configure chat/voice through managed public client configuration and private server configuration. Provider keys, entitlements, service contracts and authorizations are separate prerequisites; source alone is insufficient to recreate a working production integration.
@@ -728,11 +730,11 @@ The priorities below are audit recommendations, not approved implementation scop
 
 ### Existing validation assets
 
-Native tests contain four source-declared functions across three files: empty `NudgeTests.example`, launch-only `NudgeUITests.testExample`, `testLaunchPerformance`, and launch screenshot `NudgeUITestsLaunchTests.testLaunch`. Source: `ios/NudgeTests/NudgeTests.swift`, `ios/NudgeUITests/NudgeUITests.swift`, `ios/NudgeUITests/NudgeUITestsLaunchTests.swift`. They do not establish clinical, persistence, AI, consent, action or integration correctness.
+Native `NudgeTests` now declares seven behavior tests covering tab ownership, selected/missing appointments, route preservation, old snapshot compatibility, draft round-trip and separate scenario storage. The unchanged UI tests remain launch-only/performance/screenshot templates. Source: `ios/NudgeTests/NudgeTests.swift`, `ios/NudgeUITests/NudgeUITests.swift`, `ios/NudgeUITests/NudgeUITestsLaunchTests.swift`. They do not establish clinical, persistence, AI, consent, action or integration correctness.
 
-Web has two test cases: a trivial true assertion in `web/src/test/example.test.ts` and a generic calendar grid/button smoke case in `web/src/test/calendar.test.tsx`; `setup.ts` configures the test environment. The calendar component test is not an end-to-end appointment workflow test.
+Web has twelve test cases: ten navigation/continuity tests in `web/src/test/navigation.test.tsx`, the original trivial example and the generic calendar smoke case. The new tests cover tab ownership, retained contextual routes, unmounted tab restoration, durable unsent drafts, scenario round-trip, duplicate-route prevention, appointment selection/unavailability and truthful unavailable EHR delivery.
 
-No app build, tests, simulator installation or live service calls ran during these documentation passes. Earlier conversation records a successful native build after a simulator installation error. That historical build does not establish that installation or the runtime problem was resolved.
+For the first implementation stage, `runChecks(ios)` passed with a simulator build; `swiftTest(ios, NudgeTests)` executed seven passing tests. Device/release builds and native UI journeys were not verified. `runChecks(web)` passed static checks and a production build with preview at https://8bj7q7lzrlxpwebjl7tla-web.rork.live. `bun run test` passed all twelve web tests. An initial new web test used an unprepared fixture appointment and failed; the test now selects an eligible prepared visit. No clinical service connectivity or outbound outcomes were verified.
 
 Documentation checks cover feature coverage, source accuracy, links and the repository diff. They do not verify executable behavior.
 

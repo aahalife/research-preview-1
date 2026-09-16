@@ -128,6 +128,8 @@ struct MomentCard: View {
         actionFired.toggle()
         switch moment.kind {
         case .insight:
+            model.youPath = NavigationPath()
+            model.youSection = .insights
             model.tab = .you
             if let id = moment.insightID { model.markInsightSeen(id) }
             dismissQuietly()

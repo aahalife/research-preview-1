@@ -66,8 +66,8 @@ struct TodayCanvasView: View {
 
                 // A gentle line when the care team has something new — so the
                 // user always knows to look, without it ever feeling like an alarm.
-                if model.careUnreadCount > 0 {
-                    careAlertBanner
+                if !model.needsYou.isEmpty {
+                    TodayUpdatesView()
                         .padding(.horizontal, 20)
                         .padding(.top, 16)
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -84,7 +84,10 @@ struct TodayCanvasView: View {
                 // The agent network, surfaced — calm by default, capable when you
                 // look. Rumi's quiet differentiator, never hidden.
                 if !model.agentTasksInMotion.isEmpty || !model.agentTasksWaiting.isEmpty {
-                    AgentPulseCard()
+                    Button(model.agentTasksWaiting.isEmpty ? "Your helpers" : "\(model.agentTasksWaiting.count) helper requests to review") { model.showAgentNetwork = true }
+                        .font(NudgeType.rounded(13, .medium))
+                        .foregroundStyle(Theme.inkMuted)
+                        .frame(minHeight: 44)
                         .padding(.horizontal, 20)
                         .padding(.top, 14)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -92,9 +95,7 @@ struct TodayCanvasView: View {
 
                 // The Thread — the companion's chosen moments for right now.
                 VStack(spacing: 13) {
-                    if model.moments.isEmpty {
-                        threadResolved
-                    } else {
+                    if !model.moments.isEmpty {
                         ForEach(model.moments.prefix(3)) { moment in
                             MomentCard(moment: moment)
                         }
@@ -140,8 +141,7 @@ struct TodayCanvasView: View {
             // the full picture: conditions, plan, what to expect.
             Button {
                 Haptics.tick()
-                model.tab = .you
-                NotificationCenter.default.post(name: .nudgeOpenConditions, object: nil)
+                model.openYou(.conditions)
             } label: {
                 HStack(spacing: 6) {
                     Circle()
@@ -257,8 +257,7 @@ struct TodayCanvasView: View {
     private func openLife() {
         Haptics.glass()
         SoundEngine.shared.glass()
-        withAnimation(NudgeSpring.ui) { model.tab = .you }
-        NotificationCenter.default.post(name: .nudgeOpenLife, object: nil)
+        model.openYou(.life)
     }
 
     // MARK: Care-team alert — a calm nudge toward the Care hub

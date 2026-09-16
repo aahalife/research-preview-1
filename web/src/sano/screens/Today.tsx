@@ -25,7 +25,7 @@ export const Today: React.FC = () => {
         {/* header */}
         <div className="flex items-center gap-2.5">
           <button onClick={() => s.setShowSettings(true)} className="press grid place-items-center size-10 rounded-full glass text-ink/80"><Icon name="sliders" size={17} /></button>
-          <Press onClick={() => s.setTab("you")} className="flex items-center gap-1.5 rounded-full glass px-3 py-2">
+          <Press onClick={() => { s.updateNavigationStack("you", () => [{ name: "hub" }, { name: "conditions" }]); s.setTab("you"); }} className="flex items-center gap-1.5 rounded-full glass px-3 py-2">
             <span className="size-2 rounded-full bg-life" />
             <span className="font-rounded text-[12px] text-ink font-medium">{s.persona.conditionChip}</span>
           </Press>
@@ -45,46 +45,24 @@ export const Today: React.FC = () => {
           </button>
         </div>
 
-        {/* care-team alert — a calm nudge toward the Care hub */}
-        {s.careUnreadCount > 0 && (
-          <Press onClick={() => s.setTab("care")} className="mt-7 w-full text-left block">
-            <OrganicCard className="p-4 flex items-center gap-3">
-              <div className="relative size-10 rounded-full grid place-items-center shrink-0" style={{ background: "rgb(var(--sky) / 0.16)" }}>
-                <Icon name="cross.case" size={18} className="text-sky" />
-                <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full" style={{ background: "rgb(var(--warm))", boxShadow: "0 0 0 2px rgb(var(--surface))" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-serif text-[15.5px] text-ink leading-tight">{careAlertTitle}</p>
-                <p className="font-rounded text-[12px] text-ink-muted">Tap to open your Care hub</p>
-              </div>
-              <Icon name="chevronRight" size={16} className="text-ink-muted" />
-            </OrganicCard>
-          </Press>
-        )}
+        {s.needsYou.length > 0 && <div className="mt-6"><TodayUpdates /></div>}
 
         {/* agent action */}
         {action && <div className="mt-7"><AgentActionCard action={action} /></div>}
 
         {/* the agent network, surfaced — calm by default, capable when you look */}
-        {(s.agentTasksInMotion.length > 0 || s.agentTasksWaiting.length > 0) && <div className="mt-5"><AgentPulseCard /></div>}
+        {(s.agentTasksInMotion.length > 0 || s.agentTasksWaiting.length > 0) && <Press onClick={() => s.openAgentNetwork()} className="mt-3 min-h-11 font-rounded text-[13px] text-ink-muted">{s.agentTasksWaiting.length ? `${s.agentTasksWaiting.length} helper requests to review` : "Your helpers"}</Press>}
 
         {/* the thread */}
         <div className="mt-6 space-y-3">
-          {s.moments.length > 0 ? (
-            s.moments.slice(0, 3).map((m) => <MomentCard key={m.id} moment={m} />)
-          ) : (
-            <OrganicCard className="p-5 flex items-center gap-4">
-              <SceneVisual seed={4} height={56} className="w-16 shrink-0" />
-              <p className="font-serif text-[16px] text-ink">You're set for now — I'll keep watch.</p>
-            </OrganicCard>
-          )}
+          {s.moments.slice(0, 3).map((m) => <MomentCard key={m.id} moment={m} />)}
         </div>
 
         {/* life strip */}
         <div className="mt-7">
           <div className="flex items-center justify-between mb-3">
             <Kicker>Today at your table</Kicker>
-            <Press onClick={() => { s.setTab("you"); s.setPendingCareDest(null); window.dispatchEvent(new CustomEvent("sano.openLife")); }} className="text-[12px] font-rounded text-warm font-medium">See it all</Press>
+            <Press onClick={() => { s.updateNavigationStack("you", () => [{ name: "hub" }, { name: "life" }]); s.setTab("you"); }} className="text-[12px] font-rounded text-warm font-medium">See it all</Press>
           </div>
           {todayEntries.length > 0 ? (
             <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-1">
@@ -115,6 +93,23 @@ export const Today: React.FC = () => {
   );
 };
 
+const TodayUpdates: React.FC = () => {
+  const s = useSano();
+  const row = (item: (typeof s.needsYou)[number]) => (
+    <Press key={`${item.kind}.${item.id}`} onClick={() => s.setPendingCareDest(item.destination)} className="flex min-h-11 w-full items-center gap-3 text-left">
+      <span className="flex-1 font-rounded text-[14px] font-medium text-ink">{item.title}</span>
+      <Icon name="chevronRight" size={13} className="text-ink-muted" />
+    </Press>
+  );
+  return <OrganicCard className="p-4">
+    {s.needsYou[0] && row(s.needsYou[0])}
+    {s.needsYou.length > 1 && <details className="font-rounded text-[12.5px] text-ink-muted">
+      <summary className="cursor-pointer min-h-11 py-3">{s.needsYou.length - 1} more updates</summary>
+      {s.needsYou.slice(1).map(row)}
+    </details>}
+  </OrganicCard>;
+};
+
 const accentByKind: Record<string, string> = { insight: "sky", habit: "life", task: "gold", checkIn: "warm" };
 const glyphByKind: Record<string, string> = { insight: "sparkles", habit: "leaf", task: "pill", checkIn: "heart" };
 
@@ -126,7 +121,7 @@ const MomentCard: React.FC<{ moment: Moment }> = ({ moment }) => {
 
   const act = () => {
     SoundEngine.tick();
-    if (moment.kind === "insight") { s.setTab("you"); if (moment.insightID) s.markInsightSeen(moment.insightID); }
+    if (moment.kind === "insight") { s.updateNavigationStack("you", () => [{ name: "hub" }, { name: "insights" }]); s.setTab("you"); if (moment.insightID) s.markInsightSeen(moment.insightID); }
     else if (moment.kind === "task") s.openConversation("refill");
     else s.openConversation(moment.kind === "checkIn" ? "check-in" : "habit");
   };

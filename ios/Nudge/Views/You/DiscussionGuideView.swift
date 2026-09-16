@@ -8,7 +8,6 @@ struct DiscussionGuideView: View {
 
     @State private var newText = ""
     @State private var newKind: GuideItem.Kind = .question
-    @State private var sent = false
     @State private var confirming = false
     @FocusState private var focused: Bool
 
@@ -72,10 +71,7 @@ struct DiscussionGuideView: View {
     }
 
     private var nextVisitLine: String {
-        if let next = model.appointments.first {
-            return "For \(next.with) · \(next.date.formatted(.dateTime.month(.wide).day()))"
-        }
-        return "For whenever you next sit down with your care team"
+        "Your questions and observations, ready for a visit"
     }
 
     // MARK: Add your own
@@ -185,37 +181,14 @@ struct DiscussionGuideView: View {
     }
 
     private var sendAhead: some View {
-        Group {
-            if sent {
-                Label("Sent ahead — the visit starts where it matters.", systemImage: "checkmark")
-                    .font(NudgeType.rounded(13.5, .medium))
-                    .foregroundStyle(Theme.life)
-            } else {
-                Button {
-                    confirming = true
-                } label: {
-                    Text("Send these ahead to \(model.persona.officeName)")
-                        .font(NudgeType.rounded(15, .semibold))
-                        .foregroundStyle(Theme.base)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Theme.ink, in: .capsule)
-                }
-                .buttonStyle(NudgeButtonStyle())
-                .confirmationDialog(
-                    "Send your open questions and observations to \(model.persona.officeName)? Nothing goes without this yes.",
-                    isPresented: $confirming,
-                    titleVisibility: .visible
-                ) {
-                    Button("Send ahead") {
-                        sent = true
-                        Haptics.success()
-                        SoundEngine.shared.tick()
-                    }
-                    Button("Not now", role: .cancel) {}
-                }
+        Button("Send to care team") { confirming = true }
+            .font(NudgeType.rounded(15, .semibold))
+            .foregroundStyle(Theme.ink)
+            .frame(minHeight: 44)
+            .alert("EHR delivery isn't connected yet", isPresented: $confirming) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Nothing has been sent. Your questions remain available to review and bring to a visit.")
             }
-        }
-        .padding(.top, 6)
     }
 }

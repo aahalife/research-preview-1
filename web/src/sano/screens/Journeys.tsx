@@ -3,18 +3,19 @@ import { useSano } from "../store";
 import { OrganicCard, Glass, Press, Kicker, ProvenanceChip, SponsorChip, accentText } from "../ui/Glass";
 import { Icon } from "../ui/Icon";
 import { Sheet } from "../ui/Sheet";
+import { DeviceOverlay } from "../ui/DeviceOverlay";
 import { HubHeader, SectionTitle } from "./nav";
 import { img, fmtMonthDay } from "../lifeLibrary";
 import type { Journey, Program, MemoryGlimpse } from "../types";
 
-export const Journeys: React.FC = () => {
+export const Journeys: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const s = useSano();
   const [viewer, setViewer] = useState<number | null>(null);
   const [sponsor, setSponsor] = useState<Program | null>(null);
   const gardenCount = s.journeys.reduce((a, j) => a + j.habits.reduce((x, h) => x + h.keptDates.length, 0), 0);
 
   return (
-    <div className="absolute inset-0 overflow-y-auto px-5 pb-32">
+    <div className={embedded ? "relative" : "absolute inset-0 overflow-y-auto px-5 pb-32"}>
       <HubHeader title="Journeys" subtitle="Small things, placed where your life actually is." />
 
       {/* held moments */}
@@ -46,10 +47,12 @@ export const Journeys: React.FC = () => {
         </div>
       </div>
 
+      <DeviceOverlay>
       {viewer != null && <MemoryViewer memories={s.memories} start={viewer} onClose={() => setViewer(null)} />}
       <Sheet open={sponsor != null} onClose={() => setSponsor(null)}>
         {sponsor && <div className="px-6 pt-3 pb-10"><Kicker className="text-ink-muted">About this sponsorship</Kicker><h2 className="font-serif text-[22px] text-ink mt-1">{sponsor.sponsor}</h2><p className="font-rounded text-[14px] text-ink/90 mt-2 leading-relaxed">{sponsor.sponsorDetail}</p></div>}
       </Sheet>
+      </DeviceOverlay>
     </div>
   );
 };
@@ -71,6 +74,7 @@ const MemoryViewer: React.FC<{ memories: MemoryGlimpse[]; start: number; onClose
   const m = memories[idx];
   return (
     <div className="absolute inset-0 z-[60] grid place-items-center" data-no-ripple onClick={onClose} style={{ background: "rgb(0 0 0 / 0.7)", backdropFilter: "blur(8px)" }}>
+      <button aria-label="Close memory" className="absolute right-4 top-4 grid size-11 place-items-center rounded-full glass text-white" onClick={onClose}><Icon name="x" size={20} /></button>
       <div className="relative" onClick={(e) => e.stopPropagation()}>
         <div className="relative size-72 anim-bloom">
           <div className="absolute inset-0 rounded-full overflow-hidden" style={{ boxShadow: "inset 0 4px 16px rgba(255,255,255,0.45), 0 30px 80px -10px rgba(0,0,0,0.6)" }}>

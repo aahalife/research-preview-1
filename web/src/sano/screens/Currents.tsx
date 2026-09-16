@@ -4,6 +4,7 @@ import { SoundEngine } from "../sound";
 import { OrganicCard, Press, Kicker, accentText } from "../ui/Glass";
 import { Icon } from "../ui/Icon";
 import { Sheet } from "../ui/Sheet";
+import { DeviceOverlay } from "../ui/DeviceOverlay";
 import { SceneVisual } from "../ui/DataViz";
 import { HubHeader } from "./nav";
 import { img } from "../lifeLibrary";
@@ -14,7 +15,7 @@ const formatAccent: Record<CurrentFormat, string> = { Glance: "warm", Read: "sky
 
 /** Currents — a calm, magazine-style feed of things worth your attention, each
  *  chosen for where you actually are. Read, Watch, and Listen all play. */
-export const Currents: React.FC = () => {
+export const Currents: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const s = useSano();
   const [filter, setFilter] = useState<"All" | CurrentFormat>("All");
   const [open, setOpen] = useState<CurrentsPiece | null>(null);
@@ -22,7 +23,7 @@ export const Currents: React.FC = () => {
   const [hero, ...rest] = list;
 
   return (
-    <div className="absolute inset-0 overflow-y-auto px-5 pb-32">
+    <div className={embedded ? "relative" : "absolute inset-0 overflow-y-auto px-5 pb-32"}>
       <HubHeader title="Currents" subtitle="Chosen for where you are — never a feed to fall into." />
 
       <div className="flex gap-2 overflow-x-auto -mx-5 px-5 mt-4 pb-1">
@@ -38,9 +39,11 @@ export const Currents: React.FC = () => {
       </div>
       {list.length === 0 && <OrganicCard className="p-6 text-center mt-4"><p className="font-serif text-[16px] text-ink">Nothing in this format right now.</p></OrganicCard>}
 
+      <DeviceOverlay>
       <Sheet open={open != null} onClose={() => setOpen(null)} full bg="rgb(var(--base))">
         {open && <Reader piece={open} onClose={() => setOpen(null)} />}
       </Sheet>
+      </DeviceOverlay>
     </div>
   );
 };

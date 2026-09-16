@@ -13,7 +13,7 @@ struct MessagesView: View {
                     Text("Messages")
                         .font(NudgeType.serif(28))
                         .foregroundStyle(Theme.ink)
-                    Text("Your care teams, one place. Tap to read or reply.")
+                    Text("Demo inbox · no messages leave Rumi")
                         .font(NudgeType.rounded(13))
                         .foregroundStyle(Theme.inkMuted)
                 }
@@ -93,8 +93,11 @@ struct MessagesView: View {
                         .foregroundStyle(thread.unread ? Theme.ink.opacity(0.85) : Theme.inkMuted)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
-                    ModeChip(mode: thread.mode)
-                        .padding(.top, 1)
+                    if let draft = model.messageDrafts[thread.id.uuidString], !draft.isEmpty {
+                        Text("Draft")
+                            .font(NudgeType.rounded(11, .medium))
+                            .foregroundStyle(Theme.warm)
+                    }
                 }
             }
             .padding(15)
@@ -141,7 +144,7 @@ struct MessageThreadView: View {
     @Environment(AppModel.self) private var model
     let threadID: UUID
 
-    @State private var draft = ""
+    private var draft: String { model.messageDrafts[threadID.uuidString] ?? "" }
     @FocusState private var composing: Bool
 
     private var thread: MessageThread? { model.threads.first { $0.id == threadID } }
@@ -207,7 +210,7 @@ struct MessageThreadView: View {
             GlassSurface(radius: 26) {
                 HStack(alignment: .bottom, spacing: 10) {
                     TextField(thread.mode == .inApp ? "Write a reply…" : "Draft a message…",
-                              text: $draft, axis: .vertical)
+                              text: Binding(get: { draft }, set: { model.updateMessageDraft(threadID: threadID, text: $0) }), axis: .vertical)
                         .font(NudgeType.rounded(15))
                         .foregroundStyle(Theme.ink)
                         .lineLimit(1...5)
@@ -225,12 +228,12 @@ struct MessageThreadView: View {
                     }
                     .buttonStyle(NudgeButtonStyle())
                     .disabled(!canSend)
-                    .accessibilityLabel(thread.mode == .inApp ? "Send reply" : "Save draft")
+                    .accessibilityLabel(thread.mode == .inApp ? "Send demo reply" : "Save draft")
                 }
                 .padding(7)
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 10)
+            .padding(.bottom, 90)
         }
         .background(.ultraThinMaterial)
     }
@@ -242,7 +245,7 @@ struct MessageThreadView: View {
     private func send(in thread: MessageThread) {
         guard canSend else { return }
         model.sendMessage(threadID: thread.id, text: draft)
-        draft = ""
+        model.updateMessageDraft(threadID: threadID, text: "")
         composing = false
     }
 }
@@ -310,9 +313,9 @@ struct MessageBubble: View {
             switch message.state {
             case .draft: return "Drafted · \(time)"
             case .sending: return "Sending…"
-            case .sent: return mode == .inApp ? "Sent · \(time)" : "Ready for the portal · \(time)"
-            case .delivered: return "Delivered · \(time)"
-            case .replied: return "Replied · \(time)"
+            case .sent: return mode == .inApp ? "Demo · sent · \(time)" : "Ready for the portal · \(time)"
+            case .delivered: return "Demo · delivered · \(time)"
+            case .replied: return "Demo · replied · \(time)"
             }
         }
         return time

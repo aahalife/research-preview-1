@@ -6,6 +6,10 @@
 - [Summary](#summary)
 - [Scope, ownership and shared conventions](#scope-ownership-and-shared-conventions)
 
+**Connected-care foundations**
+- [Demonstration and regular use](#demonstration-and-regular-use)
+- [Unified longitudinal patient record](#unified-longitudinal-patient-record)
+
 **Attachment features: original grouping and order**
 - [Welcome Router](#welcome-router)
 - [Mobile SMS OTP Auth](#mobile-sms-otp-auth)
@@ -57,11 +61,11 @@
 
 ## Summary
 
-Rumi helps patients understand health information, record daily experiences and prepare for care. Patients can use its text/voice companion or open features directly. This draft defines the proposed behavior for all 36 re-scope features and the retained AI, agent, reporting, lifestyle and education features. It identifies the decisions needed before implementation. Rumi must remain empathetic and patient-controlled, with clear limits on clinical advice and accurate status for every action.
+Rumi helps patients understand health information, record daily experiences and prepare for care. Patients can use its text/voice companion or open features directly. This draft defines behavior for the 36 retained feature areas, signature experiences and seven connected-care additions: a longitudinal record, reviewed EHR brief, provider messaging, connected results, scheduling, care-plan reminders and refill tracking. It separates approved product scope from unresolved specialist and service decisions. Rumi must remain empathetic and patient-controlled, with clear limits on clinical advice and accurate status for every action.
 
 ## Scope, ownership and shared conventions
 
-**Status:** proposed requirements for review. This file does not authorize app changes or release. The [as-built reference](RUMI_AS_BUILT.md) records current functionality and gaps. The [change specification](RUMI_RESCOPE.md) covers scope, design, draft UI copy, assets, engineering, backend work and migration. It also owns the [proposed navigation map](RUMI_RESCOPE.md#proposed-information-architecture).
+**Status:** working functional requirements. The requester approved staged implementation of the connected-care plan, including all seven additions. That approval does not approve unresolved clinical, legal, privacy, security or numerical defaults, or authorize live release. The [as-built reference](RUMI_AS_BUILT.md) records current functionality and gaps. The [change specification](RUMI_RESCOPE.md) covers scope, design, draft UI copy, assets, engineering, backend work and migration. It also owns the [proposed navigation map](RUMI_RESCOPE.md#proposed-information-architecture).
 
 The requester approved one compendium as the third of three review documents. This is an exception to the supplied guide's one-page-per-feature format. Each named section still owns its feature's rules. Shared rules appear once, with links from dependent features. Keep the attachment's feature names and order.
 
@@ -89,7 +93,50 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 - [Records Connection](#records-connection) owns clinical source, date, identity, conflict and missing-data rules. They apply to all clinical features.
 - [Companion continuity and voice](#companion-continuity-and-voice) owns AI evidence, conversation context, limited fallback and voice behavior. Each feature identifies the context and actions it contributes.
 - Clinical/crisis thresholds and overlapping-risk precedence are **not invented**. The owning clinical sections state blockers. Historical fixture thresholds are not automatically adopted.
-- All criteria remain proposals until approved. Each open question identifies behavior that needs a decision before implementation. This draft does not invent OTP limits, medical thresholds, retention periods or response times.
+- Unresolved specialist rules remain proposals until their owners approve them. Product-scope approval must not be interpreted as approval of OTP limits, medical thresholds, retention periods or response times.
+- Use the device timezone for patient-entered events; when a visit or service uses a different timezone, make both times understandable. Preserve event time, receipt time and, for backdated input, entry time separately.
+- Support the patient's chosen units and supported language across relevant features. Retain original units, source language and provenance; convert only with approved, unambiguous conversions.
+- Patients can complete all in-scope essential workflows without chat. Consolidation must preserve discoverability, selected-item context, saved history and return to unfinished work.
+- Information presented for a decision must be relevant to that decision. Supporting evidence remains accessible without repeated summaries; safety, uncertainty, cost, recipient and consent information cannot be omitted when consequential.
+
+## Demonstration and regular use
+
+**User Story:** As a patient or evaluator, I want to know whether I am using synthetic information or connected services, without a demonstration affecting real care.
+
+### Acceptance Criteria
+
+- Provide explicitly identified Demo journeys with coherent synthetic patient records, including multi-condition, treatment and procedure scenarios. Illustrative personas do not restrict supported real patient needs.
+- Preserve linked changes across a demo journey: appointments, preparation, messages, results, follow-up tasks, reminders and refill estimates use the same scenario history.
+- Support repeatable demonstration of partial imports, corrections, conflicting records, delayed replies, denied access, failed submissions, unavailable slots, unknown outcomes and recoverable offline drafts, as well as success.
+- A simulated provider reply or receipt is identified as simulated. Demo never sends clinical messages, makes real bookings/payments or writes clinical records externally.
+- Keep Demo, vendor testing and regular use separate in identity, records, drafts, approvals, pending work and saved history. Switching modes never promotes synthetic data or replays a demo approval into real use.
+- Resetting a scenario affects only that scenario; returning to another mode restores its own permitted state.
+- Regular use requires verified identity, authorized patient association and applicable consent for connected actions. An unavailable service must not fall back to sample records or simulated success; unaffected features remain usable.
+
+| Situation | Required outcome |
+|---|---|
+| Demo action approved | Simulate only within the selected scenario, with a labeled outcome. |
+| Regular use lacks verified access | Do not submit; explain the missing access and preserve permitted draft input. |
+| Connected operation has an unknown outcome | Reconcile before retrying; never substitute a simulated receipt. |
+| Account, patient or mode changes during work | Stop unauthorized new work; retain outcomes only in their originating scope. |
+| Vendor test succeeds | Identify the test environment; do not present it as production verification. |
+
+The mode boundary takes precedence over a task's local approval state. Clinical/Legal/Security approvals still gate applicable production use.
+
+## Unified longitudinal patient record
+
+**User Story:** As a patient, I want one coherent history across my conditions and sources so I do not need to reconcile different versions of my care myself.
+
+### Acceptance Criteria
+
+- Provide authorized longitudinal access to results, medications, conditions, allergies, immunizations, vitals, procedures, notes and documents, with category-specific behavior defined in the owning sections.
+- Each fact retains patient association, origin, event date, available source status and original evidence. Distinguish imported clinical facts, patient reports and generated explanations.
+- Preserve source corrections and conflicting statements for inspection. Uncertain matches do not silently merge patients or replace one source with another.
+- Use consistent facts in care workflows, reports, alerts and permitted companion context. A pathway changes relevance, not identity or other conditions.
+- Record refresh exposes progress, partial availability, failures and last successful receipt. Failure preserves permitted prior records with their actual age; it cannot establish current completeness.
+- Connected results are available only where the authorized source supplies them; distinguish pending, final and corrected states when supported. Opening or acknowledging a result is not clinician review or clinical resolution.
+
+**Dependencies and blockers:** [Records Connection](#records-connection) owns authorization and source reconciliation. Available data categories must be verified for each connection. The approved Fasten source relationship does not imply appointment, messaging or writeback capabilities.
 
 ## Welcome Router
 
@@ -114,10 +161,10 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 
 **Constraints and blocking states**
 - The rows for verified users are sequential prerequisites, not competing priorities: identity, required acceptance, required setup, destination authorization.
-- Demo mode, if offered, is explicitly identified and isolated from real accounts and records.
+- Explicit Demo entry follows [Demonstration and regular use](#demonstration-and-regular-use); it is not verified patient authentication.
 - Offline verification cannot be represented as newly successful authentication.
 
-**Dependencies / open questions:** Authentication sections and [Terms & Privacy Consent](#terms--privacy-consent). Product/Security must approve offline-session policy, required onboarding fields and demo entry availability.
+**Dependencies / open questions:** Authentication sections and [Terms & Privacy Consent](#terms--privacy-consent). Product/Security must approve offline-session policy, required onboarding fields. Demo entry is approved product scope.
 
 ## Mobile SMS OTP Auth
 
@@ -356,7 +403,7 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 ### Acceptance Criteria
 
 **Review and authorization**
-- Before approval, show the action, patient, exact recipient and affected item. Include the data to be shared or changed, material cost or commitment, and required permissions.
+- Before approval, show the action, patient, exact recipient and affected item. Include the data to be shared or changed, any cost or commitment, and required permissions.
 - Offer approval, decline and correction where applicable. Decline/cancel is a distinct result, never a success label.
 - Require a new review if the recipient, material data, cost or action scope changes after approval. Do not execute the changed proposal first.
 - Verify that the task is supported and permissions/source/account state remain valid when it executes. Paused/revoked agents cannot start new unauthorized work.
@@ -367,11 +414,13 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 - Distinguish approval from actual submission, acceptance, delivery and completion. Only supported external evidence permits corresponding success claims.
 - When the outcome is unknown, reconcile before retrying an operation that may already have succeeded.
 - Keep the action's approved scope, outcome and available receipt in history. Dismissing a card does not erase an operation already in progress.
+- Background failure or missing patient input creates an attributable attention item and an eligible notification. Completion remains inspectable in the originating feature/history; duplicate surfaces must not create duplicate tasks.
 
 | Action state | Available meaning and behavior |
 |---|---|
 | Proposed | Awaiting patient decision; no external execution. |
 | Blocked | Identify missing capability/permission/input and a recovery or safe decline route. |
+| Expired | An unanswered or expired proposal does not execute; preserve reason and history and require renewed review where eligible. |
 | Approved, not submitted | Authorization exists; no claim that the recipient received it. Cancellation follows approved service constraints. |
 | Submitted/accepted | Receiving service confirms the applicable state; show pending completion when necessary. |
 | Completed | Verified outcome and relevant receipt/details are available. |
@@ -471,6 +520,13 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 - Linked habits retain their source goal; changing/withdrawing a plan identifies affected links for patient review rather than silently discarding progress or rewriting treatment.
 - Creating/removing a habit link and the corresponding journey cannot diverge after reopening; do not retain a marker for a missing journey.
 
+**Care-plan reminders**
+- Let patients set, edit, snooze, pause and remove in-app reminders linked to individual care-plan tasks, including choosing no reminder.
+- Retain the task, chosen timing, timezone and reminder state after reopening. In-app access remains available without push permission.
+- Acknowledging a reminder does not complete the task; completing a task is separately attributable to the patient or source.
+- When a task changes, is withdrawn or ends, identify affected reminders for review and stop obsolete reminders rather than silently retaining old instructions.
+- These reminders do not authorize automatic SMS outreach or duplicate provider-owned appointment confirmation/reminder communications.
+
 **Blocking states:** Missing plan, conflicting versions or unclear instruction requires source clarification/Guide assistance. Clinical/Product must define plan update authority, eligibility for habit derivation and behavior when a plan is withdrawn. No plan-authoring portal is included here.
 
 ## Discussion Guide
@@ -510,7 +566,7 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 
 **Patient actions**
 - List supported upcoming/past/cancelled visits with provider, date/time/timezone, location/channel and source status; identify pending requests separately from confirmed visits.
-- Support the approved booking, confirmation, rescheduling and cancellation capabilities for each connected provider; explain unavailable operations rather than simulating them.
+- Support booking and rescheduling within authorized Privia practices, and confirmation/cancellation where supported. Available visit types, providers, locations and times follow the connected practice's actual capabilities; explain unavailable operations rather than simulating them in regular use.
 - Review the selected visit/time/provider and relevant conditions before requesting a consequential change through [Action Cards](#agentic-action-cards).
 - Preparation, Guide, reports, virtual joining and logistics retain the selected appointment rather than defaulting to the first appointment.
 - After a confirmed change, update related preparation/join/reminder/logistics context and preserve the prior outcome in history as applicable.
@@ -553,6 +609,7 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 
 **Patient composition and history**
 - Choose/confirm an authorized provider/practice, supported category and channel before sending. Show the channel's capabilities and approved response expectations.
+- Provider messaging is a primary product capability. This priority does not establish emergency monitoring, clinical triage priority or a faster response promise.
 - Preserve drafts with their patient/recipient/context; allow editing/discarding without sending. Changes of recipient require re-review of included context.
 - Carry source context from symptom/result/Guide/report/form actions as reviewable content; an attachment claim must correspond to an actual included artifact or explicit text excerpt.
 - Before submission, let the patient inspect, include or remove attachments and edit generated wording. An AI draft does not establish patient approval.
@@ -608,6 +665,9 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 - Journeys, linked plan goals and kept history remain consistent after reopening and across the declared supported account scope.
 - Describe progress from actual records without invented streaks, compliance judgments or fabricated improvement claims.
 - Program-associated habits retain sponsor/context information and remain subject to [Sponsored Programs](#sponsored-programs).
+- Group habits under patient-chosen journey themes; each habit belongs to one journey and may also link to a plan goal or program.
+- Acceptance offers reminder days/time or none. Repeated non-keeps may prompt a smaller, optional habit without judgment.
+- Offer a weekly, skippable and disableable review with one reflective question, not scores or rankings. Ending a journey preserves readable history and stops its reminders.
 
 **Edge/blocking states:** Plan changes, timezone changes, late entries and pausing/removing a journey require agreed behavior. Product/Clinical must approve eligible clinical-plan derivations and history correction rules. Garden/celebration are retained creative concepts, not specified visual implementations; meaningful progress information remains accessible without them.
 
@@ -618,12 +678,19 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 ### Acceptance Criteria
 
 - Show medication identity, available dose/schedule/status, source/date, purpose information, supply/pharmacy when known, and relevant attributed guidance under [record quality](#records-connection).
-- Separate current, historical, patient-reported and conflicting medication information; do not merge uncertain dose/schedule records silently.
+- Distinguish active, paused and stopped medications with source/date and accessible history. Patient-entered OTC medicines and supplements remain labeled separately from source records; do not merge uncertain dose/schedule records silently.
 - Contextual questions include the selected medication and relevant permitted clinical evidence under [Companion continuity](#companion-continuity-and-voice).
 - Record medication-taking reports separately from prescriptions; summaries identify what they are based on and do not infer adherence from an unrelated fixture array.
 - Symptom/barrier logging retains medication context and uses [Symptom Tracking w/ AFB](#symptom-tracking-w-afb); temporal association is not automatically a causal adverse-effect claim.
 - Refill/coverage/office requests use approved recipients and [Action Cards](#agentic-action-cards) with actual outcomes; expose reachable neutral savings/support where eligible.
 - Neither a chat response nor a habit action autonomously changes dose, schedule or treatment. Clinical uncertainty routes to an approved care-team/pharmacist question.
+
+**Medication-derived refill tracking**
+- Derive an estimated refill date only from dated, attributable supply and regimen information, with patient-confirmed updates where needed. Make the basis and uncertainty inspectable.
+- Unknown supply, variable dosing and as-needed use must not produce a guessed date. Preserve the medication and offer clarification rather than presenting an exact estimate.
+- Supply or regimen changes update future estimates without rewriting past reports. Paused or stopped medication requires state-aware review, not an automatic refill request.
+- Link an eligible due item to that medication and a reviewed provider request. Request submission never means the prescription was issued, filled or dispensed.
+- Complex pharmacy integrations, stock checks, transfers, automatic prescribing and delivery management are excluded.
 
 **Blocking questions:** Supported medication sources, reconciliation authority, dose-log fields/corrections, adherence/supply calculation policy, interaction/side-effect content authority and refill service coverage. No medication safety thresholds or substitution recommendations are invented here.
 
@@ -811,7 +878,7 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 
 **Contextual conversation — shared owner**
 - Provide conversation entry from relevant clinical/lifestyle/task surfaces; preserve selected patient/entity/time and return destination.
-- The latest user message is included exactly once in the request context for its response. A previous turn or hidden seed cannot replace it.
+- Each response addresses the patient's current message in its permitted context. A previous turn or hidden prompt cannot replace the current message or cause a duplicate response.
 - Use only permitted, attributed context under [Terms & Privacy Consent](#terms--privacy-consent), [Records Connection](#records-connection) and [Visible Editable Memory](#visible-editable-memory). Missing facts are not replaced with fixture values.
 - Ground clinical explanations in the selected evidence; distinguish quoted/source facts, AI interpretation and uncertainty. Model wording alone cannot establish diagnosis, authorization or execution.
 - Present proposed actions through the shared [action lifecycle](#agentic-action-cards). Generated internal tags/unknown payloads are not exposed as patient content or executed silently.
@@ -862,6 +929,8 @@ The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop)
 
 **Recipient/service boundary**
 - Sharing uses [Messaging](#messaging)/[Action Cards](#agentic-action-cards), identifying recipient/payload and actual receipt status.
+- Support delivery of the patient-approved pre-visit brief to the selected practice's EHR through the authorized workflow. Approval, submission and EHR acceptance are distinct; retain the approved version and attributable receipt or failure/unknown outcome.
+- EHR acceptance is not clinician authorship, signature or proof of review. Unsupported writeback must not be represented as completed; the patient retains an exportable reviewed copy.
 - Distinguish report versions by content, range and recipient. Changed content must not inherit a previous sent state. Keep earlier shared copies distinguishable under the retention policy.
 - The patient can inspect what was sent, when and to whom, or see a clear unsuccessful/unknown outcome.
 
@@ -976,7 +1045,7 @@ The attachment supplies feature names but no approved clinical, legal or financi
 
 Before implementing affected features, approve the launch population and region, patient/delegated access, live service coverage, account recovery and linking. Clinical must approve rules, overlapping-risk handling, record corrections and AFB thresholds/fallbacks. Communication and virtual-visit coverage, sponsor policy and account retention/rights also need decisions.
 
-AFB's combined AI/rules scope and the three-document format are confirmed. The other decisions remain open.
+AFB's combined AI/rules scope, the three-document format, the seven additions, separate Demo/regular use, retained contextual secondary capabilities and the approved navigation direction are confirmed. The revised Functional Requirements and Design Context govern further reconciliation; specialist rules and proposed numerical defaults remain unapproved. The change specification owns navigation and presentation decisions.
 
 This repository draft does not replace an unchecked Confluence or Figma page. Reconcile existing feature pages and the IA before publication. Keep one evolving requirements page per feature and link dependent features to it. Do not add competing versioned pages or regulatory IDs.
 

@@ -7,10 +7,13 @@ import { useStack, SubScreen } from "./nav";
 import { MedicationsScreen, MedDetailScreen, RecordsScreen, RecordCategoryScreen, LabDetailScreen, CarePlanScreen, GuideScreen, ConditionsScreen, CareTeamScreen, LifeCatalogScreen } from "./shared";
 import { img, fmtMonthDay } from "../lifeLibrary";
 import type { Insight, StoryEvent } from "../types";
+import { AppointmentDetail, Connections } from "./Care";
+import { Journeys } from "./Journeys";
+import { Currents } from "./Currents";
 
 export const YouHub: React.FC = () => {
   const s = useSano();
-  const nav = useStack({ name: "hub" });
+  const nav = useStack({ name: "hub" }, "you");
   const [seg, setSeg] = useState<"story" | "insights">("story");
 
   useEffect(() => {
@@ -37,7 +40,12 @@ export const YouHub: React.FC = () => {
         {nav.top.name === "carePlan" && <CarePlanScreen />}
         {nav.top.name === "guide" && <GuideScreen />}
         {nav.top.name === "careTeam" && <CareTeamScreen push={push} />}
-        {nav.top.name === "appointmentDetail" && <CareTeamScreen push={push} />}
+        {nav.top.name === "appointmentDetail" && <AppointmentDetail id={p.id} push={push} />}
+        {nav.top.name === "visitPrep" && <GuideScreen key={p.id} appointmentID={p.id} />}
+        {nav.top.name === "journeys" && <Journeys embedded />}
+        {nav.top.name === "currents" && <Currents embedded />}
+        {nav.top.name === "connections" && <Connections />}
+        {nav.top.name === "insights" && <InsightsHub />}
         {nav.top.name === "life" && <LifeCatalogScreen />}
       </SubScreen>
     );
@@ -45,19 +53,19 @@ export const YouHub: React.FC = () => {
 
   const unresolved = s.guideItems.filter((g) => !g.resolved).length;
   const doors = [
-    { name: "conditions", label: s.persona.conditionChip, glyph: s.pathway === "metabolic" ? "heart" : s.pathway === "oncology" ? "sparkles" : s.pathway === "cardiometabolic" ? "heart" : "activity", accent: "warm" },
-    { name: "guide", label: "Discussion guide", glyph: "book", accent: "gold", badge: unresolved },
-    { name: "careTeam", label: "Care team & visits", glyph: "stethoscope", accent: "life" },
-    { name: "medications", label: "Medications", glyph: "pills", accent: "sky" },
-    { name: "life", label: "Life catalog", glyph: "forkKnife", accent: "rose" },
+    { name: "journeys", label: "Journeys", glyph: "leaf", accent: "life" },
+    { name: "currents", label: "Currents", glyph: "water.waves", accent: "sky" },
+    { name: "life", label: "Life", glyph: "forkKnife", accent: "rose" },
+    { name: "connections", label: "Connections", glyph: "link", accent: "gold" },
   ];
 
   return (
     <div className="absolute inset-0 overflow-y-auto px-5 pb-32">
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex items-center justify-between pt-4 pr-14">
         <Glass radius={22} className="flex p-1">
           {(["story", "insights"] as const).map((t) => <button key={t} onClick={() => setSeg(t)} className={`px-4 py-1.5 rounded-full text-[13px] font-rounded font-semibold transition-colors ${seg === t ? "text-base" : "text-ink"}`} style={seg === t ? { background: "rgb(var(--ink))" } : undefined}>{t === "story" ? "Story" : "Insights"}</button>)}
         </Glass>
+        <button aria-label="Account and settings" onClick={() => s.setShowSettings(true)} className="press grid size-11 place-items-center text-ink-muted"><Icon name="settings" size={18} /></button>
       </div>
 
       <div className="flex gap-2 overflow-x-auto -mx-5 px-5 mt-4 pb-1">
@@ -66,7 +74,6 @@ export const YouHub: React.FC = () => {
             <Glass radius={18} className="px-3.5 py-2.5 flex items-center gap-2">
               <Icon name={d.glyph} size={15} className={accentText[d.accent]} />
               <span className="font-rounded text-[12.5px] text-ink font-medium whitespace-nowrap">{d.label}</span>
-              {d.badge ? <span className="size-4 rounded-full grid place-items-center text-[10px] font-bold text-base" style={{ background: "rgb(var(--gold))" }}>{d.badge}</span> : null}
             </Glass>
           </Press>
         ))}

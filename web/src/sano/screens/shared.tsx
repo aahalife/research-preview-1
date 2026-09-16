@@ -9,6 +9,8 @@ import { SectionTitle } from "./nav";
 import { img, fmtMonthDay, fmtTime, fmtWeekday } from "../lifeLibrary";
 import type { LabSeries, Medication, CarePlanGoal, RecordCategory, CareEntry } from "../types";
 
+import { selectedAppointment } from "../navigation";
+
 type Push = (name: string, params?: Record<string, unknown>) => void;
 
 // ---------- Medications ----------
@@ -95,7 +97,10 @@ export const RecordsScreen: React.FC<{ push: Push }> = ({ push }) => {
   const s = useSano();
   return (
     <div className="space-y-4">
-      <div><h1 className="font-serif text-[28px] text-ink">Records</h1><p className="font-rounded text-[13.5px] text-ink-muted mt-1">One unified record from every source — reconciled, with provenance.</p></div>
+      <div><h1 className="font-serif text-[28px] text-ink">Records</h1><p className="font-rounded text-[13.5px] text-ink-muted mt-1">Your health history and source documents.</p></div>
+      <Press onClick={() => { s.setPendingCareDest({ t: "documents" }); s.setTab("care"); }} className="min-h-11 font-rounded text-sm text-ink">Your documents</Press>
+      <details className="font-rounded text-sm text-ink-muted">
+        <summary className="min-h-11 cursor-pointer py-3">Sources</summary>
       <OrganicCard className="p-4 space-y-3">
         {s.sources.map((src) => (
           <div key={src.id} className="flex items-center justify-between">
@@ -104,6 +109,7 @@ export const RecordsScreen: React.FC<{ push: Push }> = ({ push }) => {
           </div>
         ))}
       </OrganicCard>
+      </details>
       <div className="grid grid-cols-2 gap-3">
         {categories.map((c) => {
           const count = s.recordItems.filter((r) => r.category === c).length;
@@ -233,17 +239,18 @@ const GoalCard: React.FC<{ goal: CarePlanGoal }> = ({ goal }) => {
 };
 
 // ---------- Discussion guide ----------
-export const GuideScreen: React.FC = () => {
+export const GuideScreen: React.FC<{ appointmentID?: string }> = ({ appointmentID }) => {
   const s = useSano();
   const [text, setText] = useState("");
   const [kind, setKind] = useState<"Question" | "Observation">("Question");
-  const [sent, setSent] = useState(false);
+  const [deliveryInfo, setDeliveryInfo] = useState<boolean>(false);
   const questions = s.guideItems.filter((g) => g.kind === "Question");
   const observations = s.guideItems.filter((g) => g.kind === "Observation");
-  const next = s.appointments[0];
+  const next = selectedAppointment(s.appointments, appointmentID);
+  if (appointmentID && !next) return <p className="font-rounded text-ink-muted">This appointment isn't available. Your discussion guide is unchanged.</p>;
   return (
     <div className="space-y-4">
-      <div><h1 className="font-serif text-[28px] text-ink">Discussion guide</h1>{next && <p className="font-rounded text-[13px] text-ink-muted mt-1">For {next.with} · {fmtMonthDay(next.date)}</p>}</div>
+      <div><h1 className="font-serif text-[28px] text-ink">{appointmentID ? "Visit prep" : "Discussion guide"}</h1>{next && <p className="font-rounded text-[13px] text-ink-muted mt-1">For {next.with} · {fmtMonthDay(next.date)}</p>}</div>
       <OrganicCard className="p-4">
         <div className="flex gap-2 mb-2.5">
           {(["Question", "Observation"] as const).map((k) => <Press key={k} onClick={() => setKind(k)} className={`rounded-full px-3 py-1.5 text-[12px] font-rounded font-medium ${kind === k ? "text-base" : "text-ink glass"}`} style={kind === k ? { background: "rgb(var(--ink))" } : undefined}>{k === "Question" ? "A question" : "Something to tell them"}</Press>)}
@@ -259,7 +266,8 @@ export const GuideScreen: React.FC = () => {
         <>
           {questions.length > 0 && <><Kicker className="text-gold">Worth asking</Kicker>{questions.map((g) => <GuideRow key={g.id} g={g} />)}</>}
           {observations.length > 0 && <><Kicker className="text-life mt-2">Worth telling them</Kicker>{observations.map((g) => <GuideRow key={g.id} g={g} />)}</>}
-          <Press onClick={() => setSent(true)} className="w-full rounded-full py-3 font-rounded font-semibold text-[14px]" style={{ background: "rgb(var(--ink))", color: "rgb(var(--base))" }}>{sent ? "Sent ahead ✓" : `Send these ahead to ${s.persona.officeName}`}</Press>
+          <Press onClick={() => setDeliveryInfo(true)} className="w-full rounded-full py-3 font-rounded font-semibold text-[14px] bg-ink text-base">Send to care team</Press>
+          {deliveryInfo && <p role="status" className="font-rounded text-sm text-ink-muted">EHR delivery isn't connected yet. Nothing has been sent{next ? ` to ${next.with}` : ""}. Your guide remains available for the visit.</p>}
         </>
       )}
       <ProvenanceChip text="Captured as you live — yours to edit, always" className="px-1" />

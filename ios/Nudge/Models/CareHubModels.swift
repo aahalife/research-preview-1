@@ -23,10 +23,17 @@ enum CareDestination: Hashable {
     case bills
     case billDetail(UUID)
     case documents
-    case visitPrep
+    case visitPrep(UUID)
     case reports
     case wallet
     case connections
+
+    var isMessaging: Bool {
+        switch self {
+        case .messages, .thread, .requests: return true
+        default: return false
+        }
+    }
 }
 
 // MARK: - Messages (care-team communication · §4.4.1)
@@ -40,7 +47,7 @@ enum MessageChannelMode: String, Codable {
 
     var label: String {
         switch self {
-        case .inApp: return "Secure in-app thread"
+        case .inApp: return "Demo conversation"
         case .portal: return "Drafted for the portal"
         }
     }

@@ -22,7 +22,7 @@
 
 ## Purpose and approval boundary
 
-Modify the existing Rumi app. Keep its five destinations, companion, visual style and useful workflows. Add the requested features within that structure, repair incomplete flows, and preserve saved information when replacing old behavior. This document specifies the proposed design, copy, assets, backend and engineering work. It is ready for review, not approved for implementation or release.
+Modify the existing Rumi app around the approved Today, Care, Messages and You destinations. Keep its companion, visual style and useful workflows; preserve saved information when replacing old behavior. The requester approved staged implementation. This specification covers design, copy, assets, backend and engineering work; unresolved specialist policies and live release remain separately gated.
 
 The three review documents have distinct ownership:
 
@@ -30,7 +30,7 @@ The three review documents have distinct ownership:
 - **This specification:** what to retain, add, change or retire in the existing app, including screen layouts, design values, asset requirements, draft copy, technical contracts, migration and verification.
 - [Functional requirements](RUMI_REQUIREMENTS.md): proposed testable behavior, feature by feature, with edge/blocking states and explicit open questions. It does not duplicate the current design specification.
 
-These edits change documentation only. App code, rendered design, assets, configuration and dependencies remain untouched. The earlier polish plan is historical context. Its simulated external actions are not production commitments.
+Implementation proceeds in validated stages under the approved connected-care plan. The as-built reference records delivered source changes and validation. The earlier polish plan is historical context; its simulated external actions are not production commitments.
 
 ## Sources and confirmed decisions
 
@@ -48,7 +48,8 @@ The re-scope begins: “Net new/rescoped features below. But also retain the key
 
 - Keep exactly three review documents. The requester approved a feature-by-feature requirements compendium instead of separate feature files. Its contents list is the feature index. Reconcile existing Confluence pages before publication.
 - “AFB” in Symptom Tracking means **both AI-generated and rules-based feedback** for this scope. No unsupported expansion of the acronym or clinical thresholds is assumed.
-- Work remains documentation-only until approval. Retain the existing AI and agent experiences.
+- Staged implementation is approved. Retain the existing AI and agent experiences while making status truthful and reducing repeated attention surfaces.
+- The revised [Functional Requirements](https://r2-pub.rork.com/attachments/eyefzwv0nyg8igjywk7lx.pdf) supersede the original feature-name-only attachment as the functional starting point. Use [Design Context](https://r2-pub.rork.com/attachments/bulkvip2q33bdwgqr9t0f.pdf) selectively. Seven connected-care additions and isolated Demo/regular modes are approved scope; proposed numerical/clinical defaults are not approved.
 - Keep the personal, empathetic tone. Show agent work without crowding the other features. Apply the same approved behavior on iOS and web.
 
 ### Which guidance applies where
@@ -82,7 +83,7 @@ Keep conversation inside the existing care experience. Let the patient inspect t
 
 ### Preserve the existing app
 
-Keep Today, Care, You, Journeys and Currents in their current order. Keep the orb outside the dock, the day/night backgrounds, Fraunces and Hermione typography, glass controls, Life objects and light garden. Do not scaffold a replacement app, rename the native target or replace the web shell with a dashboard.
+Use Today, Care, Messages and You in that order. Journeys and Currents remain directly available from You. Keep the orb outside the dock, the day/night backgrounds, Fraunces and Hermione typography, glass controls, Life objects and light garden. Do not scaffold a replacement app, rename the native target or replace the web shell with a dashboard.
 
 The [design specification](#design-specification-for-the-existing-app) gives concrete reuse rules and proposed additions. Existing values are labeled as source facts. New dimensions and layouts are review proposals. Accessibility and truthful status take priority over preserving a defect.
 
@@ -151,7 +152,9 @@ The complete retained functional sections are included after the 36 attachment f
 
 ## Proposed information architecture
 
-Keep the existing five destinations. The map below adds routes within them. Keep current Care and You entry points while linking duplicate entries to the same data and detail screen. It is the proposed navigation map for this review package. Screen construction is specified later in this file. No external IA page was available for comparison.
+Use the approved four destinations: **Today, Care, Messages, You**. This supersedes the previous five-tab proposal and its duplicate clinical doors. Keep useful existing routes as compatible aliases to the same record/detail; do not keep every alias visible on every screen. Journeys and Currents move into You, not out of scope.
+
+**Less to process, not less capability.** Every label, fact and control must serve the current task, low-effort delight or trust. Reveal supporting detail when relevant; do not fill quiet screens. Preserve discoverable non-chat completion, meaningful uncertainty, safety and review information. Trust comes from truthful status and reliable behavior, not repeated reassurance or universal provenance badges. Preserve the palette, typography, orb, art and glass navigation; do not apply every treatment to every surface.
 
 ```text
 Rumi patient experience (iOS and web)
@@ -171,13 +174,14 @@ Rumi patient experience (iOS and web)
 │   ├── Care plan
 │   ├── Providers
 │   ├── Appointments → preparation / manage / virtual join / trip
-│   ├── Messages → compose / draft / thread / supported portal handoff
-│   ├── Requests and forms → complete / review / status
+│   ├── Forms → selected visit / complete / review / status
 │   ├── Medications → support / questions / sponsored support / refill
 │   ├── Reports → recipient / range / review / share status
-│   ├── Records / Documents → same clinical items available in You
-│   ├── Connections → sources / agent network
-│   └── Costs → bills / wallet / savings (integration-gated)
+│   ├── Records & Results → longitudinal categories / documents / source evidence
+│   └── Costs → bills / wallet / savings (quiet, integration-gated)
+├── Messages
+│   ├── Compose / draft / review / thread / supported portal handoff
+│   └── Requests → refill / appointment / records / forms / status
 ├── You
 │   ├── Story and Insights
 │   ├── Clinical information
@@ -194,13 +198,8 @@ Rumi patient experience (iOS and web)
 │   ├── Life and tracking history → detail / correction
 │   ├── Memory → inspect / edit / forget
 │   └── Account and preferences → consent / connections / export / delete
-├── Journeys
-│   ├── Co-created habits and progress
-│   ├── Held memories
-│   └── Sponsored Programs
-├── Currents
-│   ├── Finite content set / saved pieces
-│   └── Read / listen / watch → contextual conversation
+│   ├── Journeys → chosen habits / held memories / Sponsored Programs
+│   └── Currents → finite content / saved pieces / read / listen / watch
 └── Cross-cutting experiences
     ├── Text companion ↔ voice, with preserved origin context
     ├── Agent network / approvals / execution history
@@ -208,7 +207,7 @@ Rumi patient experience (iOS and web)
     └── Recap / source explanation / consent checks
 ```
 
-Care and You open the same medication record. Discussion Guide is one list with optional visit links. Memory, private notes and clinical records stay separate. Provider systems remain external dependencies. This patient-app scope does not add a clinician or staff portal.
+Care owns clinical workspaces; legacy/contextual You routes open the same records rather than new copies. The four Care entry points are Appointments, Care Plan, Medications & Refills, and Records & Results. Preparation and reports are reached from visits; Documents from Records; Connections from You. Bills/wallet retain a quiet route and savings remain with medications. Discussion Guide is one list with optional visit links. Memory, private notes and clinical records stay separate. Provider systems remain external dependencies. This patient-app scope does not add a clinician or staff portal.
 
 ## Signature end-to-end journeys
 
@@ -255,7 +254,7 @@ Carry the selected article or medication into conversation. Keep clinical inform
 
 Use `ios/Nudge/ContentView.swift` and `Views/RootView.swift` as the native entry and shell. Use `web/src/sano/SanoApp.tsx` as the browser shell. Keep the existing app targets, names, assets and entry points. Add routes and replace data behind current views in small steps.
 
-The source still matches the app baseline recorded in the as-built reference. The documentation revision started from commit `d0f62d427e333e6d0a3219e86170574c7e791ea8`. No screen was changed or runtime-tested for this revision.
+The original source baseline was recorded at commit `d0f62d427e333e6d0a3219e86170574c7e791ea8`. Staged implementation is now authorized. The as-built reference records completed changes and validation separately; the detailed tables below remain baseline-to-target specifications and do not establish delivery.
 
 In the tables below, **current** means inspected source. **Proposed** means a change for review. Native measurements are points. Browser measurements are CSS pixels unless specified otherwise. Matching numbers across platforms do not guarantee matching rendering.
 
@@ -304,9 +303,9 @@ Keep existing font weights where they are explicit. Native `serif` defaults to s
 | Today | 150pt orb, 20pt main side margins, 13pt gap between moments, maximum three moments, Life strip below. | Keep this order. Route Needs you and task cards to exact items. Do not add a second dashboard above the orb. |
 | Quick Log entry | 56pt button, trailing 22pt, bottom 96pt in Today. | Keep the floating entry. Add Vitals within the picker, not another floating button. Recalculate clearance when safe areas or text size change. |
 | Scroll clearance | Today ends with 150pt clear space. Dock overlays the content. | Replace fixed clearance only where needed with measured dock/safe-area clearance. Verify drags begun beside and above the dock. |
-| Native dock | Five flexible items, 28pt outer side margins, 8pt inner horizontal padding, 7pt inner vertical padding. Root adds 6pt at the bottom. No fixed height. | Keep five destinations and their order. Do not add a sixth clinical tab. |
+| Native dock | Four flexible items, 28pt outer side margins, 8pt inner horizontal padding, 7pt inner vertical padding. Root adds 6pt at the bottom. No fixed height. | Today / Care / Messages / You. Keep communication unread counts separate from record attention. |
 | Native dock glass | iOS 26 tinted capsule. `dockTint` is day `#F4FBFF` / night `#3C4A86`, opacity 0.30. Older systems use `GlassSurface(radius: 34)`. | Keep the version guard and visible edge. Never put a Metal layer effect over the glass surface. |
-| Web shell/dock | Shell max-width 440 and height 100dvh. Dock buttons are 58 × 50, with CSS glass. | Keep the narrow reading column for this scope. Add working browser history and keyboard behavior without replacing the shell. |
+| Web shell/dock | Shell max-width 440 and height 100dvh. Dock buttons are 72 × 50, with CSS glass. | Keep the narrow reading column for this scope. Add working browser history and keyboard behavior without replacing the shell. |
 | Content cards | Native OrganicSurface defaults to radius 36. Current local radii include 24, 26, 28, 30 and 32. Web OrganicCard defaults to 28. | Reuse the nearest existing component. Proposed new compact clinical rows use radius 26 and 16 inner padding. Multi-section review cards use radius 32 and 20 inner padding. |
 | Glass | Native material fallback and guarded glassEffect. Web blur 26px/saturation 180%, strong blur 40px/saturation 200%. | Use for chrome, small controls and existing overlays. Use opaque surface cards behind long forms and clinical text. |
 | Forms | Current forms are limited and use several local patterns. | Use one column, persistent field labels, inline error text and a final review step. Start with 20 side margins, 16 section gaps and 12 between related fields. These are proposed defaults. |

@@ -14,13 +14,19 @@ struct RecordsDrawerView: View {
                     Text("Records")
                         .font(NudgeType.serif(28))
                         .foregroundStyle(Theme.ink)
-                    Text("One unified record from every source — reconciled, with provenance.")
+                    Text("Your health history and source documents.")
                         .font(NudgeType.rounded(13))
                         .foregroundStyle(Theme.inkMuted)
                 }
                 .padding(.top, 8)
 
-                // Source freshness — aggregation quality is a first-class concern.
+                NavigationLink(value: CareDestination.documents) {
+                    Label("Your documents", systemImage: "doc.on.doc")
+                        .font(NudgeType.rounded(14, .medium))
+                        .frame(minHeight: 44)
+                }
+
+                DisclosureGroup("Sources") {
                 VStack(spacing: 9) {
                     ForEach(model.sources) { source in
                         HStack {
@@ -40,6 +46,10 @@ struct RecordsDrawerView: View {
                         .background(Theme.surface.opacity(0.7), in: .rect(cornerRadius: 22, style: .continuous))
                     }
                 }
+
+                }
+                .font(NudgeType.rounded(14))
+                .foregroundStyle(Theme.inkMuted)
 
                 LazyVGrid(columns: columns, spacing: 13) {
                     ForEach(RecordCategory.allCases) { category in
@@ -62,7 +72,7 @@ struct RecordsDrawerView: View {
                                 Text("Care team & visits")
                                     .font(NudgeType.serif(17))
                                     .foregroundStyle(Theme.ink)
-                                Text("Dr. Patterson · June 24 · prep is ready")
+                                Text("People involved in your care")
                                     .font(NudgeType.rounded(12.5))
                                     .foregroundStyle(Theme.inkMuted)
                             }

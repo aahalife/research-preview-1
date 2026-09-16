@@ -4,14 +4,16 @@ import { OrganicCard, Glass, Press, Kicker, ProvenanceChip, accentText } from ".
 import { Icon } from "../ui/Icon";
 import { Sheet } from "../ui/Sheet";
 import { useStack, SubScreen, HubHeader } from "./nav";
-import { MedicationsScreen, MedDetailScreen, RecordsScreen, RecordCategoryScreen, LabDetailScreen, CarePlanScreen, GuideScreen } from "./shared";
+import { MedicationsScreen, MedDetailScreen, RecordsScreen, RecordCategoryScreen, LabDetailScreen, CarePlanScreen, GuideScreen, CareTeamScreen } from "./shared";
 import { fmtMonthDay, fmtTime } from "../lifeLibrary";
 import type { MessageThread, Bill, Appointment } from "../types";
+import { destinationHome, selectedAppointment } from "../navigation";
 import { walletKindLabel, walletKindGlyph, type DoctorReport, type WalletCard, type ReportKind } from "../agentNetwork";
 
 const destToRoute = (d: CareDest): { name: string; params?: Record<string, unknown> } => {
   switch (d.t) {
     case "thread": return { name: "thread", params: { id: d.id } };
+    case "visitPrep": return { name: "visitPrep", params: { id: d.id } };
     case "billDetail": return { name: "billDetail", params: { id: d.id } };
     case "appointmentDetail": return { name: "appointmentDetail", params: { id: d.id } };
     case "medications": return { name: "medications" };
@@ -20,21 +22,27 @@ const destToRoute = (d: CareDest): { name: string; params?: Record<string, unkno
   }
 };
 
-export const CareHub: React.FC = () => {
+export const CareHub: React.FC<{ home?: "care" | "messages" }> = ({ home = "care" }) => {
   const s = useSano();
-  const nav = useStack({ name: "hub" });
+  const nav = useStack({ name: "hub" }, home);
 
   useEffect(() => {
-    if (s.pendingCareDest) { nav.push(destToRoute(s.pendingCareDest)); s.setPendingCareDest(null); }
+    if (s.pendingCareDest && destinationHome(s.pendingCareDest.t) === home) {
+      if (s.pendingCareDest.t === "messages") nav.reset({ name: "hub" });
+      else nav.push(destToRoute(s.pendingCareDest));
+      s.setPendingCareDest(null);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s.pendingCareDest]);
+  }, [s.pendingCareDest, home]);
 
   const push = (name: string, params?: Record<string, unknown>) => nav.push({ name, params });
   const p = (nav.top.params ?? {}) as Record<string, string>;
 
-  if (nav.top.name === "hub") return <Hub push={push} />;
+  if (nav.top.name === "hub") return home === "messages"
+    ? <div className="absolute inset-0 overflow-y-auto px-5 pb-32 pt-4"><Messages push={push} /></div>
+    : <Hub push={push} />;
   return (
-    <SubScreen onBack={nav.pop} back={nav.stack.length > 2 ? "Back" : "Care"}>
+    <SubScreen onBack={nav.pop} back={nav.stack.length > 2 ? "Back" : home === "messages" ? "Messages" : "Care"}>
       {nav.top.name === "messages" && <Messages push={push} />}
       {nav.top.name === "thread" && <ThreadView id={p.id} />}
       {nav.top.name === "requests" && <Requests />}
@@ -45,7 +53,9 @@ export const CareHub: React.FC = () => {
       {nav.top.name === "carePlan" && <CarePlanScreen />}
       {nav.top.name === "documents" && <Documents />}
       {nav.top.name === "savings" && <Savings />}
-      {nav.top.name === "visitPrep" && <GuideScreen />}
+      {nav.top.name === "visitPrep" && (p.id ? <GuideScreen key={p.id} appointmentID={p.id} /> : <Appointments push={push} />)}
+      {nav.top.name === "guide" && <GuideScreen />}
+      {nav.top.name === "careTeam" && <CareTeamScreen push={push} />}
       {nav.top.name === "reports" && <Reports />}
       {nav.top.name === "wallet" && <WalletScreen />}
       {nav.top.name === "connections" && <Connections />}
@@ -59,47 +69,23 @@ export const CareHub: React.FC = () => {
 };
 
 const tiles: { name: string; label: string; glyph: string; accent: string; status: (s: ReturnType<typeof useSano>) => string; badge?: (s: ReturnType<typeof useSano>) => number }[] = [
-  { name: "messages", label: "Messages", glyph: "message-circle", accent: "sky", status: (s) => { const n = s.threads.filter((t) => t.unread).length; return n ? `${n} waiting for you` : "All caught up"; }, badge: (s) => s.threads.filter((t) => t.unread).length },
-  { name: "appointments", label: "Appointments", glyph: "calendar", accent: "gold", status: (s) => s.appointments[0] ? `Next ${fmtMonthDay(s.appointments[0].date)}` : "Nothing scheduled" },
-  { name: "carePlan", label: "Care plan", glyph: "leaf", accent: "life", status: (s) => `${s.persona.carePlan.goals.length} goals from your team` },
-  { name: "medications", label: "Meds & refills", glyph: "pills", accent: "warm", status: (s) => { const n = s.medications.filter((m) => m.supplyDaysRemaining <= 7).length; return n ? `${n} running low` : "All stocked"; } },
-  { name: "records", label: "Records", glyph: "droplet", accent: "rose", status: (s) => `${s.recordItems.length} items, reconciled`, badge: (s) => (!s.resultAcknowledged && s.resultToAck ? 1 : 0) },
-  { name: "bills", label: "Bills", glyph: "receipt", accent: "gold", status: (s) => { const t = s.openBillsTotal; return t ? `$${Math.round(t)} to review` : "Nothing due"; } },
-  { name: "documents", label: "Documents", glyph: "folder", accent: "sky", status: (s) => `${s.careDocuments.length} saved` },
-  { name: "visitPrep", label: "Visit prep", glyph: "book", accent: "warm", status: (s) => `${s.guideItems.filter((g) => !g.resolved).length} on your guide` },
-  { name: "reports", label: "Visit reports", glyph: "file", accent: "sky", status: (s) => { const n = s.careTeam.filter((m) => !m.role.toLowerCase().includes("pharmacy")).length; return n ? `${n} ready to review` : "For your visits"; } },
-  { name: "wallet", label: "Wallet", glyph: "wallet", accent: "life", status: (s) => (s.openBillsTotal > 0 ? `$${Math.round(s.openBillsTotal)} ready to pay` : `${s.walletCards.length} cards on file`) },
-  { name: "connections", label: "Connections", glyph: "link", accent: "rose", status: (s) => { const c = s.connections.filter((x) => x.connected).length; return c ? `${c} connected` : "Bring your world in"; } },
+  { name: "appointments", label: "Appointments", glyph: "calendar", accent: "gold", status: (s) => { const next = s.appointments.filter((a) => a.date >= Date.now() && a.status !== "cancelled").sort((a, b) => a.date - b.date)[0]; return next ? `Next ${fmtMonthDay(next.date)}` : "Visit history and preparation"; } },
+  { name: "carePlan", label: "Care plan", glyph: "leaf", accent: "life", status: () => "Your goals and next steps" },
+  { name: "medications", label: "Meds & refills", glyph: "pills", accent: "warm", status: (s) => { const n = s.medications.filter((m) => m.supplyDaysRemaining <= 7).length; return n ? `${n} running low` : "Your medication list"; } },
+  { name: "records", label: "Records & results", glyph: "droplet", accent: "rose", status: (s) => s.recordUpdateCount ? "A new result to review" : "Your health history" },
 ];
 
 const Hub: React.FC<{ push: (n: string, p?: Record<string, unknown>) => void }> = ({ push }) => {
   const s = useSano();
-  const subtitle = s.pathway === "metabolic" ? "Your team, your plan, and the day-to-day — handled." : s.pathway === "oncology" ? "Everything around treatment, in one calm place." : "Surgery logistics, your team, and the road to recovery.";
   return (
     <div className="absolute inset-0 overflow-y-auto px-5 pb-32">
-      <HubHeader title="Care" subtitle={subtitle} rightPad />
-      {s.needsYou.length > 0 && (
-        <div className="mt-5">
-          <Kicker className="text-warm mb-2">Needs you</Kicker>
-          <div className="space-y-2">
-            {s.needsYou.map((n) => (
-              <Press key={n.id + n.kind} onClick={() => push(destToRoute(n.destination).name, destToRoute(n.destination).params)} className="w-full text-left">
-                <OrganicCard className="p-3.5 flex items-center gap-3">
-                  <div className="size-9 rounded-full grid place-items-center shrink-0" style={{ background: "rgb(var(--warm) / 0.18)" }}><Icon name={needGlyph(n.kind)} size={16} className="text-warm" /></div>
-                  <div className="flex-1 min-w-0"><p className="font-rounded text-[14px] text-ink font-medium leading-tight">{n.title}</p><p className="font-rounded text-[12px] text-ink-muted truncate">{n.detail}</p></div>
-                  <Icon name="chevronRight" size={16} className="text-ink-muted" />
-                </OrganicCard>
-              </Press>
-            ))}
-          </div>
-        </div>
-      )}
+      <HubHeader title="Care" rightPad />
       <div className="grid grid-cols-2 gap-3 mt-5">
         {tiles.map((t) => {
           const badge = t.badge?.(s) ?? 0;
           return (
             <Press key={t.name} onClick={() => push(t.name)} className="text-left">
-              <OrganicCard className="p-4 h-full min-h-[96px] relative">
+              <OrganicCard className="p-4 h-full min-h-[150px] relative">
                 {badge > 0 && <span className="absolute top-3 right-3 min-w-5 h-5 px-1.5 rounded-full grid place-items-center text-[11px] font-rounded font-bold text-base" style={{ background: "rgb(var(--warm))" }}>{badge}</span>}
                 <div className="size-9 rounded-full grid place-items-center" style={{ background: `rgb(var(--${t.accent}) / 0.18)` }}><Icon name={t.glyph} size={17} className={accentText[t.accent]} /></div>
                 <p className="font-serif text-[16px] text-ink mt-2.5">{t.label}</p>
@@ -110,11 +96,13 @@ const Hub: React.FC<{ push: (n: string, p?: Record<string, unknown>) => void }> 
         })}
       </div>
       {s.showsLookingAhead && s.lookingAhead && <LookingAhead push={push} />}
-      <ProvenanceChip text="One secure place — synced from your providers and plan" className="mt-5 px-1" />
+      <div className="mt-5 flex gap-6 text-ink-muted font-rounded text-[13px]">
+        <Press className="min-h-11" onClick={() => push("careTeam")}>Care team</Press>
+        <Press className="min-h-11" onClick={() => push("bills")}>Bills & wallet</Press>
+      </div>
     </div>
   );
 };
-function needGlyph(k: string): string { return k === "message" ? "message-circle" : k === "result" ? "droplet" : k === "refill" ? "pills" : k === "bill" ? "receipt" : "calendar"; }
 
 const LookingAhead: React.FC<{ push: (n: string, p?: Record<string, unknown>) => void }> = ({ push }) => {
   const s = useSano();
@@ -128,7 +116,7 @@ const LookingAhead: React.FC<{ push: (n: string, p?: Record<string, unknown>) =>
       <p className="font-rounded text-[13px] text-ink-muted mt-1 leading-snug">{la.body}</p>
       <Press onClick={() => setWhy((v) => !v)} className="text-[12px] font-rounded text-sky font-medium mt-2">Why am I seeing this?</Press>
       {why && <p className="font-rounded text-[12px] text-ink-muted mt-1.5 leading-snug">{la.basis}</p>}
-      <Press onClick={() => { if (!added) { s.addGuideItem("Question", la.guideQuestion, "A gentle look ahead"); setAdded(true); push("visitPrep"); } }} className="mt-3 rounded-full px-4 py-2 text-[13px] font-rounded font-semibold" style={{ background: "rgb(var(--ink))", color: "rgb(var(--base))" }}>{added ? "Added to your guide" : "Add to my guide"}</Press>
+      <Press onClick={() => { if (!added) { s.addGuideItem("Question", la.guideQuestion, "A gentle look ahead"); setAdded(true); push("guide"); } }} className="mt-3 rounded-full px-4 py-2 text-[13px] font-rounded font-semibold" style={{ background: "rgb(var(--ink))", color: "rgb(var(--base))" }}>{added ? "Added to your guide" : "Add to my guide"}</Press>
     </OrganicCard>
   );
 };
@@ -138,7 +126,7 @@ const Messages: React.FC<{ push: (n: string, p?: Record<string, unknown>) => voi
   const s = useSano();
   return (
     <div className="space-y-3">
-      <div><h1 className="font-serif text-[28px] text-ink">Messages</h1><p className="font-rounded text-[13px] text-ink-muted mt-1">Your care teams, one place. Tap to read or reply.</p></div>
+      <div><h1 className="font-serif text-[28px] text-ink">Messages</h1><p className="font-rounded text-[13px] text-ink-muted mt-1">Demo inbox · no messages leave Rumi</p></div>
       {[...s.threads].sort((a, b) => lastAt(b) - lastAt(a)).map((t) => (
         <Press key={t.id} onClick={() => push("thread", { id: t.id })} className="w-full text-left">
           <OrganicCard className="p-4 flex items-center gap-3">
@@ -147,7 +135,7 @@ const Messages: React.FC<{ push: (n: string, p?: Record<string, unknown>) => voi
               <div className="flex items-center gap-2"><p className="font-serif text-[15px] text-ink truncate">{t.memberName}</p>{t.unread && <span className="size-2 rounded-full bg-warm shrink-0" />}</div>
               <p className="font-rounded text-[12.5px] text-ink-muted truncate">{t.messages[t.messages.length - 1]?.text}</p>
             </div>
-            <Icon name={t.mode === "inApp" ? "lock" : "arrowUpRight"} size={14} className={t.mode === "inApp" ? "text-life" : "text-gold"} />
+            {s.messageDrafts[t.id] && <span className="font-rounded text-xs text-warm">Draft</span>}
           </OrganicCard>
         </Press>
       ))}
@@ -162,11 +150,12 @@ function lastAt(t: MessageThread): number { return t.messages[t.messages.length 
 const ThreadView: React.FC<{ id: string }> = ({ id }) => {
   const s = useSano();
   const thread = s.threads.find((t) => t.id === id);
-  const [draft, setDraft] = useState("");
+  const draft = s.messageDrafts[id] ?? "";
+  const setDraft = (text: string) => s.updateMessageDraft(id, text);
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => { s.markThreadRead(id); /* eslint-disable-next-line */ }, [id]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [thread?.messages.length]);
-  if (!thread) return null;
+  if (!thread) return <p className="font-rounded text-ink-muted">This conversation isn't available.</p>;
   return (
     <div className="space-y-3 pb-20">
       <div><h1 className="font-serif text-[24px] text-ink">{thread.memberName}</h1><p className="font-rounded text-[12px] text-ink-muted">{thread.memberRole}</p></div>
@@ -175,7 +164,7 @@ const ThreadView: React.FC<{ id: string }> = ({ id }) => {
           <div className={`max-w-[80%] rounded-3xl px-4 py-2.5 ${m.author === "user" ? "text-base" : "organic text-ink"}`} style={m.author === "user" ? { background: "rgb(var(--ink))" } : undefined}>
             {m.origin && <p className="text-[10.5px] opacity-70 mb-1 flex items-center gap-1"><Icon name="cornerDownRight" size={10} />{m.origin}</p>}
             <p className="font-rounded text-[14px] leading-snug">{m.text}</p>
-            <p className={`text-[10px] mt-1 ${m.author === "user" ? "text-base/70" : "text-ink-muted"}`}>{m.state === "draft" ? "Ready for the portal" : m.state} · {fmtTime(m.at)}</p>
+            <p className={`text-[10px] mt-1 ${m.author === "user" ? "text-base/70" : "text-ink-muted"}`}>{m.state === "draft" ? "Not sent" : `Demo · ${m.state}`} · {fmtTime(m.at)}</p>
           </div>
         </div>
       ))}
@@ -183,7 +172,7 @@ const ThreadView: React.FC<{ id: string }> = ({ id }) => {
       <div className="fixed-none" />
       <Glass radius={24} className="flex items-center gap-2 pl-4 pr-2 py-2 sticky bottom-2">
         <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={thread.mode === "portal" ? "Draft a message…" : "Write a reply…"} className="flex-1 bg-transparent outline-none font-rounded text-[14px] text-ink" />
-        <button onClick={() => { if (draft.trim()) { s.sendThreadMessage(id, draft); setDraft(""); } }} className="press grid place-items-center size-9 rounded-full" style={{ background: "rgb(var(--ink))" }}><Icon name="send" size={15} className="text-base" /></button>
+        <button aria-label={thread.mode === "portal" ? "Save draft" : "Send demo reply"} disabled={!draft.trim()} onClick={() => { if (draft.trim()) { s.sendThreadMessage(id, draft); setDraft(""); } }} className="press grid place-items-center size-11 rounded-full disabled:opacity-40" style={{ background: "rgb(var(--ink))" }}><Icon name="send" size={15} className="text-base" /></button>
       </Glass>
     </div>
   );
@@ -219,6 +208,10 @@ const Appointments: React.FC<{ push: (n: string, p?: Record<string, unknown>) =>
   return (
     <div className="space-y-3">
       <div><h1 className="font-serif text-[28px] text-ink">Appointments</h1><p className="font-rounded text-[13px] text-ink-muted mt-1">Everything coming up, and how to get there easily.</p></div>
+      <div className="flex gap-5 font-rounded text-[13px] text-ink-muted">
+        <Press className="min-h-11" onClick={() => push("guide")}>Discussion guide</Press>
+        <Press className="min-h-11" onClick={() => push("reports")}>Visit reports</Press>
+      </div>
       {[...s.appointments].sort((a, b) => a.date - b.date).map((a) => (
         <Press key={a.id} onClick={() => push("appointmentDetail", { id: a.id })} className="w-full text-left">
           <OrganicCard className="p-4 flex items-center gap-3.5">
@@ -243,11 +236,11 @@ const Appointments: React.FC<{ push: (n: string, p?: Record<string, unknown>) =>
   );
 };
 
-const AppointmentDetail: React.FC<{ id: string; push: (n: string, p?: Record<string, unknown>) => void }> = ({ id, push }) => {
+export const AppointmentDetail: React.FC<{ id: string; push: (n: string, p?: Record<string, unknown>) => void }> = ({ id, push }) => {
   const s = useSano();
-  const a = s.appointments.find((x) => x.id === id);
+  const a = selectedAppointment(s.appointments, id);
   const [check, setCheck] = useState<Set<number>>(new Set());
-  if (!a) return null;
+  if (!a) return <p className="font-rounded text-ink-muted">This appointment isn't available. Return to Appointments to choose a visit.</p>;
   return (
     <div className="space-y-4">
       <OrganicCard className="p-5">
@@ -260,7 +253,7 @@ const AppointmentDetail: React.FC<{ id: string; push: (n: string, p?: Record<str
       <div className="space-y-2">
         {a.kind === "telehealth" && <Press onClick={() => a.joinLink && window.open(a.joinLink, "_blank")} className="w-full rounded-full py-3 font-rounded font-semibold text-[14px]" style={{ background: s.canJoin(a) ? "rgb(var(--ink))" : "rgb(var(--ink-muted) / 0.25)", color: s.canJoin(a) ? "rgb(var(--base))" : "rgb(var(--ink) / 0.6)" }}>{s.canJoin(a) ? "Join the video visit" : "Join opens 15 min before"}</Press>}
         {a.status === "pending" && <Press onClick={() => s.confirmAppointment(a.id)} className="w-full rounded-full py-3 font-rounded font-semibold text-[14px]" style={{ background: "rgb(var(--ink))", color: "rgb(var(--base))" }}>Confirm this time</Press>}
-        {a.prepReady && <Press onClick={() => push("visitPrep")} className="w-full rounded-full py-3 font-rounded font-semibold text-[14px] glass text-ink">See your visit prep</Press>}
+        {a.prepReady && <Press onClick={() => push("visitPrep", { id: a.id })} className="w-full rounded-full py-3 font-rounded font-semibold text-[14px] glass text-ink">See your visit prep</Press>}
       </div>
       {a.trip && (
         <OrganicCard className="p-4">
@@ -289,6 +282,7 @@ const Bills: React.FC<{ push: (n: string, p?: Record<string, unknown>) => void }
   const settled = s.bills.filter((b) => b.status !== "open");
   return (
     <div className="space-y-4">
+      <Press onClick={() => push("wallet")} className="min-h-11 font-rounded text-sm text-ink-muted">Wallet</Press>
       <div><h1 className="font-serif text-[28px] text-ink">Bills & costs</h1><p className="font-rounded text-[13px] text-ink-muted mt-1">What you owe, what's covered, and why — no surprises.</p></div>
       <OrganicCard className="p-4">
         <Kicker>This year so far · {s.cost.planName}</Kicker>
@@ -518,7 +512,7 @@ const WalletCardView: React.FC<{ card: WalletCard }> = ({ card }) => (
 );
 
 // ---------- Connections + agent family ----------
-const Connections: React.FC = () => {
+export const Connections: React.FC = () => {
   const s = useSano();
   const google = s.connections.filter((c) => c.group === "google");
   const channels = s.connections.filter((c) => c.group === "channel");

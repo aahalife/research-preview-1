@@ -14,18 +14,23 @@ import { SoundEngine, Haptics } from "./sound";
 import { streamChat, parseTags, makeHoldbackFilter, newTurn, localReply, type ChatMessage } from "./ai";
 import type { Scheme } from "./theme";
 
-export type Tab = "today" | "care" | "you" | "journeys" | "currents";
+import type { Tab, Route } from "./navigation";
+export type { Tab } from "./navigation";
 export interface NeedsYou { id: string; kind: "message" | "result" | "refill" | "bill" | "appointment"; title: string; detail: string; destination: CareDest }
 export type CareDest =
   | { t: "messages" } | { t: "thread"; id: string } | { t: "requests" } | { t: "appointments" }
   | { t: "appointmentDetail"; id: string } | { t: "carePlan" } | { t: "medications" }
-  | { t: "records" } | { t: "bills" } | { t: "billDetail"; id: string } | { t: "documents" } | { t: "visitPrep" };
+  | { t: "records" } | { t: "bills" } | { t: "billDetail"; id: string } | { t: "documents" } | { t: "visitPrep"; id?: string } | { t: "connections" };
 
 const PERSIST_KEY = "sano.web.v1";
 
 interface SanoStore {
   // shell
   tab: Tab; setTab: (t: Tab) => void;
+  navigationStacks: Partial<Record<Tab, Route[]>>;
+  updateNavigationStack: (tab: Tab, update: (stack: Route[]) => Route[]) => void;
+  messageDrafts: Record<string, string>;
+  updateMessageDraft: (id: string, text: string) => void;
   hasOnboarded: boolean;
   showConversation: boolean; openConversation: (seed?: string) => void; closeConversation: () => void;
   showQuickLog: boolean; setShowQuickLog: (b: boolean) => void; quickLogMedID: string | null; setQuickLogMedID: (s: string | null) => void;
@@ -60,7 +65,7 @@ interface SanoStore {
   // companion
   turns: ConversationTurn[]; isThinking: boolean; sendMessage: (text: string) => void; sendVoiceMessage: (text: string) => Promise<string>; resolveRich: (id: string) => void;
   // derived
-  pendingActions: AgentAction[]; needsYou: NeedsYou[]; openBillsTotal: number; careUnreadCount: number;
+  pendingActions: AgentAction[]; needsYou: NeedsYou[]; openBillsTotal: number; careUnreadCount: number; messageUnreadCount: number; recordUpdateCount: number;
   // agent network
   walletCards: WalletCard[]; connections: Connection[]; agentServices: AgentService[];
   agentTasks: AgentTask[];
@@ -119,11 +124,15 @@ export const useSano = (): SanoStore => {
   return v;
 };
 
-function loadPersisted(): Record<string, unknown> | null {
-  try { const raw = localStorage.getItem(PERSIST_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+function loadPersisted(key: string = PERSIST_KEY): Record<string, unknown> | null {
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 function savePersisted(data: Record<string, unknown>) {
-  try { localStorage.setItem(PERSIST_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+  try {
+    const encoded = JSON.stringify(data);
+    localStorage.setItem(PERSIST_KEY, encoded);
+    localStorage.setItem(`${PERSIST_KEY}.demo.${data.pathway}`, encoded);
+  } catch { /* ignore */ }
 }
 
 export const SanoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -135,6 +144,14 @@ export const SanoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [pathway, setPathway] = useState<Pathway>(initialPathway);
   const [activePersona, setActivePersona] = useState<Persona>(persona);
   const [tab, setTab] = useState<Tab>("today");
+  const [navigationStacks, setNavigationStacks] = useState<Partial<Record<Tab, Route[]>>>({});
+  const updateNavigationStack = useCallback((home: Tab, update: (stack: Route[]) => Route[]) => {
+    setNavigationStacks((current) => ({ ...current, [home]: update(current[home] ?? [{ name: "hub" }]) }));
+  }, []);
+  const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>((persisted?.messageDrafts as Record<string, string>) ?? {});
+  const updateMessageDraft = useCallback((id: string, text: string) => {
+    setMessageDrafts((current) => { const next = { ...current }; if (text) next[id] = text; else delete next[id]; return next; });
+  }, []);
   const [showConversation, setShowConversation] = useState(false);
   const [showQuickLog, setShowQuickLog] = useState(false);
   const [quickLogMedID, setQuickLogMedID] = useState<string | null>(null);
@@ -227,9 +244,9 @@ export const SanoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     savePersisted({
       hasOnboarded, pathway, profile, tone: tonePreference, appearance, musicOn, soundOn,
       epsilon: epsilonConsent, eraWarmth, notifs: notificationClasses, justBloomed,
-      entries, logs, memories, guideItems, memory, threads, requests, documents: careDocuments,
+      entries, logs, memories, guideItems, memory, threads, requests, documents: careDocuments, messageDrafts,
     });
-  }, [hasOnboarded, pathway, profile, tonePreference, appearance, musicOn, soundOn, epsilonConsent, eraWarmth, notificationClasses, justBloomed, entries, logs, memories, guideItems, memory, threads, requests, careDocuments]);
+  }, [hasOnboarded, pathway, profile, tonePreference, appearance, musicOn, soundOn, epsilonConsent, eraWarmth, notificationClasses, justBloomed, entries, logs, memories, guideItems, memory, threads, requests, careDocuments, messageDrafts]);
   useEffect(() => { persist(); }, [persist]);
 
   // ---- sound bindings ----
@@ -275,10 +292,26 @@ export const SanoProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const switchPathway = useCallback((p: Pathway) => {
     if (p === pathway) return;
+    persist();
+    const saved = loadPersisted(`${PERSIST_KEY}.demo.${p}`);
+    setNavigationStacks({});
+    setMessageDrafts({});
+    setPendingCareDest(null);
     setPathway(p);
     applyPersona(p);
+    if (saved?.pathway === p) {
+      if (Array.isArray(saved.entries)) setEntries(saved.entries as CareEntry[]);
+      if (Array.isArray(saved.logs)) setLogs(saved.logs as SymptomLog[]);
+      if (Array.isArray(saved.memories)) setMemories(saved.memories as MemoryGlimpse[]);
+      if (Array.isArray(saved.guideItems)) setGuideItems(saved.guideItems as GuideItem[]);
+      if (Array.isArray(saved.memory)) setMemory(saved.memory as MemoryItem[]);
+      if (Array.isArray(saved.threads)) setThreads(saved.threads as MessageThread[]);
+      if (Array.isArray(saved.requests)) setRequests(saved.requests as CareRequest[]);
+      if (Array.isArray(saved.documents)) setCareDocuments(saved.documents as CareDocument[]);
+      setMessageDrafts((saved.messageDrafts as Record<string, string>) ?? {});
+    }
     setTurns([]); hasGreetedRef.current = false;
-  }, [pathway, applyPersona]);
+  }, [pathway, applyPersona, persist]);
 
   // ---- companion ----
   const buildSystemPrompt = useCallback((): string => {
@@ -618,6 +651,9 @@ Today is ${new Date().toLocaleDateString([], { weekday: "long", month: "long", d
 
   const wipe = useCallback(() => {
     localStorage.removeItem(PERSIST_KEY);
+    for (const p of ["metabolic", "oncology", "procedure", "cardiometabolic"]) {
+      localStorage.removeItem(`${PERSIST_KEY}.demo.${p}`);
+    }
     window.location.reload();
   }, []);
 
@@ -634,7 +670,9 @@ Today is ${new Date().toLocaleDateString([], { weekday: "long", month: "long", d
     return items;
   }, [threads, resultAcknowledged, careBundle, medications, bills, appointments]);
 
-  const careUnreadCount = useMemo(() => threads.filter((t) => t.unread).length + (!resultAcknowledged && careBundle.resultToAck ? 1 : 0), [threads, resultAcknowledged, careBundle]);
+  const messageUnreadCount = useMemo(() => threads.filter((t) => t.unread).length, [threads]);
+  const recordUpdateCount = !resultAcknowledged && careBundle.resultToAck ? 1 : 0;
+  const careUnreadCount = messageUnreadCount + recordUpdateCount;
 
   const reports = useCallback((rangeDays: number): DoctorReport[] => buildReports({ persona: activePersona, careTeam, labSeries, medications, logs, guideItems, entries, rangeDays }), [activePersona, careTeam, labSeries, medications, logs, guideItems, entries]);
   const reportSent = useCallback((id: string) => reportSentKeys.has(id), [reportSentKeys]);
@@ -699,7 +737,8 @@ Today is ${new Date().toLocaleDateString([], { weekday: "long", month: "long", d
     notificationClasses, toggleNotification, quietStart, quietEnd, setQuiet,
     orbState, justBloomed, quickLogAck, setQuickLogAck,
     turns, isThinking, sendMessage, sendVoiceMessage, resolveRich,
-    pendingActions, needsYou, openBillsTotal, careUnreadCount,
+    pendingActions, needsYou, openBillsTotal, careUnreadCount, messageUnreadCount, recordUpdateCount,
+    navigationStacks, updateNavigationStack, messageDrafts, updateMessageDraft,
     walletCards, connections, agentServices, reports, reportSent, sendReport, payBill, toggleConnection, toggleAgentService,
     agentTasks, agentTasksWaiting, agentTasksInMotion, tasksForAgent, activeTaskCount, waitingCount, approveAgentTask, declineAgentTask,
     showAgentNetwork, setShowAgentNetwork, agentNetworkFocus, openAgentNetwork,

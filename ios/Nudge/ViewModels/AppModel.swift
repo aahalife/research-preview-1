@@ -9,23 +9,36 @@ import Observation
     enum Tab: String, CaseIterable {
         case today = "Today"
         case care = "Care"
+        case messages = "Messages"
         case you = "You"
-        case journeys = "Journeys"
-        case currents = "Currents"
 
         var glyph: String {
             switch self {
             case .today: return "sun.haze"
             case .care: return "cross.case"
             case .you: return "book.closed"
-            case .journeys: return "leaf"
-            case .currents: return "water.waves"
+            case .messages: return "bubble.left.and.bubble.right"
             }
         }
     }
 
     // MARK: Navigation & shell
     var tab: Tab = .today
+    var carePath: NavigationPath = NavigationPath()
+    var messagesPath: NavigationPath = NavigationPath()
+    var youPath: NavigationPath = NavigationPath()
+    var youSection: YouView.Section = .story
+    var messageDrafts: [String: String] = [:]
+
+    func openYou(_ destination: YouDestination) {
+        youPath = NavigationPath()
+        youPath.append(destination)
+        tab = .you
+    }
+
+    func appointment(withID id: UUID) -> Appointment? {
+        appointments.first { $0.id == id }
+    }
     var showConversation = false
     var conversationSeed: String? = nil
     var showQuickLog = false
@@ -234,15 +247,16 @@ import Observation
 
         // Everything the user has created comes back — the log, the guide,
         // the held moments, the remembered notes.
-        if let saved = PersistenceService.load(), saved.pathway == savedPathway.rawValue {
-            if !saved.entries.isEmpty { entries = saved.entries }
+        if let saved = PersistenceService.load(pathway: savedPathway.rawValue) {
+            entries = saved.entries
             logs = saved.logs
-            if !saved.memories.isEmpty { memories = saved.memories }
-            if !saved.guideItems.isEmpty { guideItems = saved.guideItems }
-            if !saved.memoryNotes.isEmpty { memory = saved.memoryNotes }
-            if !saved.threads.isEmpty { threads = saved.threads }
-            if !saved.requests.isEmpty { requests = saved.requests }
-            if !saved.documents.isEmpty { careDocuments = saved.documents }
+            memories = saved.memories
+            guideItems = saved.guideItems
+            memory = saved.memoryNotes
+            threads = saved.threads
+            requests = saved.requests
+            careDocuments = saved.documents
+            messageDrafts = saved.messageDrafts ?? [:]
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for billIndex in bills.indices where saved.paidBillKeys.contains(bills[billIndex].key) {
                 bills[billIndex].status = .paid
@@ -267,7 +281,8 @@ import Observation
             requests: requests,
             documents: careDocuments,
             paidBillKeys: bills.filter { $0.status == .paid }.map(\.key),
-            derivedJourneyGoals: Array(derivedJourneyGoals)
+            derivedJourneyGoals: Array(derivedJourneyGoals),
+            messageDrafts: messageDrafts
         ))
     }
 
@@ -281,6 +296,12 @@ import Observation
 
     func switchPathway(_ newPathway: CarePathway) {
         guard newPathway != pathway else { return }
+        persistUserData()
+        carePath = NavigationPath()
+        messagesPath = NavigationPath()
+        youPath = NavigationPath()
+        pendingCareDestination = nil
+        messageDrafts = [:]
         pathway = newPathway
         UserDefaults.standard.set(newPathway.rawValue, forKey: "nudge.pathway")
         let activePersona = PersonaFixtures.persona(for: newPathway)
@@ -316,6 +337,21 @@ import Observation
             agentServices = AgentNetwork.agentServices()
             agentTasks = AgentNetwork.agentTasks(for: newPathway)
             reportSentKeys = []
+        }
+        if let saved = PersistenceService.load(pathway: newPathway.rawValue) {
+            entries = saved.entries
+            logs = saved.logs
+            memories = saved.memories
+            guideItems = saved.guideItems
+            memory = saved.memoryNotes
+            threads = saved.threads
+            requests = saved.requests
+            careDocuments = saved.documents
+            messageDrafts = saved.messageDrafts ?? [:]
+            derivedJourneyGoals = Set(saved.derivedJourneyGoals)
+            for index in bills.indices where saved.paidBillKeys.contains(bills[index].key) {
+                bills[index].status = .paid
+            }
         }
         companion.reset()
     }
@@ -651,16 +687,22 @@ import Observation
     /// unread messages plus a freshly-landed result. Refills/bills/appointments
     /// already live in the "Needs you" band; this count is the "new from your
     /// care team" signal specifically.
-    var careUnreadCount: Int {
-        let unreadThreads = threads.filter { $0.unread }.count
-        let newResult = (!resultAcknowledged && resultToAck != nil) ? 1 : 0
-        return unreadThreads + newResult
-    }
+    var messageUnreadCount: Int { threads.filter(\.unread).count }
+    var recordUpdateCount: Int { (!resultAcknowledged && resultToAck != nil) ? 1 : 0 }
+    var careUnreadCount: Int { messageUnreadCount + recordUpdateCount }
 
     /// Routes into a specific Care surface (from Today's "Needs you").
     func openCare(_ destination: CareDestination) {
-        pendingCareDestination = destination
-        withAnimation(NudgeSpring.ui) { tab = .care }
+        pendingCareDestination = nil
+        if destination.isMessaging {
+            messagesPath = NavigationPath()
+            if destination != .messages { messagesPath.append(destination) }
+            tab = .messages
+        } else {
+            carePath = NavigationPath()
+            carePath.append(destination)
+            tab = .care
+        }
     }
 
     // MARK: - Care hub actions (every consequential step is user-confirmed, §2.2)
@@ -668,6 +710,13 @@ import Observation
     func markThreadRead(_ id: UUID) {
         guard let index = threads.firstIndex(where: { $0.id == id }), threads[index].unread else { return }
         threads[index].unread = false
+        persistUserData()
+    }
+
+    func updateMessageDraft(threadID: UUID, text: String) {
+        guard threads.contains(where: { $0.id == threadID }) else { return }
+        messageDrafts[threadID.uuidString] = text.isEmpty ? nil : text
+        persistUserData()
     }
 
     /// Sends a message in a thread — only ever after explicit confirmation in

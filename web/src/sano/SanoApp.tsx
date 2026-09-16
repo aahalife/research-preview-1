@@ -10,8 +10,7 @@ import { Onboarding } from "./screens/Onboarding";
 import { Today } from "./screens/Today";
 import { CareHub } from "./screens/Care";
 import { YouHub } from "./screens/You";
-import { Journeys } from "./screens/Journeys";
-import { Currents } from "./screens/Currents";
+import { destinationHome } from "./navigation";
 import { Conversation } from "./screens/Conversation";
 import { QuickLog } from "./screens/QuickLog";
 import { Settings } from "./screens/Settings";
@@ -39,6 +38,7 @@ export const SanoApp: React.FC = () => {
         <RippleLayer scheme={s.scheme} />
 
         {s.hasOnboarded ? <RootShell /> : <Onboarding />}
+        <div id="rumi-device-overlays" className="absolute inset-0 z-[70] pointer-events-none [&>*]:pointer-events-auto" />
       </div>
     </div>
   );
@@ -46,14 +46,17 @@ export const SanoApp: React.FC = () => {
 
 const RootShell: React.FC = () => {
   const s = useSano();
+  const { pendingCareDest, setTab } = s;
+  useEffect(() => {
+    if (pendingCareDest) setTab(destinationHome(pendingCareDest.t));
+  }, [pendingCareDest, setTab]);
   return (
     <div className="absolute inset-0">
       <div className={s.showConversation ? "opacity-0 pointer-events-none transition-opacity" : "absolute inset-0 anim-fade transition-opacity"}>
         {s.tab === "today" && <Today />}
-        {s.tab === "care" && <CareHub />}
+        {s.tab === "care" && <CareHub key="care" />}
         {s.tab === "you" && <YouHub />}
-        {s.tab === "journeys" && <Journeys />}
-        {s.tab === "currents" && <Currents />}
+        {s.tab === "messages" && <CareHub key="messages" home="messages" />}
       </div>
 
       {/* The companion is everywhere — except on Today (which has the big orb). */}

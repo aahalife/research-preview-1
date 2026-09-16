@@ -22,6 +22,10 @@ struct BillsView: View {
                 }
                 .padding(.top, 8)
 
+                NavigationLink("Wallet", value: CareDestination.wallet)
+                    .font(NudgeType.rounded(14, .medium))
+                    .frame(minHeight: 44)
+
                 costCard
 
                 if !openBills.isEmpty {

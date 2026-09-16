@@ -1,14 +1,26 @@
 import React, { useCallback, useState } from "react";
 import { Icon } from "../ui/Icon";
 import { SoundEngine } from "../sound";
+import { useSano } from "../store";
+import type { Route, Tab } from "../navigation";
 
-export interface Route { name: string; params?: Record<string, unknown> }
+export type { Route } from "../navigation";
 
-export function useStack(initial: Route) {
-  const [stack, setStack] = useState<Route[]>([initial]);
-  const push = useCallback((r: Route) => { SoundEngine.glass(); setStack((s) => [...s, r]); }, []);
-  const pop = useCallback(() => { SoundEngine.glass(); setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)); }, []);
-  const reset = useCallback((r: Route) => setStack([r]), []);
+/** Session-scoped paths survive switching tabs without keeping hidden media screens mounted. */
+export function useStack(initial: Route, home?: Tab) {
+  const { navigationStacks, updateNavigationStack } = useSano();
+  const [localStack, setLocalStack] = useState<Route[]>([initial]);
+  const stack = home ? navigationStacks[home] ?? [initial] : localStack;
+  const setStack = useCallback((update: (current: Route[]) => Route[]) => {
+    if (home) updateNavigationStack(home, update);
+    else setLocalStack(update);
+  }, [home, updateNavigationStack]);
+  const push = useCallback((r: Route) => { SoundEngine.glass(); setStack((s) => {
+    const top = s[s.length - 1];
+    return top?.name === r.name && JSON.stringify(top.params ?? {}) === JSON.stringify(r.params ?? {}) ? s : [...s, r];
+  }); }, [setStack]);
+  const pop = useCallback(() => { SoundEngine.glass(); setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)); }, [setStack]);
+  const reset = useCallback((r: Route) => setStack(() => [r]), [setStack]);
   const top = stack[stack.length - 1];
   return { stack, top, push, pop, reset, canPop: stack.length > 1 };
 }

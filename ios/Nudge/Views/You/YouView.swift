@@ -7,18 +7,18 @@ enum YouDestination: Hashable {
     case medications
     case medDetail(String)
     case care
-    case visitPrep
+    case visitPrep(UUID)
     case conditions
     case guide
     case life
+    case journeys
+    case currents
+    case connections
 }
 
-/// "You" — the health story. Story · Insights as one segmented pair, with the
-/// conditions overview, discussion guide, and records drawer one tap away.
+/// Personal history and everyday support, with clinical aliases preserved for older entry points.
 struct YouView: View {
     @Environment(AppModel.self) private var model
-    @State private var section: Section = .story
-    @State private var path = NavigationPath()
 
     enum Section: String, CaseIterable {
         case story = "Story"
@@ -26,37 +26,27 @@ struct YouView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $path) {
+        @Bindable var model = model
+        NavigationStack(path: $model.youPath) {
             ZStack {
                 LivingGradientView()
-
                 VStack(spacing: 0) {
                     header
                     quickDoors
-
-                    switch section {
-                    case .story:
-                        StoryTimelineView()
-                            .transition(.opacity)
-                    case .insights:
-                        InsightsHubView()
-                            .transition(.opacity)
+                    switch model.youSection {
+                    case .story: StoryTimelineView()
+                    case .insights: InsightsHubView()
                     }
                 }
             }
-            .navigationDestination(for: YouDestination.self) { destination in
-                destinationView(destination)
-            }
+            .navigationDestination(for: YouDestination.self) { YouRouteView(destination: $0) }
+            .navigationDestination(for: CareDestination.self) { CareRouteView(destination: $0) }
             .toolbar(.hidden, for: .navigationBar)
             .onReceive(NotificationCenter.default.publisher(for: .nudgeOpenConditions)) { _ in
-                if path.isEmpty {
-                    path.append(YouDestination.conditions)
-                }
+                model.openYou(.conditions)
             }
             .onReceive(NotificationCenter.default.publisher(for: .nudgeOpenLife)) { _ in
-                if path.isEmpty {
-                    path.append(YouDestination.life)
-                }
+                model.openYou(.life)
             }
         }
     }
@@ -66,56 +56,48 @@ struct YouView: View {
             GlassSurface(radius: 24) {
                 HStack(spacing: 4) {
                     ForEach(Section.allCases, id: \.self) { item in
-                        let selected = section == item
+                        let selected = model.youSection == item
                         Button {
                             Haptics.tick()
-                            withAnimation(NudgeSpring.ui) { section = item }
+                            withAnimation(NudgeSpring.ui) { model.youSection = item }
                         } label: {
                             Text(item.rawValue)
                                 .font(NudgeType.rounded(13, selected ? .semibold : .medium))
                                 .foregroundStyle(selected ? Theme.ink : Theme.inkMuted)
                                 .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .frame(minHeight: 44)
                                 .background {
-                                    if selected {
-                                        Capsule().fill(Theme.surface.opacity(0.9))
-                                    }
+                                    if selected { Capsule().fill(Theme.surface.opacity(0.9)) }
                                 }
                         }
                         .buttonStyle(NudgeButtonStyle())
+                        .accessibilityAddTraits(selected ? .isSelected : [])
                     }
                 }
                 .padding(4)
             }
-
-            Spacer()
+            Spacer(minLength: 0)
+            Button { model.showSettings = true } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 17, weight: .light))
+                    .foregroundStyle(Theme.inkMuted)
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel("Account and settings")
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
+        .padding(.leading, 20)
+        .padding(.trailing, 72)
+        .padding(.top, 8)
         .padding(.bottom, 6)
     }
 
-    /// The doors that were buried — conditions & plan, the discussion guide,
-    /// care team & visits. Present on the surface, calm as chips.
     private var quickDoors: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 8) {
-                door(glyph: model.pathway.glyph, label: model.persona.conditionChip, accent: Theme.warm) {
-                    path.append(YouDestination.conditions)
-                }
-                door(glyph: "text.book.closed", label: "Discussion guide", accent: Theme.gold,
-                     badge: model.guideItems.filter { !$0.resolved }.count) {
-                    path.append(YouDestination.guide)
-                }
-                door(glyph: "stethoscope", label: "Care team & visits", accent: Theme.life) {
-                    path.append(YouDestination.care)
-                }
-                door(glyph: "pills", label: "Medications", accent: Theme.sky) {
-                    path.append(YouDestination.medications)
-                }
-                door(glyph: "fork.knife", label: "Life catalog", accent: Theme.rose) {
-                    path.append(YouDestination.life)
-                }
+                door(glyph: "leaf", label: "Journeys", accent: Theme.life, destination: .journeys)
+                door(glyph: "water.waves", label: "Currents", accent: Theme.sky, destination: .currents)
+                door(glyph: "fork.knife", label: "Life", accent: Theme.rose, destination: .life)
+                door(glyph: "link", label: "Connections", accent: Theme.gold, destination: .connections)
             }
         }
         .scrollIndicators(.hidden)
@@ -123,67 +105,22 @@ struct YouView: View {
         .padding(.bottom, 8)
     }
 
-    private func door(glyph: String, label: String, accent: Color,
-                      badge: Int = 0, action: @escaping () -> Void) -> some View {
-        Button {
-            Haptics.tick()
-            action()
-        } label: {
+    private func door(glyph: String, label: String, accent: Color, destination: YouDestination) -> some View {
+        NavigationLink(value: destination) {
             HStack(spacing: 6) {
                 Image(systemName: glyph)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(accent)
                 Text(label)
                     .font(NudgeType.rounded(12, .medium))
                     .foregroundStyle(Theme.ink)
-                if badge > 0 {
-                    Text("\(badge)")
-                        .font(NudgeType.number(10, .semibold))
-                        .foregroundStyle(Theme.base)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(accent, in: .capsule)
-                }
             }
             .padding(.horizontal, 13)
-            .padding(.vertical, 9)
+            .frame(minHeight: 44)
             .background(.ultraThinMaterial, in: .capsule)
-            .overlay(Capsule().strokeBorder(accent.opacity(0.35), lineWidth: 0.9))
+            .overlay(Capsule().strokeBorder(accent.opacity(0.3), lineWidth: 0.8))
         }
         .buttonStyle(NudgeButtonStyle())
-    }
-
-    @ViewBuilder
-    private func destinationView(_ destination: YouDestination) -> some View {
-        ZStack {
-            LivingGradientView()
-            switch destination {
-            case .records:
-                RecordsDrawerView()
-            case .category(let category):
-                RecordCategoryView(category: category)
-            case .labDetail(let seriesID):
-                if let series = model.series(seriesID) {
-                    LabDetailView(series: series)
-                }
-            case .medications:
-                MedicationsView()
-            case .medDetail(let medID):
-                if let med = model.medications.first(where: { $0.id == medID }) {
-                    MedDetailView(medication: med)
-                }
-            case .care:
-                CareTeamView()
-            case .visitPrep:
-                VisitPrepView()
-            case .conditions:
-                ConditionOverviewView()
-            case .guide:
-                DiscussionGuideView()
-            case .life:
-                LifeCatalogView()
-            }
-        }
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .accessibilityIdentifier("you.\(label.lowercased())")
     }
 }

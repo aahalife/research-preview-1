@@ -20,10 +20,8 @@ struct RootView: View {
                     CareHubView()
                 case .you:
                     YouView()
-                case .journeys:
-                    JourneysView()
-                case .currents:
-                    CurrentsView()
+                case .messages:
+                    CareHubView(isMessages: true)
                 }
             }
             .opacity(model.showConversation ? 0 : 1)

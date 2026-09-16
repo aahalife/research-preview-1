@@ -19,6 +19,14 @@ struct AppointmentsView: View {
                 }
                 .padding(.top, 8)
 
+                HStack(spacing: 20) {
+                    NavigationLink("Discussion guide", value: YouDestination.guide)
+                    NavigationLink("Visit reports", value: CareDestination.reports)
+                }
+                .font(NudgeType.rounded(13, .medium))
+                .foregroundStyle(Theme.inkMuted)
+                .frame(minHeight: 44)
+
                 ForEach(model.appointments.sorted { $0.date < $1.date }) { appointment in
                     NavigationLink(value: CareDestination.appointmentDetail(appointment.id)) {
                         AppointmentRow(appointment: appointment)
@@ -165,7 +173,7 @@ struct AppointmentDetailView: View {
                             .buttonStyle(NudgeButtonStyle())
                         }
                         if appointment.prepReady {
-                            NavigationLink(value: CareDestination.visitPrep) {
+                            NavigationLink(value: CareDestination.visitPrep(appointment.id)) {
                                 prepCard
                             }
                             .buttonStyle(NudgeButtonStyle())
