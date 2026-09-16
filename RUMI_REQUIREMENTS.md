@@ -1,4 +1,4 @@
-# Rumi — Functional requirements compendium
+# Rumi: functional requirements compendium
 
 ## Table of Contents
 
@@ -6,7 +6,7 @@
 - [Summary](#summary)
 - [Scope, ownership and shared conventions](#scope-ownership-and-shared-conventions)
 
-**Attachment features — original grouping and order**
+**Attachment features: original grouping and order**
 - [Welcome Router](#welcome-router)
 - [Mobile SMS OTP Auth](#mobile-sms-otp-auth)
 - [Apple Auth (SSO)](#apple-auth-sso)
@@ -57,35 +57,43 @@
 
 ## Summary
 
-Rumi helps a patient understand their health information, track everyday experience, prepare for care and authorize useful next steps through a contextual text/voice companion and conventional feature journeys. This review draft covers all 36 features in the supplied re-scope plus retained AI, agentic, reporting, lifestyle and educational experiences; it defines proposed observable behavior and blocking decisions rather than claiming the current prototype already performs it. Its purpose is to turn isolated local demonstrations into understandable, consented and verifiable patient journeys while keeping the companion empathetic, patient-controlled and distinct from a clinician.
+Rumi helps patients understand health information, record daily experiences and prepare for care. Patients can use its text/voice companion or open features directly. This draft defines the proposed behavior for all 36 re-scope features and the retained AI, agent, reporting, lifestyle and education features. It identifies the decisions needed before implementation. Rumi must remain empathetic and patient-controlled, with clear limits on clinical advice and accurate status for every action.
 
 ## Scope, ownership and shared conventions
 
-**Status:** proposed functional requirements for user review; no design/development or production release approval is implied. The [as-built reference](RUMI_AS_BUILT.md) is the source of current functionality and gaps. The [re-scope proposal](RUMI_RESCOPE.md) owns scope decisions, original attachment evidence, sequencing and the [proposed structural IA](RUMI_RESCOPE.md#proposed-information-architecture).
+**Status:** proposed requirements for review. This file does not authorize app changes or release. The [as-built reference](RUMI_AS_BUILT.md) records current functionality and gaps. The [change specification](RUMI_RESCOPE.md) covers scope, design, draft UI copy, assets, engineering, backend work and migration. It also owns the [proposed navigation map](RUMI_RESCOPE.md#proposed-information-architecture).
 
-The requester explicitly approved **one compendium as the third of exactly three review documents**, instead of the supplied guidance's one-page-per-feature packaging. Each feature remains a separately named section with a single owner for its rules; the contents above form the feature index. This is a packaging exception, not permission to duplicate requirements. After review, reconcile any existing Confluence feature/IA pages before publishing or splitting this document. No Confluence access or current Figma reference was available during drafting.
+The requester approved one compendium as the third of three review documents. This is an exception to the supplied guide's one-page-per-feature format. Each named section still owns its feature's rules. Shared rules appear once, with links from dependent features. Keep the attachment's feature names and order.
 
-Under the supplied organizational guidance, visual specifications and literal in-app UI copy belong in Figma, and implementation architecture belongs to Engineering. This prevents competing visual specifications and copy that goes stale as Design iterates. Accordingly, this document describes information, actions and functional states—not layout, colors, spacing, component construction, exact labels, storage schema, APIs or library choices. Supplied approved marketing/legal/compliance copy, including SMS and push content, is the guide's verbatim-copy exception; none was supplied, so it remains an outstanding deliverable rather than invented text. Jira stories link to the requirements permalink, never the reverse, so engineering's ticket decomposition cannot create stale requirements references. There are no authored regulatory requirement IDs, which belong exclusively to Greenlight Guru. Section links are navigation, not a formal traceability system.
+No Confluence access or current Figma reference was available. Reconcile existing feature and IA pages before publishing or splitting this file. Do not create competing requirements pages.
+
+The attached product-requirements guide applies only to this file. It excludes visual specifications, literal in-app copy and prescribed architecture from functional requirements. The as-built reference and change specification include those details. This distinction preserves the technical and design information needed to change the existing app.
+
+Under the guide, final visual specifications and UI copy belong in Figma. Engineering owns implementation decisions. Keeping them outside this file avoids stale, competing instructions as the design changes. Approved marketing, legal and compliance copy, including SMS and push text, may appear verbatim here. None was supplied, so those texts remain pending.
+
+Jira stories link to the requirements page, not the reverse. This avoids stale links when Engineering splits a story. Greenlight Guru owns formal regulatory requirement IDs. Section links here are only navigation.
+
+The language edit uses the supplied [Unslop](https://skillsllm.com/skill/unslop) and [ASD-STE100 writing reference](https://github.com/danyuchn/asd-ste100-skill). It preserves requirement strength, clinical uncertainty and exact feature names. It does not claim certified STE compliance.
 
 ### Actors and supported surfaces
 
 - **Patient:** the user of the iOS app or web app. Requirements below apply to both unless a platform restriction is stated.
-- **Care recipient/service:** an external provider, office, pharmacy or other specifically authorized destination. Sections distinguish what the patient does from what must be confirmed by that recipient; they do not prescribe a new staff/HCP portal.
-- **Clinical, privacy, commercial and operational reviewers:** supply approved rules, content and service coverage. Their approval responsibilities are not a newly scoped admin product.
+- **Care recipient/service:** an external provider, office, pharmacy or other authorized destination. Requirements distinguish patient actions from recipient-confirmed outcomes. They do not add a staff or clinician portal.
+- **Clinical, privacy, commercial and operational reviewers:** approve rules, content and service coverage. Their work does not imply a new administration product.
 - Caregivers, delegated users, minors and clinician-facing applications are unconfirmed scope. Do not infer patient authorization on someone else's behalf.
 
 ### Shared functional conventions
 
-- References to a saved item mean it survives closing/reopening in its declared account/storage scope. If saving fails, the system retains recoverable input and reports that it was not saved; it must not show unconditional success. Full account/retention behavior is owned by [Account, preferences and data rights](#account-preferences-and-data-rights).
-- Externally consequential steps use the lifecycle in [Agentic Action Cards](#agentic-action-cards). A local draft, local approval, service acceptance and final completion are distinct.
-- Source, date, identity, conflict and missing-data rules for clinical information are owned by [Records Connection](#records-connection), and apply to all clinical features.
-- AI grounding, conversation context, degraded mode and voice are owned by [Companion continuity and voice](#companion-continuity-and-voice). Individual features identify which context and actions they contribute.
+- A saved item survives closing and reopening within its stated account/storage scope. If saving fails, retain recoverable input and report the failure. Do not show success. [Account, preferences and data rights](#account-preferences-and-data-rights) defines storage scope and retention.
+- Actions that send information, change care arrangements or incur costs use the lifecycle in [Agentic Action Cards](#agentic-action-cards). Draft, approval, submission, service acceptance and completion are distinct states.
+- [Records Connection](#records-connection) owns clinical source, date, identity, conflict and missing-data rules. They apply to all clinical features.
+- [Companion continuity and voice](#companion-continuity-and-voice) owns AI evidence, conversation context, limited fallback and voice behavior. Each feature identifies the context and actions it contributes.
 - Clinical/crisis thresholds and overlapping-risk precedence are **not invented**. The owning clinical sections state blockers. Historical fixture thresholds are not automatically adopted.
-- All following criteria are proposals until approved. Inline open questions identify branches that cannot responsibly become implementation-ready without an answer. No numeric OTP, medical, retention or response-time policy is silently supplied.
+- All criteria remain proposals until approved. Each open question identifies behavior that needs a decision before implementation. This draft does not invent OTP limits, medical thresholds, retention periods or response times.
 
 ## Welcome Router
 
-**User Story:** As a returning or new patient, I want to enter the correct point in my care experience without repeating completed steps or seeing another person's information.
+**User Story:** As a patient, I want to start at the right step without repeating completed setup or seeing another person's information.
 
 ### Acceptance Criteria
 
@@ -113,7 +121,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Mobile SMS OTP Auth
 
-**User Story:** As a patient choosing phone access, I want to prove control of my phone and recover from code-delivery problems without accidentally creating multiple accounts.
+**User Story:** As a patient, I want to verify my phone number and recover from code-delivery problems without creating a duplicate account.
 
 ### Acceptance Criteria
 
@@ -138,11 +146,11 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Codes must not appear in analytics, conversation context or patient-visible diagnostic details.
 - Loss of access to the old phone uses an approved recovery process, not an unverifiable bypass.
 
-**Dependencies / open questions:** [Account rights](#account-preferences-and-data-rights). Security/Product must approve countries, delivery vendor coverage, exact policy limits, recovery and recycled-number handling. Approved SMS content is outstanding. If an invalid/expired code coincides with attempt or resend restrictions, which patient-visible outcome and recovery options take precedence? Security/Product must resolve this overlap; the existing restrictions cannot be bypassed while it is undecided.
+**Dependencies / open questions:** [Account rights](#account-preferences-and-data-rights). Security/Product must approve supported countries, delivery coverage, limits, recovery and recycled-number handling. Approved SMS text is still needed. An invalid or expired code can coincide with attempt or resend restrictions. Which outcome and recovery options take precedence? Security/Product must resolve this overlap. Existing restrictions remain in force while it is undecided.
 
 ## Apple Auth (SSO)
 
-**User Story:** As a patient using Apple sign-in, I want a verified identity that reconnects me to the same account even when Apple shares limited profile information.
+**User Story:** As a patient, I want Apple sign-in to open my existing account even when Apple shares limited profile information.
 
 ### Acceptance Criteria
 
@@ -157,7 +165,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Google Auth (SSO)
 
-**User Story:** As a patient using Google sign-in, I want verified access to the same Rumi account without granting unrelated access to my email or calendar.
+**User Story:** As a patient, I want Google sign-in to open my Rumi account without granting access to my email or calendar.
 
 ### Acceptance Criteria
 
@@ -172,7 +180,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Terms & Privacy Consent
 
-**User Story:** As a patient, I want to understand required terms and optional uses of my information before agreeing, and know what changes if I withdraw permission.
+**User Story:** As a patient, I want to understand the terms and optional data uses before agreeing. I also want to know what withdrawal changes.
 
 ### Acceptance Criteria
 
@@ -213,7 +221,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Select Care Pathway
 
-**User Story:** As a patient with one or more care needs, I want Rumi to understand my context without choosing a pathway changing my medical record or erasing my history.
+**User Story:** As a patient, I want to choose relevant care pathways without changing my medical record or erasing my history.
 
 ### Acceptance Criteria
 
@@ -228,7 +236,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Records Connection
 
-**User Story:** As a patient, I want my records connected to the correct identity and understandable across sources, including when information is incomplete, old or contradictory.
+**User Story:** As a patient, I want to connect my own records and understand missing, old or conflicting information from different sources.
 
 ### Acceptance Criteria
 
@@ -283,7 +291,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Interactive Elements (buttons, cards)
 
-**User Story:** As a patient using touch, keyboard or assistive technology, I want every available action to have a predictable result and a way back if I change my mind or something fails.
+**User Story:** As a patient using touch, keyboard or assistive technology, I want predictable actions and a way back after cancellation or failure.
 
 ### Acceptance Criteria
 
@@ -300,7 +308,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Crisis/Self-Harm Handoff
 
-**User Story:** As a patient expressing an immediate safety concern, I want appropriate help options that remain available even when Rumi cannot generate a response or connect a service.
+**User Story:** As a patient with an immediate safety concern, I want help options even when Rumi cannot reply or connect a service.
 
 ### Acceptance Criteria
 
@@ -339,7 +347,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 - The patient can understand why a remembered item affected a suggestion, using the applicable context/provenance information.
 - Both platforms provide these controls and consistent outcomes, not merely the native memory visualization.
 
-**Edge/blocking states:** Handle concurrent edits, account change and interrupted deletion under [Account rights](#account-preferences-and-data-rights). Privacy/Product must approve what is eligible to be remembered, whether inferred memories need confirmation, retention and treatment of previously generated content. Memory edits must not silently amend clinical source records.
+**Edge/blocking states:** Use [Account rights](#account-preferences-and-data-rights) for concurrent edits, account changes and interrupted deletion. Privacy/Product must approve eligible memories, confirmation of inferred memories, retention and treatment of earlier generated content. Editing memory must not silently amend clinical source records.
 
 ## Agentic Action Cards
 
@@ -348,17 +356,17 @@ Under the supplied organizational guidance, visual specifications and literal in
 ### Acceptance Criteria
 
 **Review and authorization**
-- Present the proposed action, patient context, exact recipient/object, information to be shared or changed, material cost/commitment and required permissions before approval.
+- Before approval, show the action, patient, exact recipient and affected item. Include the data to be shared or changed, material cost or commitment, and required permissions.
 - Offer approval, decline and correction where applicable. Decline/cancel is a distinct result, never a success label.
-- If the recipient, material payload, cost or execution scope changes after approval, require review of the changed proposal before executing it.
+- Require a new review if the recipient, material data, cost or action scope changes after approval. Do not execute the changed proposal first.
 - Verify that the task is supported and permissions/source/account state remain valid when it executes. Paused/revoked agents cannot start new unauthorized work.
 - A chat-generated proposal has no authority to bypass these checks; malformed/unknown/unsupported proposals cannot cause hidden side effects.
 
 **Execution and outcome — shared owner**
-- Give each consequential operation one consistent identity/status across conversation, originating feature and network history; retry/repeated approval cannot duplicate a real-world action.
+- Show the same action and status in conversation, its source feature and network history. Retrying or approving again must not duplicate the external action.
 - Distinguish approval from actual submission, acceptance, delivery and completion. Only supported external evidence permits corresponding success claims.
 - When the outcome is unknown, reconcile before retrying an operation that may already have succeeded.
-- Preserve action history with approved scope and outcome; provide receipt/details appropriate to the service. User dismissal does not erase a real in-flight operation.
+- Keep the action's approved scope, outcome and available receipt in history. Dismissing a card does not erase an operation already in progress.
 
 | Action state | Available meaning and behavior |
 |---|---|
@@ -371,7 +379,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 | Unknown outcome | Reconcile or route to support; do not label complete or blindly resend. |
 | Declined/cancelled | Do not execute outside any already irrevocable commitment; show the actual cancellation result. |
 
-**Blocking questions:** Which tasks can run automatically versus needing approval; expiry of authorization; cancellation/compensation limits; external receipt types; operational owner when status stays unknown. Product/Legal/Integration owners must approve per-task rules. A demonstration implementation must explicitly disclose simulated execution.
+**Blocking questions:** Product, Legal and integration owners must decide which tasks can run automatically and which need approval. Define authorization expiry, cancellation or reversal limits, receipt types and the owner of unresolved outcomes. Approve these rules for each task. Demonstrations must disclose simulated execution.
 
 ## Sponsored Responses
 
@@ -382,7 +390,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Identify sponsored content, sponsor and funded purpose before the patient acts on it; disclose material conditions relevant to participation or data use.
 - Keep source-based clinical explanation distinct from sponsored material; sponsorship does not establish medical eligibility, safety or personalized benefit.
 - Provide access to applicable neutral alternatives and do not make care navigation or ordinary answers conditional on selecting a sponsor.
-- Apply approved eligibility, placement, frequency, decline and consent rules consistently across chat, medication pages and programs.
+- Apply the same approved eligibility, placement, frequency, decline and consent rules in chat, medication pages and programs.
 - Suppress sponsored recommendations within active safety/crisis handling under [Crisis/Self-Harm Handoff](#crisisself-harm-handoff); do not delay necessary care guidance for a commercial offer.
 - Do not transmit information to a sponsor merely because a response is displayed; sharing/enrollment is separately reviewed and authorized.
 
@@ -403,17 +411,17 @@ Under the supplied organizational guidance, visual specifications and literal in
 ### Acceptance Criteria
 
 - Present a bounded set of current eligible moments rather than an endless feed; retain the existing maximum of three simultaneous Today moments as the proposed review default.
-- Each moment identifies its purpose, relevant entity/time context and available next step; a patient can inspect why it was selected when based on personal data.
+- Each moment identifies its purpose, related item, relevant time and next step. If personal data influenced selection, let the patient inspect the reason.
 - The action opens or changes the displayed subject, not the first unrelated habit, generic refill or default Story segment.
 - Dismissal/deferral is saved under an approved resurfacing policy; it cannot be mistaken for completing a clinical/financial task.
 - Completed/expired/superseded moments are removed or updated consistently with their source event; an empty set has a clear resolved/no-current-items meaning.
 - Agent approvals and clinical alerts use their owning rules, even when surfaced through Thread.
 
-**Edge/blocking states:** Missing/stale source, changed pathway, repeated event and offline state must not produce invented relevance. Product/Clinical must approve ranking when multiple eligible moments exceed the cap, resurfacing/deferral intervals and priority relative to [Needs You](#needs-you-clinical-alerts). The proposed cap is a retained product choice, not a clinical prioritization algorithm.
+**Edge/blocking states:** Missing or stale sources, pathway changes, repeated events and offline use must not produce invented relevance. Product/Clinical must approve ranking above the cap, resurfacing and deferral intervals, and priority relative to [Needs You](#needs-you-clinical-alerts). The cap is a retained product choice. It does not establish clinical priority.
 
 ## Needs You' Clinical Alerts
 
-**User Story:** As a patient, I want to understand which updates need my attention and act on the exact item without confusing acknowledgment with medical resolution.
+**User Story:** As a patient, I want to open the exact update that needs attention and distinguish acknowledgment from completed clinical follow-up.
 
 ### Acceptance Criteria
 
@@ -467,7 +475,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Discussion Guide
 
-**User Story:** As a patient, I want questions from different parts of my health experience in one editable guide so I can decide what to bring to a particular visit.
+**User Story:** As a patient, I want one editable guide for my questions and observations, with control over what I bring to each visit.
 
 ### Acceptance Criteria
 
@@ -478,11 +486,11 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Review recipient and selected content before sharing. Use [Messaging](#messaging) or [recipient reports](#visit-preparation-and-recipient-reports), not an independent send-success flag.
 - Sending a Guide does not mark every question discussed or answered. Preserve actual conversation/visit status separately.
 
-**Edge/open questions:** If the linked appointment is changed/cancelled, retain the questions and offer reassociation. Product must confirm whether AI may save an explicitly labeled draft automatically or must request approval before adding; it may never silently send it. Shared Guide actions remain usable without AI availability.
+**Edge/open questions:** If an appointment changes or is cancelled, retain its questions and allow reassignment. Product must decide whether AI can save a labeled draft automatically or needs approval before adding it. AI may never silently send it. Guide actions remain usable when AI is unavailable.
 
 ## Providers
 
-**User Story:** As a patient, I want to know which real person or practice I am contacting and what they support before I send information or prepare a visit.
+**User Story:** As a patient, I want to know the person or practice I am contacting and which services they support.
 
 ### Acceptance Criteria
 
@@ -492,7 +500,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 - A provider selected from a record/result/appointment maintains that context in the destination.
 - Changes to the care team do not silently redirect an approved message or report to a new recipient; changed sharing scope requires review under [Action Cards](#agentic-action-cards).
 
-**External recipient boundary:** No clinician/staff UI is mandated; the patient app depends on accurate directory and service capability information. Product/Clinical/Operations must define directory source, patient-added provider verification, after-hours coverage and inactive-provider treatment. Missing/invalid phone/join contacts cannot be replaced with fixture destinations.
+**External recipient boundary:** This feature does not add a clinician or staff interface. The patient app needs an accurate provider directory and service capabilities. Product, Clinical and Operations must define the source, verification of patient-added providers, after-hours coverage and treatment of inactive providers. Never replace missing or invalid contacts with fixture destinations.
 
 ## Appointments Mgmt
 
@@ -524,7 +532,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Virtual Visits
 
-**User Story:** As a patient attending a virtual appointment, I want to join the correct verified visit and recover if my device or provider link is not ready.
+**User Story:** As a patient, I want to join the correct virtual visit and get help if my device or provider link is not ready.
 
 ### Acceptance Criteria
 
@@ -547,8 +555,13 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Choose/confirm an authorized provider/practice, supported category and channel before sending. Show the channel's capabilities and approved response expectations.
 - Preserve drafts with their patient/recipient/context; allow editing/discarding without sending. Changes of recipient require re-review of included context.
 - Carry source context from symptom/result/Guide/report/form actions as reviewable content; an attachment claim must correspond to an actual included artifact or explicit text excerpt.
-- The patient can inspect, include/remove attachments and review generated wording before submission; AI text is a draft, not patient approval.
+- Before submission, let the patient inspect, include or remove attachments and edit generated wording. An AI draft does not establish patient approval.
 - Show chronological conversation with authorship, sent/received time and supported delivery states. Read acknowledgment is distinct from reply or clinical resolution.
+
+**Requests**
+- Retain refill, appointment, records and form requests. Let patients compose, review and inspect each request on both supported platforms.
+- Show the selected recipient, request kind, submitted content and actual status. A form request is not a completed form response.
+- Use the shared action lifecycle for submission, supported cancellation and recovery. Preserve legacy local/demo requests without claiming verified delivery or submitting them automatically.
 
 **Recipient/service outcomes**
 - Follow the shared [action lifecycle](#agentic-action-cards), including failure/unknown/duplicate-retry handling.
@@ -600,7 +613,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Medications (w/ AI support)
 
-**User Story:** As a patient, I want to understand my actual medications, record my experience and get help with practical barriers without Rumi prescribing or altering treatment.
+**User Story:** As a patient, I want help understanding and managing my medications. Rumi must not prescribe or change my treatment.
 
 ### Acceptance Criteria
 
@@ -627,7 +640,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Any application or data sharing identifies fields, recipient and terms for review under [Action Cards](#agentic-action-cards); report actual enrollment/application outcome.
 - Expired, withdrawn or unsupported content remains unavailable or appropriately qualified, rather than presenting an active false offer.
 
-**Blocking questions:** Whether these pages are distinct medication-brand pages or support-program pages, approved claims/safety content, eligibility, commercial agreements and legal consent. Clinical/Commercial/Product must decide; the feature remains requested but no branded inventory is invented. Neutral care and crisis handling are never blocked by this page.
+**Blocking questions:** Clinical, Commercial and Product must decide whether these are medication-brand pages, support-program pages or both. Approve claims, safety content, eligibility, commercial agreements and consent. The feature remains requested, but no brand inventory is assumed. Keep neutral care and crisis support accessible.
 
 ## Immunizations (w/ AI support)
 
@@ -645,11 +658,11 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Documents (w/ AI support)
 
-**User Story:** As a patient, I want to retain a readable source document and review any AI-extracted meaning before it changes my record or is shared.
+**User Story:** As a patient, I want to keep the original document and review AI-extracted information before using it in my record or sharing it.
 
 ### Acceptance Criteria
 
-- Support the approved capture/upload/import methods per platform and identify unsupported methods honestly; saving a title is not a scan or uploaded original.
+- Support approved capture, upload and import methods on each platform. Identify unavailable methods. Saving a document title must not imply that an original was uploaded.
 - Retain an accessible original with type, origin/time, page information where available and patient association; allow patient title/category correction.
 - Identify extraction/summarization as generated work and expose proposed fields with uncertain/unreadable items flagged.
 - Patients can inspect and correct eligible extracted values before an approved record update. Confirmation alone cannot falsely claim a clinical merge if none occurred.
@@ -683,7 +696,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Vitals (w/ AI support)
 
-**User Story:** As a patient, I want to record and understand a reading with its units and timing, and receive only clinically approved feedback about it.
+**User Story:** As a patient, I want to record a reading with its units and time, then receive feedback within clinically approved limits.
 
 ### Acceptance Criteria
 
@@ -736,9 +749,10 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Patient reports/corrections retain attribution and follow [Records Connection](#records-connection) rather than silently overwriting clinical source records.
 - Relevant permitted allergy context is available to medication/clinical explanations, without implying an evaluated interaction check unless that capability is approved.
 - Conflicting allergy reports require the approved clinical reconciliation/escalation path; AI cannot choose a convenient record as definitive.
-- Other clinical categories are individually named and bounded before implementation; each follows the shared provenance/permission/correction rules.
+- Retain access to the existing Procedures category and its source records under the shared provenance, permission and correction rules.
+- Name and bound any additional clinical category before implementation. Each follows the same shared rules. Retaining Procedures does not authorize new procedure advice or scheduling.
 
-**Blocking questions:** Define allergy vocabulary, patient correction authority, contraindication use, urgent handling and exactly which “other clinical information” categories are included. The phrase is not authorization for unlimited history/genetics/family-history or unrelated data collection. Clinical/Product must provide the missing domain scope rather than Engineering guessing.
+**Blocking questions:** Clinical/Product must define allergy terms, patient correction rights, contraindication use and urgent handling. They must also name any additional clinical categories beyond the retained records and new Allergies. The phrase "other clinical information" does not authorize unlimited history, genetics, family-history or unrelated data collection.
 
 ## Sponsored Programs
 
@@ -765,7 +779,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 ### Acceptance Criteria
 
 **Patient entry and history**
-- Capture the selected symptom, severity on the approved scale, measurement/observation time, optional body region, note and relevant medication/condition context; allow review/correction before saving.
+- Capture the symptom, severity on the approved scale and observation time. Include optional body region, note and relevant medication/condition context. Allow review and correction before saving.
 - Preserve the saved original observation and provenance; patients can access and correct eligible history under approved retention rules.
 - Do not infer temperature, duration or other clinical facts not entered or available from authorized sources.
 - Save failure retains input and clearly distinguishes an unsaved entry from a saved entry awaiting feedback.
@@ -773,7 +787,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 **Rules and AI feedback**
 - Apply the clinically approved rules to eligible input. Rule-based guidance remains available under the approved offline/service-failure policy, independent of AI response success.
 - AI feedback references the actual selected entry and permitted context, explains uncertainty and offers bounded support under [Companion continuity](#companion-continuity-and-voice).
-- Identify which feedback is based on a rule versus generated interpretation where that distinction affects trust/action; AI cannot weaken or contradict the required action of an approved safety rule.
+- Distinguish rule-based feedback from AI interpretation when it affects trust or action. AI cannot weaken or contradict an approved safety rule's required action.
 - If essential context is missing, request an approved clarification or use approved conservative fallback; never fill it from a demo persona.
 - Offer applicable follow-up choices: discuss further, add/edit a Guide question, review a care-team message, or use approved urgent/crisis contact. Each choice retains the entry context.
 
@@ -791,7 +805,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Companion continuity and voice
 
-**User Story:** As a patient, I want to move between conversation and my records or tasks without repeating myself, while knowing the limits of AI support and audio processing.
+**User Story:** As a patient, I want conversation to retain my record or task context. I want to understand AI limits and audio processing.
 
 ### Acceptance Criteria
 
@@ -808,12 +822,12 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Explain actual external audio/text processing and request microphone permission before recording. Denial has a text alternative and supported permission-recovery path.
 - Clearly distinguish listening, processing and playback; the visual companion state cannot claim recording when the microphone is inactive.
 - Support starting, interrupting and ending a session; stopping prevents new recording and further unintended processing/playback within the declared cancellation policy.
-- Show transcript availability truthfully. A transcript returned after recording must not be represented as live partial recognition; patient corrections are supported before consequential use.
+- Describe transcript availability accurately. Do not present text returned after recording as live partial recognition. Support patient corrections before using it for a consequential action.
 - After a completed spoken turn, continue listening only when the patient has opted into the ongoing voice session. Silence does not generate invented speech.
 - Ambient sound does not undermine intelligibility or cause the app's own audio to be interpreted as patient intent. Audio interruption/device changes have recoverable states.
 - Voice and text share the same safety and approval boundaries; a spoken response does not authorize a payment/message/medical action.
 
-**Blocking questions:** Approved history/context limits, response/cancellation timing, transcript-review policy, audio retention, platform background behavior and whether true streaming transcription is required. Product/Privacy/Clinical approve behavior; Engineering owns model/transport choice. No artificial latency claim is supplied.
+**Blocking questions:** Product, Privacy and Clinical must approve history/context limits, response and cancellation timing, transcript review, audio retention and background behavior. They must also decide whether live streaming transcription is required. Engineering chooses the model and transport. This draft does not claim a response speed.
 
 ## Agent network and connected services
 
@@ -829,18 +843,18 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Reading/sharing through a channel follows the patient's permitted scope and approved platform capabilities. Unsupported iMessage/social access is explicitly unavailable, not a sample connected handle.
 - A source change that alters a pending action's material payload requires re-review; overdue/unknown status has recovery rather than automatic completion.
 
-**Blocking questions:** Which helpers are genuinely live at launch, allowed automatic work, background frequency, provider/channel coverage, revocation and operational ownership. Predictive/continuous-monitoring claims need separately approved evidence and scope; a visible network is not proof of a validated clinical model.
+**Blocking questions:** Define which helpers are live at launch, permitted automatic work, background frequency, provider/channel coverage, revocation and operational ownership. Prediction and continuous-monitoring claims need approved evidence and scope. Showing a network does not prove that a clinical model is validated.
 
 ## Visit preparation and recipient reports
 
-**User Story:** As a patient, I want an accurate, reviewable summary for the right person and visit so my care team receives the context I chose to share.
+**User Story:** As a patient, I want to review an accurate summary for the selected recipient and visit, then choose what to share.
 
 ### Acceptance Criteria
 
 **Patient preparation**
 - Select or confirm patient, provider/recipient, appointment where applicable and report time range; never substitute a fixture persona name or first appointment.
 - Include the approved categories of records, observations, medications, everyday logs and Guide questions, with source/date and clear inclusion/exclusion meaning.
-- Time-bound sections use the selected interval consistently; ongoing medication/condition context included outside that interval is explicitly identified as current/background context, not misleadingly counted within it.
+- Use the selected interval in all time-bound report sections. Label ongoing medication or condition information from outside that interval as background context. Do not count it as an observation within the interval.
 - Exclude future observations from a historical interval unless explicitly selected and labeled; use actual dated records rather than array order for trends.
 - Tailor emphasis to the recipient using approved rules while preserving relevant multi-condition context and evidence. Do not invent cross-provider agreement or causal conclusions.
 - Permit review, eligible correction/exclusion and confirmation of the exact report snapshot; AI-generated material is identified as a draft according to approved authorship rules.
@@ -848,14 +862,14 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 **Recipient/service boundary**
 - Sharing uses [Messaging](#messaging)/[Action Cards](#agentic-action-cards), identifying recipient/payload and actual receipt status.
-- Report identity/version reflects content, range and recipient. Changed content must not inherit a prior sent flag; prior shared snapshots remain distinguishable under retention policy.
+- Distinguish report versions by content, range and recipient. Changed content must not inherit a previous sent state. Keep earlier shared copies distinguishable under the retention policy.
 - The patient can inspect what was sent, when and to whom, or see a clear unsuccessful/unknown outcome.
 
 **Blocking questions:** Approved report recipients, range boundaries/timezones, included data/metrics, AI versus clinician authorship/review, export format and recipient transport. No clinical significance calculation or medication adherence estimate is invented from log counts.
 
 ## Bills, wallet and savings
 
-**User Story:** As a patient, I want help understanding care costs and approving supported financial steps without confusing an estimate or local acknowledgement with a real payment.
+**User Story:** As a patient, I want to understand care costs and approve supported payments. I need to distinguish estimates and local acknowledgments from confirmed payments.
 
 ### Acceptance Criteria
 
@@ -872,7 +886,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Life history and held memories
 
-**User Story:** As a patient, I want an understandable, correctable history of everyday life and meaningful moments that persists without pretending approximate information is measured clinical data.
+**User Story:** As a patient, I want to keep and correct my everyday history and photos. I need estimates to remain distinct from measurements.
 
 ### Acceptance Criteria
 
@@ -889,7 +903,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ## Story, Insights, Currents and recap
 
-**User Story:** As a patient, I want meaningful reflection and finite education based on my actual context, with working saves and media rather than a feed of unsupported claims.
+**User Story:** As a patient, I want reflection and a finite set of educational content based on my actual context, with working saves and media.
 
 ### Acceptance Criteria
 
@@ -907,7 +921,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Captions/text alternatives are available according to supported content requirements; playback respects user audio choices and restores the appropriate state afterwards.
 - Recap identifies the actual period/data basis, remains skippable and does not invent personal milestones; static illustrative material is not misrepresented as the patient's own photograph or measured improvement.
 
-**Blocking questions:** Content/editorial/clinical sources, review/refresh cadence, personalization rules, media production/rights, prediction eligibility/evidence and recap criteria. Design retains non-binding editorial/reflective character, but no visual treatment is specified here.
+**Blocking questions:** Approve content sources, review and refresh intervals, personalization, media rights, prediction evidence/eligibility and recap criteria. The proposed editorial design is described in the change specification, not prescribed here.
 
 ## Account, preferences and data rights
 
@@ -925,7 +939,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 **Export and deletion**
 - Export creates a usable artifact containing the approved categories, relevant provenance and declared exclusions; report preparation/progress/failure and successful availability truthfully.
-- Deletion describes its scope and consequences before confirmation and acts on eligible live state, persisted state, photos/attachments, caches and connected processor copies according to approved policy.
+- Explain deletion scope and consequences before confirmation. Apply the approved policy to eligible live and saved data, photos, attachments, caches and external processor copies.
 - Where legal/operational retention prevents full removal, identify the applicable category, reason and effect without claiming everything is erased.
 - Completion is based on verified scoped deletion status, not merely hiding the screen or deleting one local file; subsequent ordinary saves cannot recreate removed data unintentionally.
 - Memory forgetting, disconnection, sign-out, local reset and full account deletion remain distinct choices and outcomes.
@@ -945,7 +959,7 @@ Under the supplied organizational guidance, visual specifications and literal in
 
 ### Acceptance Criteria
 
-- iOS and web use the same approved patient-facing behavioral rules, entity/status meanings and consent/clinical/action boundaries; a supported action cannot mean local-only on one platform and actual delivery on the other without disclosure.
+- iOS and web use the same approved behavior, record/status meanings and consent, clinical and action rules. Disclose when an action is local-only on one platform but sends externally on the other.
 - Maintain documented supported devices/browsers and platform differences for identity, health data, microphone/photo permissions, notifications, media and external handoffs.
 - Every supported primary journey works with the platform's agreed accessibility methods, including navigation, form input, modal return, vital/symptom selection and action approval. Meaning does not depend only on color, animation, sound or a drag gesture.
 - Respect reduced motion and sound preferences throughout companion, media and progress experiences while retaining the underlying information and controls.
@@ -954,14 +968,18 @@ Under the supplied organizational guidance, visual specifications and literal in
 - Agreed response-time, timeout, retry, availability, retention and recovery targets are documented and observable before release. A successful build alone cannot satisfy these constraints.
 - Supported live clinical/financial integrations require demonstrated authorized outcomes and recovery in their intended environment before claims of readiness.
 
-**Blocking questions:** Product/Engineering/Design/Clinical must approve exact support matrix, measurable reliability/performance and accessibility targets, security assessment, evaluation dataset/criteria and operational owners. This document deliberately does not invent numerical SLAs or a regulatory classification. Validation execution belongs to the organization's separate quality process, not a test-case section in this authored PRD.
+**Blocking questions:** Product, Engineering, Design and Clinical must approve supported platforms, measurable reliability/performance and accessibility targets, security review, evaluation datasets and criteria, and operational owners. This draft does not invent service-level targets or a regulatory classification. Keep test procedures in the separate quality process, not this requirements file.
 
 ## Review questions and publication
 
-The attachment supplies feature names, not approved domain rules. This draft intentionally leaves safety, legal and financial uncertainty visible rather than completing it with plausible inventions. Consolidated owners and dependency sequencing are in [the re-scope proposal](RUMI_RESCOPE.md#release-boundaries-and-unresolved-decisions); each feature above identifies its local blockers.
+The attachment supplies feature names but no approved clinical, legal or financial rules. The open questions above identify what each feature still needs. The [change specification](RUMI_RESCOPE.md#release-boundaries-and-unresolved-decisions) groups those decisions by owner and shows their dependencies.
 
-Before implementation, resolve at least the launch region/population, patient-only/delegated scope, supported live versus demo services, identity recovery/linking, clinical rule/overlap authority, source/correction permissions, AFB thresholds/fallbacks, communication/virtual-visit coverage, sponsor policy and account retention/rights. AFB's combined AI/rules mechanism and the three-document packaging exception are confirmed; those confirmations do not settle the domain questions.
+Before implementing affected features, approve the launch population and region, patient/delegated access, live service coverage, account recovery and linking. Clinical must approve rules, overlapping-risk handling, record corrections and AFB thresholds/fallbacks. Communication and virtual-visit coverage, sponsor policy and account retention/rights also need decisions.
 
-No current Confluence or Figma page was accessible, so this is a repository review draft, not an overwrite of an authoritative external page. Reconcile existing feature pages and the IA before publication; keep one evolving requirements owner per feature and link dependents to it. Do not produce separate versioned competing pages or add regulatory IDs here. The requirements owner must confirm that the eventual linked Figma design and UI copy align with the approved functional requirements before engineering handoff; this document does not perform that alignment automatically.
+AFB's combined AI/rules scope and the three-document format are confirmed. The other decisions remain open.
+
+This repository draft does not replace an unchecked Confluence or Figma page. Reconcile existing feature pages and the IA before publication. Keep one evolving requirements page per feature and link dependent features to it. Do not add competing versioned pages or regulatory IDs.
+
+Before engineering handoff, the requirements owner must check the approved design and UI copy against these functional requirements. The change specification supplies review detail, but this document cannot establish that the final design matches.
 
 *This is a functional requirements document intended to give Design and Engineering a working starting point. It is not a formal traceable requirements record. Traceable product requirements (MRD/SRS) for regulatory purposes are maintained in Greenlight Guru, the official QMS system of record.*

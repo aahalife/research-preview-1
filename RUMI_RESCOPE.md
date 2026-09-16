@@ -1,4 +1,4 @@
-# Rumi — Re-scope proposal for review
+# Rumi: re-scope and change specification
 
 ## Contents
 
@@ -9,21 +9,28 @@
 - [Retained signature experiences](#retained-signature-experiences)
 - [Proposed information architecture](#proposed-information-architecture)
 - [Signature end-to-end journeys](#signature-end-to-end-journeys)
+- [Design specification for the existing app](#design-specification-for-the-existing-app)
+- [Assets and content production](#assets-and-content-production)
+- [Copy and status language](#copy-and-status-language)
+- [Feature-by-feature change instructions](#feature-by-feature-change-instructions)
+- [Engineering and backend specification](#engineering-and-backend-specification)
+- [Migration and careful removal](#migration-and-careful-removal)
+- [Verification and release checks](#verification-and-release-checks)
 - [Dependencies and sequencing](#dependencies-and-sequencing)
 - [Release boundaries and unresolved decisions](#release-boundaries-and-unresolved-decisions)
 - [Review and document ownership](#review-and-document-ownership)
 
 ## Purpose and approval boundary
 
-This proposal turns the attached re-scope into a coherent patient experience while preserving Rumi's companion, small habits, contextual insights and visible agentic help. It separates requested capabilities from the existing prototype and recommends how to complete journeys rather than add disconnected screens. It is a **document for review**, not permission to change the app, implement integrations, process real patient information or ship a clinical product.
+Modify the existing Rumi app. Keep its five destinations, companion, visual style and useful workflows. Add the requested features within that structure, repair incomplete flows, and preserve saved information when replacing old behavior. This document specifies the proposed design, copy, assets, backend and engineering work. It is ready for review, not approved for implementation or release.
 
 The three review documents have distinct ownership:
 
 - [As-built reference](RUMI_AS_BUILT.md): what the current source actually does, including design/construction, assets, demo wiring, defects and production gaps.
-- **This proposal:** scope, retained experiences, proposed structural information architecture, dependencies and unresolved product decisions.
+- **This specification:** what to retain, add, change or retire in the existing app, including screen layouts, design values, asset requirements, draft copy, technical contracts, migration and verification.
 - [Functional requirements](RUMI_REQUIREMENTS.md): proposed testable behavior, feature by feature, with edge/blocking states and explicit open questions. It does not duplicate the current design specification.
 
-No application code, visual design, assets, configuration or dependencies are changed by these documents. The earlier polish plan remains historical context; its demo-only external actions are not automatically promoted to production commitments.
+These edits change documentation only. App code, rendered design, assets, configuration and dependencies remain untouched. The earlier polish plan is historical context. Its simulated external actions are not production commitments.
 
 ## Sources and confirmed decisions
 
@@ -39,43 +46,49 @@ The re-scope begins: “Net new/rescoped features below. But also retain the key
 
 ### Confirmed in this review
 
-- Exactly **three review documents** are requested. The requirements document will be a feature-by-feature compendium, an explicitly approved packaging exception to the guide's separate-page-per-feature rule. Its linked feature index serves the review; later Confluence publication must reconcile existing pages rather than create duplicates.
+- Keep exactly three review documents. The requester approved a feature-by-feature requirements compendium instead of separate feature files. Its contents list is the feature index. Reconcile existing Confluence pages before publication.
 - “AFB” in Symptom Tracking means **both AI-generated and rules-based feedback** for this scope. No unsupported expansion of the acronym or clinical thresholds is assumed.
-- Work is documentation-only until user review/approval; preserving signature AI/agentic experiences is mandatory.
-- Tone should remain intimate, empathetic, intelligent and human, with agent work visible without overwhelming existing features; iOS and web should be functionally consistent.
+- Work remains documentation-only until approval. Retain the existing AI and agent experiences.
+- Keep the personal, empathetic tone. Show agent work without crowding the other features. Apply the same approved behavior on iOS and web.
 
-### Guidance applied
+### Which guidance applies where
 
-The requirements compendium follows the attached guide's TOC → one-paragraph Summary → meaningful feature sections with conditional user stories, testable acceptance criteria, condition tables, explicit blockers, and closing QMS note. It avoids invented requirement IDs, ticket links, dev-handoff banners, changelog and a test-case section. It does not prescribe architecture, visual layout or literal in-app copy.
+The attached product-requirements guide applies **only to `RUMI_REQUIREMENTS.md`**. Its rules exclude visual specifications, literal UI strings and prescribed architecture from that file. The as-built reference and this change specification include those details. They are needed to modify Rumi without replacing it with a new app.
 
-By the guide's organizational convention, **future visual specifications and in-app UI copy belong in Figma**, and implementation choices belong to Engineering. This avoids competing specifications and stale copy after design iteration. Supplied approved marketing/legal/compliance copy, including SMS/push content, may be captured verbatim; none was supplied here. Jira stories must link to requirements, not the reverse, so later ticket decomposition cannot make this document's references stale. The as-built document may record existing visuals/code because its purpose is forensic recreation, not a competing future PRD. No Confluence/Figma access or current authoritative IA page was available; these repository drafts must be reconciled with any live pages before publication. Functional information and source references are not a claim of regulatory traceability; Greenlight Guru remains the QMS owner under the supplied guidance.
+This review package keeps three files. The requirements file owns testable behavior. This file owns proposed design and implementation details. The as-built file records current code, including defects. If these disagree, resolve the disagreement before implementation. Do not silently use a design choice to weaken a functional requirement.
+
+All three use [Unslop](https://skillsllm.com/skill/unslop) and the [ASD-STE100 writing skill](https://github.com/danyuchn/asd-ste100-skill) for clarity. The edit uses short, direct sentences, consistent terms and specific source evidence. It preserves clinical caveats, exact code names and quoted source text. It does not claim certified STE compliance. The reference material includes Unslop's manifest, blacklist and prose benchmarks, plus the STE manifest and writing rules.
+
+No Confluence or Figma access was available. Reconcile these files with any existing pages before publication. Until then, this file contains the proposed visual and technical detail for review. Approved decisions must move into the team's chosen design and engineering records without leaving contradictory copies. Greenlight Guru remains the formal regulatory record. No approved legal, consent, marketing or clinical copy was supplied.
 
 ## Product direction
 
 ### The central experience
 
-Rumi should help a person move from **understanding → choosing → acting → seeing the true outcome**. Conversation is the connective experience, not an alternative application that forgets which medication, symptom, result or appointment the person was viewing. Conventional records, forms and provider workflows remain accessible without requiring chat.
+A patient should be able to ask about the medication, symptom, result or appointment already on screen. Rumi should use that context and return them to the same place. Records, forms and care-team contact must also work without chat.
 
-The re-scope should not turn Rumi into a generic chatbot with portal links, or a clinical dashboard with an ornamental orb. A person can enter through a real-life concern; Rumi identifies the relevant evidence, explains what it can and cannot know, helps prepare a concrete next step, and records whether that step is only drafted, awaiting permission, actually submitted, completed or unsuccessful.
+Keep conversation inside the existing care experience. Let the patient inspect the source, choose a next step and review any information that will leave Rumi. Show whether that step is a draft, awaiting approval, submitted, completed or unsuccessful.
 
 ### Proposed functional principles
 
-- One consistent patient context across conversation and feature screens; never substitute persona fixtures for missing patient data.
-- Every factual clinical explanation can be traced to a source/date, with user-entered and AI-generated information identified separately.
-- The user can inspect and correct remembered context; forgetting something affects future personalization rather than only removing a chip.
-- Routine coaching can be conversational; clinical urgency and self-harm handoff require approved rules and defined fallback behavior independent of model availability.
-- No consequential external action is described as completed until supported by the receiving service's outcome. Permission, submission and completion are separate events.
-- Existing local affordances stay useful when a service is unavailable: save a draft, review a guide, log a symptom, inspect an old record. No fabricated connection or delivery fills the gap.
-- Sponsorship is disclosed and separated from clinical relevance, user autonomy and safety; declining does not block ordinary care.
-- Both platforms use the same behavioral contract. Platform-specific limitations must be named instead of hiding them behind a success animation.
+- Use the same patient context in conversation and feature screens. Never fill missing records with persona fixtures.
+- Show the source and date of clinical facts. Distinguish patient reports from AI explanations.
+- Let patients inspect and correct memory. Forgetting must affect future personalization, not just hide an item.
+- Use approved clinical and crisis rules, with fallback guidance available when the model fails.
+- Separate permission, submission and completion. Claim an external outcome only when the receiving service confirms it.
+- Keep local work useful when a service is unavailable. Patients can save a draft, review the Guide, log a symptom or read retained records.
+- Disclose sponsorship. Declining an offer must not block ordinary care or safety guidance.
+- Use the same behavioral rules on both platforms. Explain platform limitations instead of showing unsupported success.
 
-### Creative direction — non-binding for later design consideration
+### Preserve the existing app
 
-Preserve the personal, reassuring character: the companion feels present, small actions feel acknowledged, progress avoids guilt, and the day has an intentional end rather than an endless feed. Preserve the recognizable orb, editorial world, meaningful motion and rich logged objects where they serve comprehension. These are inputs to Design, not acceptance criteria for color, spacing, composition or animation. No new screen layout is approved here.
+Keep Today, Care, You, Journeys and Currents in their current order. Keep the orb outside the dock, the day/night backgrounds, Fraunces and Hermione typography, glass controls, Life objects and light garden. Do not scaffold a replacement app, rename the native target or replace the web shell with a dashboard.
+
+The [design specification](#design-specification-for-the-existing-app) gives concrete reuse rules and proposed additions. Existing values are labeled as source facts. New dimensions and layouts are review proposals. Accessibility and truthful status take priority over preserving a defect.
 
 ## Complete attachment scope
 
-Feature names below preserve the attachment's groupings. “Needs You'” retains its source wording; presentation wording can be normalized later in the design source. Every row owns a same-named section in [the requirements compendium](RUMI_REQUIREMENTS.md). Status is relative to current code, not release readiness.
+The table preserves all 36 attachment names and their order, including the stray apostrophe in "Needs You'". Use "Needs you" in the proposed interface. Each feature has a matching section in [the requirements file](RUMI_REQUIREMENTS.md) and change instructions below. Current implementation does not imply release readiness.
 
 | Attachment feature | Existing baseline | Proposed scope and companion connection |
 |---|---|---|
@@ -138,7 +151,7 @@ The complete retained functional sections are included after the 36 attachment f
 
 ## Proposed information architecture
 
-This is a **proposed text-only IA**, derived from the existing five destinations and the attachment. It is not a new design layout and does not authorize moving screens. No authoritative external IA page was accessible; reconcile this map against any existing Confluence IA before treating it as current. This section owns the proposal's single IA for the three-document review package.
+Keep the existing five destinations. The map below adds routes within them. Keep current Care and You entry points while linking duplicate entries to the same data and detail screen. It is the proposed navigation map for this review package. Screen construction is specified later in this file. No external IA page was available for comparison.
 
 ```text
 Rumi patient experience (iOS and web)
@@ -162,6 +175,8 @@ Rumi patient experience (iOS and web)
 │   ├── Requests and forms → complete / review / status
 │   ├── Medications → support / questions / sponsored support / refill
 │   ├── Reports → recipient / range / review / share status
+│   ├── Records / Documents → same clinical items available in You
+│   ├── Connections → sources / agent network
 │   └── Costs → bills / wallet / savings (integration-gated)
 ├── You
 │   ├── Story and Insights
@@ -170,6 +185,7 @@ Rumi patient experience (iOS and web)
 │   │   ├── Medications
 │   │   ├── Allergies and agreed other categories
 │   │   ├── Immunizations
+│   │   ├── Procedures (retained existing category)
 │   │   ├── Vitals
 │   │   ├── Labs
 │   │   ├── Notes
@@ -192,43 +208,709 @@ Rumi patient experience (iOS and web)
     └── Recap / source explanation / consent checks
 ```
 
-A medication reached from Care and the same medication reached from You refer to the same patient entity; they are not separately authored facts. Discussion Guide is one list with optional visit links, not copies per conversation/appointment. Memory remains distinct from clinical records and private notes. Provider/staff systems are external actors/dependencies; a new HCP portal is **not** implicitly included in this patient-app re-scope.
+Care and You open the same medication record. Discussion Guide is one list with optional visit links. Memory, private notes and clinical records stay separate. Provider systems remain external dependencies. This patient-app scope does not add a clinician or staff portal.
 
 ## Signature end-to-end journeys
 
-These describe intended product outcomes for review. Detailed functional behavior and blockers are owned by the corresponding requirements sections rather than duplicated here.
+These sequences show how the retained and new features work together. The requirements file defines their behavior. The later sections in this file specify screens, services and changes to the current implementation.
 
 ### A concern becomes support, not a dead end
 
-Patient opens tracking from Today or a medication → logs symptom, severity/context and time → saved entry is acknowledged → approved rules assess the entry while AI offers grounded, appropriately bounded support → patient can inspect why, correct the entry, talk further, add a Guide question or review a care-team message → escalation remains available without waiting for AI → any submitted message reports its real status. In combined AFB, AI cannot override the approved safety rule. Exact thresholds and overlapping-risk precedence require clinical approval.
+1. Open tracking from Today or a medication.
+2. Enter the symptom, severity, time and relevant context. Review and save it.
+3. Show the saved entry. Apply approved rules without waiting for AI.
+4. Add AI feedback grounded in that entry and the permitted record. AI cannot weaken the rule's required action.
+5. Let the patient correct the entry, continue talking, add a Guide question or review a message to the care team.
+6. Keep approved urgent contact options available. Show the actual status of any submitted message.
+
+Clinical must approve thresholds and the treatment of overlapping risks.
 
 ### A result becomes understanding and preparation
 
-Patient opens a Needs You result → sees source/date/status and relevant context → asks what it means → explanation identifies its evidence and uncertainty → patient captures a question in the shared Guide → links it to the right visit → includes it in a reviewed report/message if desired → acknowledgement stops duplicate attention without claiming the clinical matter is resolved.
+Open the exact result from Needs you. Show its source, date and status beside the value. A question opens conversation with that result attached as context. The patient can save a question in the shared Guide and include it in a reviewed visit report or message. Acknowledging the result clears only the applicable attention state. It does not resolve the clinical concern.
 
 ### A plan becomes one chosen habit
 
-Patient reads an attributed care-plan goal → asks how it might fit everyday life → companion proposes a small behavioral habit, not a new medical instruction → patient accepts or edits context → it appears in Journeys and optionally Thread → keeps/pauses/corrects are durable → useful observations can inform an explicitly reviewed visit summary. Declining does not create a habit or success state.
+Start from a care-plan goal with an identified author. Rumi can suggest a small habit that fits the patient's routine. The patient reviews and edits it before adding it to Journeys. Save keeps, pauses and corrections. Include observations in a visit summary only after review. A declined proposal creates no habit and shows no success state.
 
 ### A visit becomes a prepared and completed handoff
 
-Patient chooses a specific provider/appointment → reviews correct time/channel and relevant changes/Guide → prepares a recipient-specific report for an explicit range → reviews source context and exclusions → approves sharing → follows verified delivery status → joins the correct virtual visit or uses supported logistics → retains a traceable preparation/sharing record. Another appointment must not silently replace the selected one.
+Use the selected appointment throughout preparation, reports, joining and travel details. Let the patient choose the report range and included questions. Before sharing, show the recipient and exact report. Keep the reviewed copy and its delivery status. Changing appointments must never silently replace the visit being prepared.
 
 ### Permission becomes a verifiable action
 
-Patient asks Rumi to arrange a supported task → action shows exactly what will happen, to whom, with what data/cost → missing permission/source/capability is explained before approval → patient approves or declines → only the approved scope executes → delayed/unknown outcome is not reissued blindly → receipt or failure appears in chat, task history and the originating feature. Turning an agent off prevents new work rather than hiding it.
+Show the task, recipient, data and any cost before asking for approval. Explain missing access or unsupported operations first. After approval, execute only the reviewed task. If its outcome is unknown, check the service before trying again. Chat, the network and the source screen show the same status and receipt. Pausing an agent prevents new work.
 
 ### Personalization remains understandable and reversible
 
-Patient reviews what Rumi remembers → sees origin and how it affects support → corrects or forgets a note → later replies stop using the superseded memory → separate clinical records remain attributed and unchanged → consent withdrawal and data deletion explain which stored/shared copies are affected. This must work on both platforms, not only in native visual memory chips.
+Open a remembered item to see its source and use. Save a correction or forget it. Future replies must stop retrieving the old memory. Clinical records and earlier messages keep their separate ownership and retention rules. Explain which copies a deletion or consent change affects. Provide these controls on iOS and web.
 
 ### Education can help without commercial pressure
 
-Patient reads a finite Currents piece or medication explanation → asks a contextual question → clinical/source information is distinct from sponsorship → patient may inspect a sponsored support option and neutral alternatives → any enrollment or sharing requires its own review → decline is remembered for the approved interval and does not interrupt ordinary education, care or crisis support.
+Carry the selected article or medication into conversation. Keep clinical information separate from sponsored offers. Let the patient inspect neutral alternatives without enrolling or sharing data. Review any application separately. Save declines for the approved interval across all screens. Keep education, care and crisis support available.
+
+## Design specification for the existing app
+
+### Source and change boundaries
+
+Use `ios/Nudge/ContentView.swift` and `Views/RootView.swift` as the native entry and shell. Use `web/src/sano/SanoApp.tsx` as the browser shell. Keep the existing app targets, names, assets and entry points. Add routes and replace data behind current views in small steps.
+
+The source still matches the app baseline recorded in the as-built reference. The documentation revision started from commit `d0f62d427e333e6d0a3219e86170574c7e791ea8`. No screen was changed or runtime-tested for this revision.
+
+In the tables below, **current** means inspected source. **Proposed** means a change for review. Native measurements are points. Browser measurements are CSS pixels unless specified otherwise. Matching numbers across platforms do not guarantee matching rendering.
+
+### Palette and type
+
+Keep the semantic tokens in `ios/Nudge/Utilities/Theme.swift` and `web/src/index.css`. Do not introduce a new palette for authentication, forms or clinical records.
+
+| Token | Current day | Current night | Use in the re-scope |
+|---|---|---|---|
+| base | `#F6EEE3` | `#0D1126` | App background and sheet base. |
+| surface | `#FFFCF7` | `#1E2449` | Readable content cards. |
+| raised | `#FFF8EE` | `#2A3160` | Nested fields and selected content. |
+| ink | `#2E2418` | `#F4F1EA` | Main text and numbers. |
+| inkMuted | `#6F6151` | `#A7ADCE` | Supporting text. Check contrast at the actual size. |
+| edge | `#E7D8C4` | `#3A4178` | Card and input boundaries. |
+| shadow | `#C59A6E` | `#000000` | Existing soft depth. |
+| warm | `#E0764E` | `#FF9E7E` | Primary actions and selected navigation. |
+| life | `#7FAE7E` | `#8FEFC0` | Everyday progress and confirmed state, with text. |
+| sky | `#6E9CC8` | `#8FC6FF` | Informational accents. |
+| gold | `#D9A348` | `#C8B6FF` | Existing highlights. The night value is lavender. |
+| rose | `#D8849B` | `#FF9FB2` | Existing editorial accents. |
+| attention | `#D98A3D` | `#FFBE8F` | Attention, with a written reason and urgency level. |
+
+Keep the existing dawn/day/dusk/night palettes and deeper conversation palette. Do not add a colored panel behind every section. Clinical urgency needs an explicit message and action. A warm dot alone is insufficient.
+
+`NudgeType.swift` is a set of font helpers, not a universal type scale. Keep HermioneFREE for the wordmark and existing display moments. Keep Fraunces for editorial headings and system rounded text for controls and data. Preserve monospaced digits for values. The browser has the same six font files but uses a system rounded fallback stack.
+
+| Role | Current native example | Current web example | Proposed rule for added screens |
+|---|---|---|---|
+| Hub title | Care: Fraunces 32 | Care: Fraunces 32 | Reuse the Care header hierarchy. |
+| Today greeting | Fraunces 28 | Fraunces 27 | Keep current composition. Do not enlarge it to make room for new features. |
+| Moment title | Fraunces 18 | Fraunces 17 | Reuse for Today moments. |
+| Action title/detail | Fraunces 17 / rounded 13 | Fraunces 17 / rounded 13 | Keep the hierarchy. Allow more room for approval details. |
+| Care tile title | Fraunces 17 | Fraunces 16 | Reuse the existing tile component. |
+| Form and clinical body | Existing values vary | Existing values vary | Start new main body/input text at 16. This is a proposed legibility default, not an existing token. |
+| Secondary source text | Often 11–14 | Often 11–14 | Start new source/status text at 13. Do not hide essential consent or safety text in a kicker. |
+| Kicker | Rounded 11 semibold, tracking 1.6 | 11, weight 600, tracking 0.16em | Keep for short, nonessential section labels. |
+| Dock label | Rounded 9.5 medium | Rounded 9.5 semibold | Preserve visual identity. Assess larger-text behavior and hit areas. |
+
+Keep existing font weights where they are explicit. Native `serif` defaults to semibold. Browser serif headings do not all specify that weight. Do not force a global weight change while adding features. New screens must support Dynamic Type or browser text zoom without clipping fields or hiding actions.
+
+### Layout and components
+
+| Area | Current construction | Proposed continuation |
+|---|---|---|
+| Today | 150pt orb, 20pt main side margins, 13pt gap between moments, maximum three moments, Life strip below. | Keep this order. Route Needs you and task cards to exact items. Do not add a second dashboard above the orb. |
+| Quick Log entry | 56pt button, trailing 22pt, bottom 96pt in Today. | Keep the floating entry. Add Vitals within the picker, not another floating button. Recalculate clearance when safe areas or text size change. |
+| Scroll clearance | Today ends with 150pt clear space. Dock overlays the content. | Replace fixed clearance only where needed with measured dock/safe-area clearance. Verify drags begun beside and above the dock. |
+| Native dock | Five flexible items, 28pt outer side margins, 8pt inner horizontal padding, 7pt inner vertical padding. Root adds 6pt at the bottom. No fixed height. | Keep five destinations and their order. Do not add a sixth clinical tab. |
+| Native dock glass | iOS 26 tinted capsule. `dockTint` is day `#F4FBFF` / night `#3C4A86`, opacity 0.30. Older systems use `GlassSurface(radius: 34)`. | Keep the version guard and visible edge. Never put a Metal layer effect over the glass surface. |
+| Web shell/dock | Shell max-width 440 and height 100dvh. Dock buttons are 58 × 50, with CSS glass. | Keep the narrow reading column for this scope. Add working browser history and keyboard behavior without replacing the shell. |
+| Content cards | Native OrganicSurface defaults to radius 36. Current local radii include 24, 26, 28, 30 and 32. Web OrganicCard defaults to 28. | Reuse the nearest existing component. Proposed new compact clinical rows use radius 26 and 16 inner padding. Multi-section review cards use radius 32 and 20 inner padding. |
+| Glass | Native material fallback and guarded glassEffect. Web blur 26px/saturation 180%, strong blur 40px/saturation 200%. | Use for chrome, small controls and existing overlays. Use opaque surface cards behind long forms and clinical text. |
+| Forms | Current forms are limited and use several local patterns. | Use one column, persistent field labels, inline error text and a final review step. Start with 20 side margins, 16 section gaps and 12 between related fields. These are proposed defaults. |
+| Clinical detail | Lab/medication views already pair a heading with facts, source or explanation and contextual conversation. | Use title → source/status/date → primary facts → history/original → explanation → question/share actions. Reuse charts only for comparable numeric readings. |
+| Sheets | Quick Log, Settings and Network already use sheets. | Keep short create/edit/review tasks in sheets. Long clinical histories use pushed detail screens. Add explicit Close/Back controls and unsaved-input protection. |
+
+The new layout values are starting specifications for this app, not measurements of every existing screen. Allow wrapping and vertical growth. At large text sizes, change multi-column pickers to one column when needed. Keep interactive targets at least 44 × 44pt on native and a proposed 44 × 44 CSS pixels on web.
+
+Use SF Symbols in native and the existing browser icon layer. Reuse the established icon meaning. Do not generate icons for ordinary auth, forms, alerts or record categories. For filled images in new SwiftUI grids, anchor layout with a sized Color and overlay the image with hit testing disabled. Clip the anchor, then add interactive overlays.
+
+### Navigation and return paths
+
+Keep Care's current tiles, including Records and Documents. You can expose those same records under You without copying their data or removing the Care doors. Keep Discussion Guide reachable from You and visit preparation. The new Forms route starts from Requests and applicable appointments. It does not require a new top-level tile in the first pass.
+
+Replace event-only Today shortcuts with a stored route intent. The intent includes the tab, destination type, entity ID and origin. Consume it after the destination stack is ready. Preserve the selected Life item, result, insight or appointment. A missing ID opens a useful unavailable state with Back, never an empty background.
+
+Native `CareDestination` and `YouDestination` must carry appointment IDs into preparation. Register each destination in every stack that can open it. Preserve each tab's last valid path and scroll position where possible. Re-selecting a tab can return to its root only under one documented rule, not as an accidental remount.
+
+On web, connect the internal stack to browser history. Back first closes the active route or overlay according to its entry. Direct links pass through authentication and patient authorization. Never put clinical content or names in URL parameters. After an external portal, call or virtual-visit handoff, return to the selected item without claiming that the external task completed.
+
+### Motion, sound and accessibility
+
+Keep `NudgeSpring.ui` response/damping 0.42/0.82, gentle 0.55/0.86 and delight 0.38/0.66 as the native starting presets. Keep the existing soft press response. Native currently scales to 0.96 and opacity 0.88. Browser press uses 0.955 and 0.9 over 0.18 seconds. These are platform implementations, not a reason to rewrite all motion.
+
+Use the existing orb modes only when they match actual state. Listening starts after capture starts. Thinking follows an active request. Speaking follows playback. A declined task must never trigger a success celebration. Keep a static orb and readable status when reduced motion is enabled.
+
+Retain the Barley Thunder onboarding bed, Stone Kintsugi app bed, recap score and existing tap recordings. Reserve completion sounds for confirmed local saves or verified action outcomes. Navigation does not need a completion sound. Pause app audio before opening the microphone. Restore the prior bed only if the user's music preference still allows it.
+
+Extend reduced-motion handling to video breathing, memory bob, voice particles and the Today plus pulse. Keep chart values and garden history accessible as text. Add a list alternative to the body map. Browser sheets need focus containment, Escape handling and focus return. VoiceOver and keyboard users must be able to review sources, correct input and decline actions without a drag gesture.
+
+## Assets and content production
+
+### Reuse before generation
+
+The [as-built inventory](RUMI_AS_BUILT.md#assets-and-recreation-inventory) lists every shipped image, font and media filename. It remains the full inventory. Use those files as the starting asset set, not a prompt to regenerate a new visual identity.
+
+There are two related visual treatments. `currents_kidney.jpg` is a textured editorial illustration with muted sage, ochre and terracotta forms. `walking_shoes_stride.png` shows dimensional cream-and-terracotta shoes in a softly lit scene. Keep both uses: editorial scenes for education and clinical overviews, recognizable objects for logging. The source images are not all transparent cutouts. Native subject lifting creates some of the floating-object treatment.
+
+| Asset group | Keep | Required change or production gate |
+|---|---|---|
+| App identity | Current app icon, Rumi wordmark, six bundled font files. | No new icon, font family or native target name in this scope. Verify commercial rights before release. |
+| Orb | Five existing orb videos, procedural small orb, voice glow and day/night mapping. | Keep static/reduced-motion fallback. Do not replace status footage with a new character. |
+| Activity | 21 native illustrations mapped to 24 names. | Bring the same mapping to web. Keep legacy images available to old saved entries. |
+| Symptoms | 15 existing shared feeling illustrations and current semantic mapping. | Reuse for supported symptoms. If Clinical adds a symptom with no suitable image, commission it after taxonomy approval. Never use a food photo as symptom art. |
+| Meals | Six images used by 39 names. | Audit misleading matches, such as vegetarian labels with a salmon or chicken image. Use neutral category art until approved replacements exist. Preserve saved image keys and estimates as historical data. |
+| Medication objects | Three existing bottle/blister images. | Fix the web `med:<id>` filename bug. Use the existing medication image lookup. Do not imply a generic image is an exact pill-identification tool. |
+| Records and care | Folder, notebook, calendar and current clinical/editorial art. | Reuse for Documents, Notes, Forms and appointments. Dense record rows need text and icons, not new art for every value. |
+| Currents | Existing article/recap art and finite feed structure. | Add source, reviewer, revision and expiry metadata. Listen requires real narration. Watch requires matching media and captions. Disable unsupported formats with an explanation. |
+| Recap | Existing dawn/garden/path art and score. | Reuse as labeled illustration. Compose only from eligible dated history. Bring the native recap score to web only after rights and playback behavior are confirmed. |
+| Held photos | User-selected originals and captions. | Add real web selection, export/delete and cancellation cleanup. A canned image is not an uploaded memory. |
+| Sponsor/provider identity | Only existing or supplied authorized marks. | Obtain approved files and claims before publication. Do not generate a real provider's or sponsor's logo. |
+
+### Activity mapping to preserve
+
+Use `ios/Nudge/Models/LifeModels.swift` as the semantic mapping reference. Update the browser's `web/src/sano/lifeLibrary.ts` to match after approval. These are the 24 current choices, not a proposed larger catalogue.
+
+| Activity names | Native image key |
+|---|---|
+| Walk, Evening walk, Morning walk | `walking_shoes_stride` |
+| Hike | `hiking_boots_walking_pole` |
+| Bike ride, Cycling | `clay_bicycle` |
+| Swim | `water_ripples_goggles` |
+| Treadmill | `clay_treadmill` |
+| Stairs | `clay_stairs_glow` |
+| Yoga | `yoga_mat_bolster` |
+| Stretching | `clay_figure_stretching` |
+| Pilates | `pilates_ring_and_mat` |
+| Tai chi | `clay_figure_tai_chi` |
+| Breathing | `glowing_clay_orb` |
+| Dance | `clay_figure_dancing` |
+| Strength training | `clay_dumbbells` |
+| Resistance bands | `resistance_band_clay` |
+| Light weights | `kettlebell_clay` |
+| Quad sets | `leg_quad_extension` |
+| Physical therapy | `hands_supporting_knee` |
+| Gardening | `hands_planting_sprout` |
+| Yard work | `leaf_rake_with_pile` |
+| Housework | `broom_dustpan` |
+| Standing desk | `standing_desk_workspace` |
+
+Keep exact-name selection and most-specific-first matching for input. The walking fallback belongs to text matching, not saved-entry decoding. Decode old entries with their stored image keys and legacy fact mappings. Do not match them again. Keep `CareEntry.Kind.move`'s persisted value `"Moves"` while displaying Activity.
+
+New manual entries must not gain invented facts from a fallback image. If legacy estimates move into explicit fields, label them as image-derived estimates. They are not measured activity or nutrition.
+
+### New asset brief and acceptance
+
+Create new art only for a confirmed content gap. For logging objects, use the current cream/terracotta materials, soft directional light and a subject readable at thumbnail size. For editorial scenes, use the current textured palette and restrained anatomy. Do not add text, numbers, provider marks or sponsor claims inside an image.
+
+Before commissioning, record the destination, subject, reference asset and intended crop. Keep the original at enough resolution for the largest approved display size. Export appropriate platform variants after testing that crop. Do not impose a guessed universal aspect ratio on both square objects and editorial scenes.
+
+Each asset needs a semantic key, file path, source, usage rights, revision, dimensions, crop/focal point and alternative text decision. Medical illustrations need clinical review. Decorative images should not repeat adjacent text to a screen reader. Screens must remain usable when an image or extraction cache fails.
+
+Native image sets use `Assets.xcassets/<key>.imageset/Contents.json`. Browser images use `web/public/img`. When replacing a public browser asset, use a new filename and update its reference to avoid stale cached files. Keep old names while saved entries or old clients still reference them. Do not infer nutrition, effort or clinical severity from an asset key in the new model.
+
+No assets were generated or changed for this document.
+
+## Copy and status language
+
+### Voice and terminology
+
+Keep Rumi's direct, warm tone. Use short sentences and the patient's chosen name where useful. Explain the next action without promising an outcome the service cannot verify. Avoid guilt about habits or missed entries. Safety instructions must remain direct even when the rest of the screen is gentle.
+
+Keep Today, Care, You, Journeys, Currents, Life, Story, Insights and Discussion Guide. Use Activity in the interface. Use "Rumi" or "companion" in ordinary conversation, but disclose AI generation and external processing where needed. The current `Glossary.swift` comments must not prevent clear privacy or safety disclosures.
+
+A habit, a clinical plan goal and an external task are different things. Do not rename them all "journeys". A remembered preference is not a clinical note. A message draft is not a sent message.
+
+### Existing copy that needs a decision
+
+These are source excerpts, preserved exactly where quoted. They are not approved future claims.
+
+| Source | Current text or claim | Proposed treatment |
+|---|---|---|
+| `TodayCanvasView.threadResolved` | "You're set for now — I'll keep watch." | Replace when no monitoring service exists. Draft: "Nothing else needs your attention here right now." |
+| `TodayCanvasView.lifeStrip` | "Today at your table" for meals, activity and medications. | Draft replacement: "Your day so far". Keep the same strip and See it all entry. |
+| `TodayCanvasView.plusButton` accessibility label | "Log something — a symptom, a meal, a move, a med" | Use the visible Activity term and add vitals only when supported. |
+| `ConnectionsView` | "A family of specialized agents working quietly behind Rumi. Tap any one to see what it's doing." | Describe available assistance and actual tasks. Do not imply every listed agent runs. |
+| `ReportsView` confirmation | Promises the team will have the report before the visit and that nothing else leaves the phone. | Name the reviewed report, recipient and actual delivery state. Remove the blanket privacy promise. |
+| `RecordConnectView.HealthKitAskView` | Says the cuff, watch and scale chat directly with Rumi and the patient never types. | Describe only granted categories and supported imports. Manual entry remains available where supported. |
+| `PrivacyCenterView` | "Export everything" and "Nothing here is used to advertise to you. Ever." | Scope export and data-use claims to the approved implementation and policy. Legal/Privacy must review the advertising statement. |
+| `project.pbxproj` microphone description | Says words go to the companion "and nowhere else". | Replace with approved text that states actual external speech processing. Do not draft a false on-device claim. |
+| `BillsView` | Promises payment and a filed receipt from the selected card. | Show only supported tender and service-confirmed outcomes. A demo must identify itself before approval. |
+
+### Draft interface strings for review
+
+The following strings are proposals for ordinary UI, not supplied legal or clinical copy. Interpolate only verified names, dates and counts. Use localized dates and singular/plural forms. Keep the status meanings identical across iOS and web.
+
+| State | Draft text | Action or condition |
+|---|---|---|
+| Empty memory | "Nothing saved here yet." | Add a memory. |
+| Memory save failed | "We couldn't save that change. Your edit is still here." | Retry or continue editing. |
+| Records connected, no data | "This source hasn't returned any records yet." | Retry or connect another supported source. |
+| Partially imported records | "Some records are still missing." | Show affected categories and retry scope. |
+| Stale record | "Last received on {date}." | Show date from the source's last successful import. |
+| Document saved, extraction pending | "Your document is saved. We're still reading it." | Open the original without waiting. |
+| Extraction uncertain | "Check this value against the original." | Open the cited page and edit the proposed value. |
+| Entry saved, AI unavailable | "Your entry is saved. Rumi can't add a reply right now." | Keep approved rule-based support visible. |
+| Voice not permitted | "Microphone access is off. You can type instead." | Type or open supported permission settings. |
+| Voice processing | "Turning your recording into text." | Use only for batch transcription, never label it live text. |
+| Local draft | "Draft saved. It hasn't been sent." | Edit or review. |
+| Portal handoff | "Your draft is ready. Send it in your provider's portal." | Copy/open the supported portal. |
+| Awaiting approval | "Review before sending." | Show recipient and selected information. |
+| Approved but not submitted | "Approved. Not submitted yet." | Show cancel only if still possible. |
+| Service submission accepted | "Submitted. Waiting for confirmation." | Open status history. |
+| Unknown outcome | "We can't confirm the result yet. We're checking before trying again." | Use only if reconciliation is actually running. Otherwise say "Check status before trying again." |
+| Declined proposal | "Not sent." | Use when no submission occurred. Keep the decline in history. |
+| Confirmed delivery | "Delivered to {recipient} on {date}." | Use only when that level of evidence exists. |
+| Unsupported action | "This service isn't connected in Rumi." | Offer a verified contact or keep a draft. |
+| Old demo action | "Demo action. No request was sent." | Never convert it to a real receipt. |
+| Feature moved | "Your {feature} is now in {destination}." | Direct link to the same saved content. |
+
+Do not invent OTP expiry, response times, savings amounts or appointment guarantees to complete a sentence. SMS, push, terms, consent, crisis instructions, clinical feedback and sponsor claims need approved wording. Record the owner, version, locale and approval before release. Keep ordinary draft UI strings here during review, then reconcile them with the approved design and localization files.
+
+## Feature-by-feature change instructions
+
+The headings preserve the attachment's 36 feature names. They are not new requirement IDs. Each section describes where the feature fits and what changes behind it. Apply the shared design, copy, data and migration rules in this file. The corresponding [requirements sections](RUMI_REQUIREMENTS.md#table-of-contents) remain the authority for patient-visible behavior and unresolved domain rules.
+
+Source shorthand in this section: `N/` is `ios/Nudge/`, `V/` is `ios/Nudge/Views/`, `W/` is `web/src/sano/`. `AppModel` is the current native state owner. `store.tsx` is the current web state owner. New service and data names below are proposed, not existing implementations.
+
+### Welcome Router
+
+Keep the Welcome orb, wordmark and background. Add a neutral session-check state before protected content appears. Resume interrupted required steps and preserve an authorized incoming destination. Return fully onboarded patients to that destination or Today.
+
+Replace the Boolean-only branch in `N/ContentView.swift` and `W/SanoApp.tsx`. A local onboarding flag cannot establish identity. Separate session validity, required legal acceptance and patient setup. Clear previous-account views while checking a changed session. Demo entry, if approved, must use separate data and an explicit label.
+
+### Mobile SMS OTP Auth
+
+Add phone entry and code verification within the existing onboarding flow. Use a persistent country label, masked delivery destination and an editable phone number. Keep Back, cancellation and alternative sign-in visible. Code input should support paste and platform one-time-code autofill. Show retry timing only from the approved authentication policy.
+
+Change `V/Onboarding/OnboardingFlowView.swift` and `W/screens/Onboarding.tsx`. Add a server-owned challenge ID, delivery state, expiry and verification result. Never store the code in app analytics or chat. Security must set countries, expiry, attempts, resends, recovery and recycled-number handling. A delivery acceptance does not create a session.
+
+### Apple Auth (SSO)
+
+Keep Apple sign-in in Welcome. Use the approved Apple button treatment rather than a custom generated mark. On success, continue inside the existing onboarding screens. Allow missing name/email fields without inventing persona details.
+
+Replace the current advance-only handler with a verified provider exchange. Configure native capability, callback and server validation. Use account-linking rules before joining identities. Cancellation leaves the current account unchanged. The web flow needs its own supported redirect and recovery path.
+
+### Google Auth (SSO)
+
+Place Google alongside supported sign-in methods using provider-approved branding. It opens authentication, not the Connections mock. Keep profile completion within the existing About You screen.
+
+Add a verified exchange and supported native/web callbacks. Distinguish the sign-in identity from later Gmail and Calendar permissions. Do not merge clinical accounts because email strings match. Product and Security must approve linking and recovery before this branch is enabled.
+
+### Terms & Privacy Consent
+
+Add a readable step after identity verification and before uses that require acceptance. Keep full legal text reachable from that step and Settings. Show required acceptance separately from optional personalization, analytics and external sharing. Use opaque content surfaces for long text.
+
+Replace any use of epsilon as a blanket permission. Store the terms version, decision, patient/account, purpose and time. Enforce the decision at the service boundary and when selecting AI context. Legal supplies the text, jurisdictions, reacceptance and withdrawal rules. Do not preselect optional permissions based on today's epsilon default.
+
+### Analytics Consent
+
+Use a separate optional choice with a later Settings control. Explain what optional analytics covers without implying that it is needed for ordinary care. Keep the choice clear when consent storage fails.
+
+Add a central analytics gate before introducing collection. Events need an approved allowlist, with no clinical text, voice, OTP or identifying payload by default. Withdrawal must stop covered dispatch, including queued events. Separate security operations from optional product analytics under an approved policy.
+
+### Select Care Pathway
+
+Reuse the four existing pathway choices and their visual treatment. Explain whether the choice is patient-reported context or a verified care-team assignment. Keep the entered profile and unrelated history when it changes.
+
+Change `PathChoiceView`, `PathChoice`, `AppModel.switchPathway` and `store.tsx.applyPersona`. Keep Marcus, Elena, Sam and Rosa only in explicit demo mode. Real pathway selection must not call a fixture replacement routine. Clinical/Product must decide single versus multiple pathways and how conflicting assignments are resolved.
+
+### Records Connection
+
+Reuse the provider search, match review and source list. Replace username/password simulation with the selected provider's supported authorization flow. After authorization, show matching and import states separately. Provide readable category permissions, retry and manual alternatives. Apple Health needs its own platform-supported permission path.
+
+Change `V/Onboarding/RecordConnectView.swift`, `W/screens/Onboarding.tsx` and the source rows in Records/Privacy. Replace provider-name arrays and one Health Boolean with connection records, granted scopes and sync state. Show last successful import separately from connection status. Ambiguous patient matching blocks association. Supported sources and contracts remain undecided.
+
+### Notification Consent
+
+Keep the current notification categories in Settings as review inputs. Add a purpose explanation before the system prompt, actual authorization status and a route to platform settings. Make quiet hours editable only when the schedule is enforced.
+
+Separate app preference, OS/browser permission, device registration and delivery state. Push opens the exact authorized item through Welcome Router. No sensitive preview by default without approved policy. Clinical/Privacy must settle urgent exceptions, quiet-hour behavior, expiry and wording.
+
+### Interactive Elements (buttons, cards)
+
+Reuse `GlassSurface`, `ChromeIcon`, `NudgeButtonStyle`, `OrganicCard` and the current dock. Add accessible labels, explicit unavailable states and stable Back/Close controls. Keep forms readable above the keyboard. Use one pending state to prevent duplicate taps without discarding input.
+
+Repair native destination registration, queued Today intents and web history. Replace browser sheet behavior with an accessible dialog implementation while preserving its appearance. Cards must carry the displayed entity ID. Repeated approval must reach the same action, not create another operation.
+
+### Crisis/Self-Harm Handoff
+
+Add a focused safety panel within conversation and symptom support. Keep its actions visible without the orb animation or a completed AI response. Pause sponsored recommendations during the safety flow. Use approved resources and wording for the supported location and population.
+
+Create one safety decision boundary for text, transcribed voice and structured symptom inputs. The model cannot author or suppress emergency policy. Cache approved fallback resources according to policy. Record the resource shown and action taken, not an assumed completed call. Clinical must define triggers, ambiguity handling, medical/crisis overlap and service responsibility before activation.
+
+### Visible Editable Memory
+
+Keep native Privacy Center's memory visualization as an optional browsing view. Add a readable list with source, content and edit/forget actions. Build the same controls on web. Open one item in an edit sheet and preserve the draft on save failure.
+
+Change `PrivacyCenterView`, `AppModel.addMemoryNote/deleteMemory`, the web memory methods and both prompt builders. Add item revisions and deletion markers. Invalidate future retrieval and affected conversation summaries when memory changes. Earlier messages may still contain the same fact, so deletion must explain and enforce its actual scope. Do not change clinical records when editing a memory.
+
+### Agentic Action Cards
+
+Keep action cards in Today, conversation and the network. Expand the review to show recipient, selected data, any cost and the requested commitment. Use distinct approve, decline, pending, failure and receipt states. Long payloads open a review sheet without hiding the essential summary.
+
+Replace `richResolved` and separate local action flags with one action record shared by all three surfaces. Bind approval to a payload revision. Recheck account, permission, source and service capability when executing. Only an executor can submit work. Only verified external evidence can set a corresponding completion state. Preserve declines and unknown outcomes in history.
+
+### Sponsored Responses
+
+Retain sponsor disclosure near the sponsored content and its explanation sheet. Separate ordinary clinical text from the offer. Keep neutral alternatives reachable without joining a program. No sponsor treatment may resemble a clinician's endorsement.
+
+Add content revision, sponsor identity, eligibility basis and approval status outside the prompt. Enforce decline and placement rules across conversation, medication pages and Journeys. Displaying an offer must not send patient data to the sponsor. Commercial, Legal and Clinical must approve claims and ranking policy.
+
+### Relevant Card Stack ("Thread")
+
+Keep a maximum of three current Today moments as the proposed default. Preserve their current art, spacing and dismissal motion. Add a non-swipe dismissal option and an inspectable reason where personal data affects selection. Keep the empty state calm and factual.
+
+Replace generic actions in `V/Today/MomentCard.swift` and `W/screens/Today.tsx` with typed targets. An insight opens that insight, a habit updates that habit, and a task opens its own review. Save dismissals and expiry. Product/Clinical must define ranking and resurfacing when more than three items qualify.
+
+### Needs You' Clinical Alerts
+
+Keep the Care attention section, Today signal and Care dock indicator. Clinical alerts need a reason, source, time and explicit action. Routine bills/messages must remain distinguishable from urgent clinical events. Opening an alert leads to its exact item.
+
+Native `NeedsYouItem` generates new UUIDs when the computed list rebuilds. Web uses entity IDs but a nonspecific `"result"` ID for result attention. Replace these with stable patient/source-event IDs and revisions. Wire acknowledgment on both platforms. Store acknowledgment separately from clinical resolution and action completion. A corrected source can update or retract the alert. Clinical must approve severity, recurrence and overlapping-alert rules.
+
+### Tracking Entry Point
+
+Keep Today's plus, contextual medication logging and Life's add entry. Reuse the illustrated searchable library. Add Vitals only for approved measurement types. Add an editable timestamp and a review step without forcing the patient through chat.
+
+Use a tracking intent containing type, selected entity and return destination. Clear incompatible fields when the type changes. Replace blank/no-match fallback saves with explicit manual entry or a clear limitation. All entry paths must use the same save operation and return the saved record ID.
+
+### Care Plan
+
+Keep `V/Care/CarePlanView.swift` and `W/screens/shared.tsx`'s plan screen. Place author, date and version near the plan title. Keep clinical instructions separate from habit suggestions. A goal opens a small-habit proposal for review before it reaches Journeys.
+
+Separate the clinical plan, plan goal and patient habit records. Replace immediate `deriveJourney` with review and atomic saving of the habit and source link. A withdrawn plan marks linked habits for review. It must not delete recorded progress or silently rewrite instructions.
+
+### Discussion Guide
+
+Keep one Guide reachable from You, looking-ahead, clinical questions and visit preparation. Add text editing and optional appointment assignment. Distinguish questions from observations and discussed from unresolved. Share selected items through the common review sheet.
+
+Extend `GuideItem` with source links and revisions. Replace Guide's view-local sent Boolean with a message or report action. Keep questions when an appointment changes or is cancelled. Whether AI can add a labeled draft automatically remains a Product decision. It may never send it automatically through this path.
+
+### Providers
+
+Reuse the Care team list and provider rows. Show the selected provider's role, practice and supported actions. Use a neutral initial/icon if no approved photo is available. Missing contact information should be visible, not replaced with a fixture number.
+
+Give each provider/practice a stable ID and verified capabilities. Replace global `callOffice` use where a provider-specific number is required. Carry the selected provider into messages, appointments and reports. A changed recipient requires a new sharing review. No staff portal is added.
+
+### Appointments Mgmt
+
+Extend the existing list/detail screens with supported booking and cancellation. Keep the date stone, status chip and reschedule sheet. Show requested and confirmed times distinctly. Prep, reports, joining and Trip must all use the selected visit.
+
+Add appointment IDs to both native prep routes. Replace `appointments.first` in `VisitPrepView`. Repair web You's recursive team route and add the missing management controls. Use provider availability and confirmed revisions. Update reminders and logistics after confirmed changes. Detect slot loss and unknown outcomes without double booking.
+
+### Virtual Visits
+
+Keep Join in the appointment detail. Show the provider service, allowed window and readiness/help actions. Disabled joining must be noninteractive on both platforms. On return, retain the selected appointment.
+
+Replace `.example` URLs with verified visit-specific destinations. Apply provider-approved status/window rules, with a clock update while the page is open. Validate external URLs before opening them. In-app video versus provider handoff remains a scope decision. Opening a URL is not proof of attendance.
+
+### Messaging
+
+Keep the current inbox and thread appearance. Add recipient/category selection, saved drafts and real attachment review. Use the same composer from symptoms, Guide, conflicts, visit preparation and reports. Keep portal drafts visibly distinct from in-app delivery.
+
+Unify `sendMessage`, `startThread`, browser thread sends and all local sent flags behind one communication service. Store recipient IDs, attachment IDs, message revisions and provider receipt IDs. Web symptom messages must attach actual reviewed content. Incoming messages update the correct thread and attention item. Do not generate a care-team reply.
+
+Retain Requests and the four kinds currently exposed on native: refill, appointment, records and form. Keep native `V/Care/RequestsView.swift`'s composition entry and add the missing browser composition. Replace both `submitRequest` local-submitted handlers with a reviewed request action. Add request detail, actual provider status, supported cancellation and recovery. A form request can link to a form response but does not complete the form.
+
+Migrate existing submitted, acknowledged and resolved request records as unverified local/demo history unless external evidence exists. Keep their patient-authored text when ownership can be established. Do not submit them automatically during migration.
+
+Web also declares `referral` in `W/types.ts`, but no working composition flow was found. Preserve that value if a legacy record contains it. Show it as unverified history with no execution capability until Product approves referral scope and an integration exists. Do not drop or convert it to another request kind.
+
+### Forms
+
+Add Forms inside Requests and relevant appointment preparation. A form detail shows its owner, version, due date and progress. Use the shared single-column field layout. Highlight missing required fields and preserve a draft. Finish with a review of answers and destination.
+
+Add form definitions, conditional fields, responses, attachments and submission records. Bind each response to a definition version. AI prefill is proposed content requiring review. Signatures and consent need the provider's approved process. The existing request kind `form` and document type `form` remain useful links, not substitutes for completion.
+
+### AI Companion Atomic Habits & Journeys
+
+Keep the garden, habit rows, held photos and program context. Add a habit detail/edit sheet, pause/resume and a correction path for keeps. Show history as dates and text as well as garden lights. Keep feedback free of guilt.
+
+Accept the actual proposed habit from chat. Do not keep the first existing habit. Persist journeys, kept dates, pauses and source-goal links together. Keep timezone-aware date handling and duplicate protection. A program withdrawal must explain affected habits before changing them.
+
+### Medications (w/ AI support)
+
+Keep medication images, tide treatment and detail layout. Add source/status near the dose and separate taking reports from the prescription. Keep linked symptom logging. Make supported refill and savings paths reachable from the selected medication.
+
+Separate medication records, schedules, taking events, supply evidence and refill requests. Replace fixture adherence with an approved calculation or mark it unavailable. Update the tide only from that result. AI uses the selected medication and permitted evidence. Never let chat, a habit or a payment action change a dose.
+
+### Medications Sponsored Pages
+
+Extend the reachable medication support area using the existing Savings card style. Put sponsor and scope near the heading. Keep clinical information separate from financial estimates and offers. Show neutral support options alongside eligible sponsored content.
+
+Use a medication/program link and versioned approved content. Check expiry and eligibility before enabling an application. Collect and share only reviewed fields. Product/Commercial must decide whether the feature means brand pages, support-program pages or both. Do not create a branded catalogue from the attachment name alone.
+
+### Immunizations (w/ AI support)
+
+Extend the current Records category into a list and detail screen. Show administration date, product and documented series/dose details where available. Use the shared source/status rows and question action. Missing records need a distinct empty state.
+
+Add a structured immunization record linked to its source. Keep patient reports separate. AI may explain the selected record but cannot infer that absent documentation means a missed vaccination. Clinical must approve any schedule or reminder logic before adding it.
+
+### Documents (w/ AI support)
+
+Keep the Documents list and familiar folder art. Replace title-only Add with approved file/photo/import choices. The detail screen shows the original first, then extraction status and proposed values. Tap a value to inspect its source page. Provide correction before confirmation and clear delete scope.
+
+Add artifact storage, upload validation and extraction jobs. Retain the original even if extraction fails. Save reviewed fields with page references and revisions. Clinical-record import is a separate authorized operation. Implement the missing browser add/review/remove controls. Do not treat Vision subject lifting as document OCR.
+
+### Notes (w/ AI support)
+
+Add a Notes list/detail under clinical information, with separate patient and clinical note types. Use the existing notebook imagery only where useful. Patient notes have an editor. Imported notes retain a read-only original plus approved annotation/correction actions.
+
+Create note and revision records distinct from Guide and memory. AI summaries cite the original note. Let the patient choose what becomes a question, memory or shared message. Private-note AI inclusion and restricted clinical notes need approved privacy rules. Search only authorized content.
+
+### Vitals (w/ AI support)
+
+Add a Vitals category and approved types to tracking. Use labeled value/unit/time fields. Paired measurements such as blood pressure need linked component fields. Reuse GlowChart for compatible trends and provide a plain values list.
+
+Add observation records with measurement code, components, units, effective time, source/device and method. Keep imported and patient-entered values distinguishable. Validate types and units without silently converting uncertain data. Clinical must approve supported types, plausible-input handling, thresholds and feedback.
+
+### Labs (w/ AI support)
+
+Keep the lab detail, chart scrub and explanation sheet. Add status, source and per-result units/ranges where needed. Make preliminary, corrected, missing and conflicting results visible. Allow a Guide question or reviewed report inclusion from that result.
+
+Sort by actual dates rather than array position. Preserve result versions and source references. Do not compare incompatible units or ranges without approved normalization. AI explanations cite the selected values. A source correction must mark affected summaries and reports, not quietly leave old claims current.
+
+### Conditions (w/ AI support)
+
+Keep the condition overview, phase and care-plan links. Add a readable condition list for multi-condition patients. Show active/history/self-reported/uncertain status where supported. Keep supporting record and Guide links close to the explanation.
+
+Move real clinical context out of `Persona`. Use patient-linked condition records with source and verification status. A pathway choice cannot create a confirmed diagnosis. Keep relevant conditions available across chat, reports and medication explanations. Predictive content must remain separate from diagnosed conditions.
+
+### Allergies and other clinical information
+
+Add Allergies to Records using the shared clinical detail layout. Show substance, reaction and available severity/status. Distinguish "no information" from a documented negative history. Provide a visible correction or contact path for conflicts.
+
+Create structured allergy records and attributed patient annotations. Do not use an AI guess to settle conflicting allergy evidence. Retain the existing Procedures category and its source records. Use the shared record list/detail and source/correction rules for that category. Retention does not authorize new procedure advice or scheduling.
+
+Clinical/Product must define genuinely new categories before adding routes or database fields. The phrase "other clinical information" does not establish an unlimited clinical-history scope.
+
+### Sponsored Programs
+
+Keep program cards and sponsor explanations in Journeys. Add a review step showing eligibility basis, commitments, cost and data sharing. Display pending, enrolled, declined and ended states distinctly. Keep neutral care and ordinary habits accessible.
+
+Separate content eligibility from enrollment execution. Save the approved program revision and consent with the submission. Persist decline across chat, medication pages and Journeys for the approved interval. Replace local `enroll` success with the actual service result. Do not create a program journey after a decline.
+
+### Symptom Tracking w/ AFB
+
+Keep the illustrated picker, body-region option, severity control and note entry. Add a timestamp, review and history/correction path. Present saved-entry status before feedback. Keep approved urgent guidance visible above optional AI text and ordinary next steps.
+
+Change `AppModel.addLog` and web `addLog` to return a saved log ID/revision. Store rule assessment and AI feedback separately, linked to that revision. Rules run without waiting for generation. AI receives the selected observation and applicable rule outcome. Corrections can trigger reassessment but must not rewrite a message already sent. Clinical must supply taxonomy, scales, thresholds, clarifications and overlapping-risk policy. AFB includes both feedback types.
+
+### Retained experiences outside the 36 attachment rows
+
+| Experience | In-place change and source touchpoints |
+|---|---|
+| Text and voice companion | Keep `ConversationView`, `VoiceModeView`, `CompanionEngine`, `VoiceSession` and browser Conversation. Fix the missing current typed turn on web, explicit degraded mode, real context selection and cancellation. Keep text usable when speech is unavailable. See the technical contract below. |
+| Eight-agent network and connections | Keep Network overview/detail, Today pulse and Connections. Bind every count and task to actual service state. Keep unsupported domains visible as unavailable where useful, with no invented activity. Pause and revoke must reach the executor. |
+| Visit preparation and reports | Keep Reports and the existing brief presentation. Pass appointment ID to preparation. Use correct patient, explicit interval and selected questions. Retain an immutable reviewed report and a real export artifact. Send through the common action/communication service. |
+| Bills, wallet and savings | Keep the current pages, but separate estimates, patient-reported paid status and processor evidence. Use tokenized eligible tender only. Insurance cards cannot pay bills. Enable real payment only after financial approval and provider integration. |
+| Life gallery and held photos | Keep day grouping, object images and detail overlays. Add timestamp/portion/duration corrections where approved. Decouple facts from images. Add real web photo selection and file cleanup. |
+| Story and Insights | Keep Story/Insights as You's existing segments. Make Today links select the right insight. Use attributed dated events, save bookmarks and expose evidence. A statistical or predictive claim needs an approved method. |
+| Currents and recap | Keep finite content and the existing player/recap presentation. Replace timer-only playback and misleading save-to-Story claims. Provide a saved-content view within Currents. Use real captions/narration and a dated recap basis. |
+| Settings, privacy and rights | Keep settings placement and existing appearance/audio/tone choices. Add web profile/memory parity, real consent controls, usable export and scoped deletion. Retire cosmetic confirmations only after replacement and migration checks. |
+
+## Engineering and backend specification
+
+### Extend the current clients
+
+Keep SwiftUI/MVVM on iOS and the existing React/TypeScript app on web. `AppModel` and `SanoProvider` can remain compatibility interfaces while storage and service work moves behind them. Do not rewrite all screens or introduce a second app state store with competing ownership.
+
+Introduce domain repositories for account/consent, clinical records, tracking, Guide/notes/memory, habits, communication, appointments, actions, content and rights. They may share a backend deployment. Separate modules do not require separate microservices. Each domain needs one authoritative writer and adapters to existing view models.
+
+The current `functions/index.ts` Worker handles only speech forwarding. Extending it, or using another managed backend for clinical storage, is an engineering decision requiring security and data-processing review. No database, auth provider, clinical aggregator, payment processor or video provider is selected by this document.
+
+Recommended dependency shape:
+
+```text
+Existing iOS views / existing web screens
+  -> existing state interfaces, gradually split by domain
+  -> authenticated API client + account-scoped local cache
+  -> account authorization and purpose-based data checks
+  -> domain services and durable records
+  -> provider adapters / action executor / import and extraction jobs
+  -> approved external systems
+
+Companion request
+  -> permitted context + selected entity revision + safety assessment
+  -> configured AI gateway
+  -> validated text/citations/action proposal
+  -> patient review
+  -> the same action executor used by ordinary screens
+```
+
+A model response has no direct database-write or external-send authority. Read-only explanation may finish even when an action provider is unavailable. The interface must show that distinction.
+
+### Proposed data contracts
+
+These fields define the information needed for implementation review. They are not a committed database schema. Use stable IDs, explicit revisions and account authorization. Do not reuse a display name, array position or pathway as patient identity.
+
+| Record | Minimum proposed fields and relationships |
+|---|---|
+| Account and session | Auth subject, session reference/expiry, authorized patient IDs, account status. Keep tokens out of clinical records and telemetry. |
+| Patient and pathway | Patient ID, editable profile, pathway selections, who selected each and when, source where assigned. No fixture persona fallback in live mode. |
+| Consent decision | Account/patient, purpose, version, decision, effective time, withdrawal and applicable policy revision. |
+| Source connection | Patient, provider, external account reference, granted scopes, status, last successful sync, cursor, last error category. Keep provider tokens server-side. |
+| Clinical source item | Patient, type, source ID/external ID/version, clinical code/system, event/issued/imported times, status, original evidence, superseded item. |
+| Clinical interpretation | Source item IDs/revisions, generated text, model/content/rule version where applicable, generation time, review state. Never overwrite the original. |
+| Observation or symptom log | Patient, type/code, values/components and units where relevant, time, note/context, body/medication link, source, revision. |
+| AFB assessment | Log ID/revision, applicable rule set/version, rule outcome, evidence, required action, assessment time, linked AI feedback and reassessment state. |
+| Memory / private note / Guide item | Separate types with content, source links, revision, created/updated/deleted times and purpose. Guide adds discussed state and optional visit links. |
+| Journey and habit event | Habit/journey IDs, user-approved content, optional plan/program link, active/paused state, dated keeps and corrections. |
+| Appointment | Patient, provider, source/external ID, timezone-aware time, status/revision, location/channel, verified join reference, request history. |
+| Message and draft | Patient, thread, recipient/capability, body revision, attachment IDs, authorship, sent/received times, action and external receipt references. |
+| Form response | Form ID/version, patient/visit, typed answers, draft revision, validation state, attachments/signature references, submission action. |
+| Artifact and extraction | Owner, original storage reference, content type, size/hash, pages, retention class, extraction status, fields with page references and review revisions. |
+| Action | Patient, type, source entity, payload revision/hash, permissions, approval scope/time, idempotency key, external operation ID, status and event history. |
+| Report snapshot | Patient, recipient, visit if selected, interval/timezone, included source revisions, excluded data, authored/reviewed time, artifact and sharing actions. |
+| Content and sponsorship | Piece/program ID, source, revision, reviewer/approval, locale, media/captions, expiry, sponsor, eligibility basis and patient preference/decline state. |
+| Export or deletion job | Account/patient, requested scope, confirmation, manifest, per-system status, retention exceptions, completion evidence and recoverable errors. |
+
+Clinical categories need their own fields beyond this common structure. For example, lab reference intervals belong to the specific result. Allergies need reactions and verification status. Vitals may contain multiple linked components. Do not stretch the current `LabSeries` or generic `RecordItem` into every clinical entity.
+
+Native and web formats already differ: UUIDs versus generated strings, ISO dates versus epoch milliseconds, and several enum values. Define one versioned wire contract and explicit adapters. Handle unknown enum values safely. Do not assume the two existing models are interchangeable.
+
+### API operations and failure contract
+
+Operation names below describe proposed capabilities, not deployed URLs. Engineering can choose route names and storage technology after review. Every operation must authorize the account/patient and validate input on the server.
+
+| Operation group | Input and result | Failure or consistency requirement |
+|---|---|---|
+| Session exchange / challenge verification | Provider proof or OTP challenge response → verified session and permitted patient scope. | Replayed/expired proof fails. Linking requires approved identity verification. |
+| Consent read/update | Purpose/version/decision → saved decision revision. | If a required decision cannot be verified, block the dependent use, not unrelated permitted care. |
+| Connect / import / disconnect | Source authorization and selected scopes → connection record and import status. | Check patient match. Preserve partial categories and stop revoked access. |
+| Clinical list/detail/correction | Patient, filters/cursor, source revision → records or attributed correction result. | Missing, forbidden, stale and conflicting data have separate meanings. |
+| Save tracking / assess feedback | Entry/revision → saved ID, then linked rules/AI results. | Saving and generating are separate. Do not lose a saved entry when AI fails. |
+| Edit memory/Guide/note/habit | Item ID and expected revision → new saved revision. | Conflicting edits return current state for review. Deleting the last item stays empty. |
+| Draft / prepare action / approve | Exact reviewed payload and revision → action ID and authorization state. | Approval for an old payload cannot authorize a changed recipient or amount. |
+| Execute / reconcile / cancel action | Authorized action ID → external operation/status events. | Use idempotency. Unknown is not failed. Check the external service before resubmission. |
+| Availability / appointment change | Selected provider/visit/time → request or confirmed revision. | Slot loss and provider rejection preserve the draft choice without inventing a booking. |
+| Form fetch/save/submit | Definition version and response revision → saved draft or submission action. | Validate conditional fields on the server. Handle superseded forms explicitly. |
+| Artifact upload / extract / review | Approved type/size, owner, file → original ID, job, reviewed fields. | Validate content, scan where required, restrict file access and bound extraction cost. |
+| Report build / export / share | Patient, recipient, interval, source selections → immutable snapshot/artifact and separate share action. | New content has a new revision. It cannot inherit a previous sent state. |
+| Content/preferences/notifications | Approved content revision or category decision → saved preference and eligible deliveries. | Do not dispatch content after revocation or ignore a saved decline on another screen. |
+| Rights request / status | Confirmed scope → export/deletion job with manifest. | Report partial completion and retention exceptions. A local reset is a different operation. |
+
+Use a consistent error shape: safe error category, recoverable flag, request ID, relevant current revision and retry timing only when valid. Do not return provider secrets or clinical internals in generic errors. Lists need bounded pagination. Uploads, text and generation need approved limits. Unknown limits are release decisions, not permission for unlimited requests.
+
+Use optimistic concurrency for editable records. A client submits the revision it reviewed. A conflict returns enough authorized current data for reconciliation. External writes use idempotency keys bound to an action and payload. Webhooks need signature verification, replay protection, duplicate handling and patient/action association.
+
+### Companion and voice changes
+
+Keep the current model configuration as the initial integration baseline: `anthropic/claude-sonnet-4.6` via the Rork chat endpoint. Native currently requests temperature 0.75, maximum 700 output tokens and a 45-second timeout. Web does not set the same bounds. Compare behavior before choosing shared limits. No model upgrade is required merely to change the app.
+
+Build each request from the selected entity/revision, current user turn, permitted history, memory revision and applicable safety result. Include the latest user turn exactly once. Replace web's stale-ref sequence. Track one request/session generation so a response from an old patient, pathway or dismissed screen cannot mutate current state.
+
+Move authoritative context permission checks to the backend for live patient use. Minimize transmitted records. Keep the original source IDs for citations without exposing unauthorized data. Retrieved documents and messages are untrusted content. Their text cannot instruct the executor, alter consent or authorize another patient's data.
+
+Replace loose `[[...]]` parsing with a validated rich-content contract. Preserve read-only references such as `trend` as charts when their IDs and patient access are valid. They are not action proposals.
+
+During migration, translate known mutating/action tags into drafts only. Apply the approved Guide-draft policy to `guide` tags. Validate type, IDs, lengths and capability. Unknown or malformed tags must not run actions or leak into patient text. Distinguish source quotations, AI explanations and unavailable-generation fallback.
+
+Keep the current batch voice loop until a separate streaming decision is approved. It records, transcribes, requests a reply, plays speech and listens again. Do not label the animated returned transcript as live partial recognition.
+
+Repair the existing `/voice/stt` and `/voice/tts` paths before changing their client contracts:
+
+- Forward the multipart Content-Type with its boundary when forwarding the raw recording body.
+- Validate caller/session, method, input types and approved limits. Restrict caller-controlled speech settings to allowed values.
+- Add upstream timeouts, safe errors, rate/cost controls and consistent CORS for approved browser origins. CORS is not authentication.
+- Keep `ELEVENLABS_API_KEY` server-only. Client configuration may contain public gateway values, never provider secrets.
+- Cancel or invalidate permission, recording, upload, generation, playback and relisten work on Stop, dismissal or account change.
+- Recheck session intent after a late microphone permission grant. Stopping must prevent new recording.
+- On web, handle recorder state, rejected autoplay, network failure and frame-rate-independent silence timing.
+- Remove temporary recordings according to approved retention. Avoid untracked orphan files and app-audio leakage into capture.
+
+Current STT uses `scribe_v2` and `no_verbatim: true`. TTS uses `eleven_turbo_v2_5`. Preserve these as testable starting settings, not a promise of availability or approved clinical transcription accuracy. A transcript used for a consequential action needs the review defined by the approved voice policy.
+
+### Action execution and background work
+
+Use one durable action state machine: proposed, blocked, approved-not-submitted, submitted, accepted, completed, unsuccessful, unknown, declined or cancelled. The exact provider may support fewer delivery distinctions. Never invent a receipt state it does not report.
+
+The executor checks the approved payload revision, current consent, account scope, agent pause state and provider capability. It records the submission ID before reconciling later callbacks. Material changes require new review. Cancellation after provider acceptance may be impossible. Report that limit without deleting the history.
+
+Network cards read this history. They do not create working tasks from fixture cadence strings. Pausing prevents new work and explains already-submitted operations. Risk watch, continuous monitoring and escalation remain unavailable for live claims until their clinical services and operating responsibilities are approved.
+
+Reports, messages, refills, forms, appointments, enrollment and payments share the execution controls but retain domain-specific validation. Automatic actions require a separate, explicit policy for type, scope, expiry and revocation. Do not infer broad permission from one approved card.
+
+### Security, operations and configuration
+
+Use account-scoped authorization for every stored object, file URL and background job. Store native session secrets in Keychain. Use the chosen browser authentication system's secure session pattern and protection against request forgery where applicable. Do not put provider tokens in browser storage or app bundles.
+
+Keep demo and live environments separate. Supply managed public configuration by name and private provider bindings on the server. Replace historical fallback hosts before release with validated environment configuration. Add only capabilities actually used, with accurate permission descriptions and required native entitlements.
+
+Define retention and encryption/key-access policy for clinical data, audio, files and audit history before real data is processed. Protect uploads with authorized access and expiring links. Review document content handling, malicious files and model prompt injection. Payment card entry should use the chosen processor's tokenization. Rumi must not store raw card numbers.
+
+Operational logs should record safe request/action IDs, status categories and timing. Do not log OTPs, tokens, raw audio or full clinical/chat payloads. Metrics need approved purposes and retention. Monitor import failures, stuck actions, delivery failures, transcription errors and deletion jobs. Each live integration needs an owner and a response procedure.
+
+Set measurable latency, availability, retry, recovery and accessibility targets during release planning. This document supplies no invented SLA. Record supported devices/browsers, provider coverage and known limitations before a live rollout.
+
+## Migration and careful removal
+
+### What stays, what is replaced, what may be retired
+
+No requested feature or retained experience is proposed for wholesale removal. Replace misleading implementations and duplicate write paths. Keep useful entry points. Anything integration-gated remains clearly unavailable or explicitly demo-only until it works.
+
+| Current behavior | Proposed disposition | Protection before removal |
+|---|---|---|
+| Five tabs, orb, fonts, colors, Life art, garden | Keep. | Capture representative screens and compare after each change. |
+| Fixture-based patient context | Keep in isolated demo mode. Remove from live account initialization. | Do not upload mixed legacy snapshots as verified records. |
+| Shared Care/You entry points | Keep as aliases to the same entities. | Preserve links and return paths. Remove a duplicate only after explicit review. |
+| Separate Guide/prep/symptom/conflict send flags and locally submitted Requests | Replace with reviewed communication/request actions. | Preserve attributable text and unverified local/demo history. Never infer delivery or automatically resubmit during migration. |
+| `richResolved`, legacy actions and agent task success flags | Replace with typed action state and history. | Mark migrated outcomes as local/demo without an external receipt. |
+| Title-only document Add | Replace with real artifact capture plus metadata editing. | Retain old metadata as legacy items with no original attached. |
+| Generic clinical record rows | Extend into typed categories/details. | Preserve originals and stable links. Do not infer missing clinical fields. |
+| Unreachable Savings | Make reachable from relevant medications if service/content is approved. Otherwise show an honest limitation. | Do not silently remove savings from scope or turn old Apply into a live submission. |
+| Timer-only media / false save-to-Story copy | Replace with real supported playback and a saved-content location. | Keep readable articles and old bookmarks. Disable absent media, not the whole content experience. |
+| Cosmetic export/delete confirmations | Retire after real rights operations exist. | Audit all storage locations and prevent deleted data from reappearing. |
+| Old image aliases, `"Moves"`, stable bill keys | Keep compatibility until migration and old-client support end. | Maintain explicit translation tests and saved-entry rendering. |
+| Placeholder payment/telehealth/channel links | Remove from live routes. | Keep a verified alternative or unavailable state. Preserve a labeled demo where appropriate. |
+| Fixed clinical dates/thresholds and invented monitoring copy | Remove from live patient guidance. | Replace with approved sourced content. Keep fixture examples isolated for demonstrations. |
+
+### Legacy data migration
+
+Native data is split across UserDefaults, `sano_user_data.json`, photo files, a lifted-image cache and temporary audio. Web stores 19 fields in `sano.web.v1`. Much visible state was never persisted. The [as-built storage tables](RUMI_AS_BUILT.md#persistence-and-account-boundaries) are the source inventory.
+
+1. Detect the legacy format before initializing live data. Read it without overwriting it.
+2. Create a recoverable migration snapshot under the approved local retention policy. Do not create an unprotected cloud backup of health information.
+3. Classify data as demonstrably user-created, demonstrably fixture or uncertain. Preserve uncertain data for review. Lack of provenance cannot be solved by guessing.
+4. Ask the signed-in patient whether to import eligible personal content where identity/ownership can be established. Legal consent must be collected again where no valid decision record exists.
+5. Translate IDs, enum values and dates explicitly. Retain an old-to-new reference map for linked symptoms, medications, Guide items and files.
+6. Write the new schema with a migration version and completion checkpoint. Migrate related records atomically where needed, such as a journey and its goal link.
+7. Read back the result and compare counts, references, dates and file access. Treat an empty array as a valid saved state.
+8. Switch the domain's readers and writers together. Keep only one authoritative writer. Retain rollback support for the documented compatibility period.
+9. Remove the legacy copy only after verification and the approved retention decision. A later account deletion must include retained migration copies where policy requires.
+
+Do not manufacture habits or appointments that were never saved. Do not turn old paid/sent/done Booleans into real receipts. A title-only document remains title-only until an original is supplied. A legacy accepted program may contain a memory note but no durable enrollment evidence.
+
+Native currently ignores most empty restored arrays. Fix that before migration, or deleted-last-item fixtures can return. Web's nullish restoration already preserves empty arrays, so apply the correct platform-specific fix. A failed decode must offer recovery, not silently reseed a real account.
+
+### Rollout and rollback
+
+Use feature flags per domain and integration capability, with separate flags for reading, creating drafts and executing external work. Keep UI availability tied to service capability. Do not make a button look active because a release flag is enabled while its provider is disconnected.
+
+Run migrations repeatedly in a test environment to prove they are resumable and do not duplicate records. Keep backward-compatible readers during the chosen client support period. For breaking contract changes, maintain a versioned adapter until old clients are retired.
+
+Rollback can disable new execution and restore a compatible view. It cannot unsend a message or reverse an accepted payment. Keep the action history and reconciliation workers running for submitted operations. Do not restore an old data snapshot over newer confirmed work.
+
+If a feature moves, keep the old entry as a direct link for an agreed transition period. Explain the new location once without forcing onboarding again. Preserve the selected entity, drafts and scroll context. Product must approve any later removal and its data-retention treatment.
+
+## Verification and release checks
+
+These are proposed engineering checks, deliberately kept outside the requirements file. None ran during this documentation edit. A build alone will not verify these behaviors.
+
+| Area | Required checks before the affected change ships |
+|---|---|
+| Visual preservation | Compare Welcome, Today, Care, You, Journeys, Currents, conversation, Quick Log and Life in day/night. Include large text, keyboard and reduced motion. New screens must use the retained components and palette. |
+| Navigation | Today → exact Life entry/insight/result. Care and You → selected visit prep. Back/dismiss/browser Back after auth, sheets and external links. Missing/deleted entities always have an exit. |
+| Authentication and isolation | New/returning/expired/revoked sessions, OTP overlap rules, cancellation, account linking and account switch while requests are in flight. Verify no prior patient's data flashes or remains cached for the next account. |
+| Migration | Each legacy format, empty arrays, corrupt/partial snapshots, interrupted/repeated migration, `"Moves"`, legacy image keys and linked IDs. Compare record counts and file access. Verify rollback does not overwrite newer work. |
+| Clinical data | Wrong patient, duplicate import, source correction, conflicting units, missing dates/ranges and revoked sources. Confirm that demo facts never fill live gaps. |
+| AFB and crisis | Approved clinical examples, rule/AI disagreement, missing context, overlapping risks, corrected entries and no-network behavior. Clinical reviews the expected outcome before testing. |
+| Chat and voice | Current turn exactly once, selected context, validated inline charts, malformed proposals, consent withdrawal, late permission after Stop, dismissal during upload/playback, no speech and service failure. Verify no recording restarts after Stop. |
+| External actions | Double tap, repeated callback, changed payload, paused agent, expired authorization, provider rejection, accepted-but-unknown outcome and cancellation limits. Inspect real receipts in an approved sandbox. |
+| Reports | Actual patient name, chosen recipient/visit/range, unsorted/future results, corrected sources, excluded sections and immutable shared versions. Open the exported artifact and inspect it. |
+| Assets and media | All 24 activity names, old image aliases, web medication thumbnails, failed image load, actual audio/video/captions and audio preference restoration. |
+| Rights | Export opens and matches its manifest. Deletion covers the declared files/caches/live state and provider jobs. Ordinary saves and migration recovery cannot resurrect removed data. |
+| Accessibility and parity | VoiceOver, browser keyboard/focus, large text/zoom, reduced motion, body-map alternative and readable approval/error states. Record real platform limitations. |
+| Operations | Authorized endpoints, upload/text limits, webhook validation, rate/cost limits, safe logs, integration alerts and recovery for stuck jobs. |
+
+Build and test each changed app after implementation. Use the existing native and web test targets for regression coverage. Record device/browser, environment, tested service coverage and failures. Do not treat a simulator build or screenshot as proof of provider delivery, medical safety or payment readiness.
 
 ## Dependencies and sequencing
 
-This is a **recommended dependency order**, not an approved release schedule or estimate. All attachment features remain in scope; staged delivery must not silently drop a row. Buildable scope cannot be finalized until the open safety/legal/integration questions have owners.
+Use the order below to plan delivery. It is not an approved schedule or estimate. All 36 attachment features remain in scope. Assign owners to the unresolved safety, legal and integration decisions before scheduling affected work.
 
 | Sequence | Workstream / feature ownership | Exit condition before depending on it |
 |---|---|---|
@@ -254,7 +936,7 @@ Cross-cutting requirements are authored once: legal/data permission in Terms & P
 
 ## Release boundaries and unresolved decisions
 
-Recommendations in this document are not enough to answer domain questions absent from the attachment. These should be settled during review, with the chosen policy entered into the owning requirements section. Work outside the undecided branch can continue after scope approval; a blocked clinical/legal/financial behavior must not be filled with a plausible guess.
+The attachment does not answer the domain questions below. Record each approved policy in its requirements section and update dependent design or technical details here. After scope approval, unrelated work can continue. Keep an undecided clinical, legal or financial branch disabled until its owner resolves it.
 
 | Decision | Why it matters / proposed review owner |
 |---|---|
@@ -266,7 +948,7 @@ Recommendations in this document are not enough to answer domain questions absen
 | Care pathway selection and overlap | Are pathways single-choice, multi-condition context, patient-selectable or clinician-established? How are changes approved without losing data? Product + Clinical. |
 | Crisis and AFB rule authority | Approved symptoms/thresholds, ambiguity treatment, resources, handoff and overlapping-alert precedence. Clinical + Safety. Confirmed AFB mechanism does not define clinical logic. |
 | Clinical record edit/reconciliation rights | Which user corrections annotate versus replace external facts, and who verifies a conflict? Clinical + Integration owners. |
-| Other clinical information | Define exact categories beyond allergies rather than letting the phrase become unlimited scope. Product + Clinical. |
+| Other clinical information | Retain existing Procedures. Product + Clinical must name and bound additional categories beyond the retained record set and new Allergies. |
 | Virtual visit scope | External provider handoff or a separately supported in-app video service? Join windows/readiness/cancellation depend on chosen coverage. Product + provider integration owner. |
 | Clinical communication service | Supported practices, response expectations, portal draft fallback, recipient identity, attachments and receipts. Operations + integration owner. |
 | Memory/history retention and cross-device expectations | Determines account rights, export/delete, external processor obligations and conversation continuity. Privacy + Product + Engineering. |
@@ -283,12 +965,14 @@ Recommendations in this document are not enough to answer domain questions absen
 - No assumption that every advertised consumer channel exposes the required APIs.
 - No automatic adoption of historical 100.4°F/procedure-date fixture content as universal rules.
 - No approval to make live charges, send real clinical information, replace the existing design or generate more assets during document preparation.
-- No requirement IDs that compete with Greenlight Guru. Section names/links provide review navigation only.
+- Formal regulatory traceability remains in Greenlight Guru. The technical fields and route names proposed here are implementation concepts, not regulatory requirement IDs.
 
 ## Review and document ownership
 
-The three files are repository review artifacts; they have not been published to Confluence or matched against Figma. Update each in place rather than creating v2 copies. The as-built reference records its baseline; this proposal owns proposed scope/IA; the compendium owns proposed functional criteria. If later split into feature pages, migrate each feature's content once, preserve cross-links, and reconcile existing authoritative pages instead of leaving two active versions.
+Update these three files in place. The as-built reference records the current implementation. This file owns proposed changes, including design, copy, assets, engineering and rollout. The requirements file owns proposed functional criteria and follows the attached requirements guide. Only that file excludes design and implementation prescriptions.
 
-Review in this order: first confirm the audit's distinction between real/local/simulated behavior; then approve or revise feature retention, IA and integration boundaries; then resolve the compendium's inline product/clinical/legal questions. The requirements owner must check the eventual Figma design against approved functional behavior before engineering handoff. Document approval alone does not establish a successful build, runtime service, clinical validation or release approval.
+The files are not published to Confluence or checked against Figma. Before publication, reconcile any existing pages. If the requirements file is split into feature pages, move each section once and preserve its links. Do not leave two active requirements pages for the same feature.
+
+Review the current-state gaps first. Then decide on the proposed screen changes, technical approach and release coverage. Resolve the clinical, legal and service questions before implementing affected branches. The requirements owner must check the final design and copy against approved behavior. A document approval does not establish a working integration or authorize release.
 
 Rork manages repository synchronization. A local file write is not evidence of a GitHub commit or remote push; only observed repository/remote evidence may support such a claim. No manual commit or push is performed as part of this documentation work.

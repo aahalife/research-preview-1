@@ -1,4 +1,4 @@
-# Rumi / Nudge — As-built reference and production gap audit
+# Rumi / Nudge: as-built reference and production gap audit
 
 ## Contents
 
@@ -20,11 +20,17 @@
 
 ## Purpose and evidence
 
-This document describes the existing application, including defects and simulations, so a new product/design/engineering team can understand or recreate it without confusing an interactive demo with a production care service. It is a source audit, not a proposed design, clinical validation, live integration certification, or claim that every screen has been exercised. Proposed changes belong in [the re-scope proposal](RUMI_RESCOPE.md); proposed functional behavior belongs in [the requirements compendium](RUMI_REQUIREMENTS.md).
+This document records what the existing app does and how it is built. It includes the design, assets, models, service calls, local simulations and known gaps. A new team can use it to understand or recreate the current app.
 
-**Audit date:** September 16, 2026. **Source baseline:** `e11670626f181a73c120118d28eb9d09d3a960ac`. The working tree was clean at the initial inspection. Application source was not changed during preparation of these three documents.
+The findings come from source inspection. They do not establish clinical safety, working production integrations or successful use of every screen. Proposed design, copy, backend and migration changes belong in [the change specification](RUMI_RESCOPE.md). Proposed patient-visible behavior belongs in [the requirements file](RUMI_REQUIREMENTS.md).
 
-The review covers all 56 native Swift view files, 11 native model files, three view models, five services, six utilities, three shaders, the independently implemented web app, the Worker, configuration, asset inventory, and existing test declarations. Source citations below use repository-relative paths. For compact tables, **N/** means `ios/Nudge/`, **V/** means `ios/Nudge/Views/`, **M** means `ios/Nudge/ViewModels/AppModel.swift`, and **W/** means `web/src/sano/`. Line ranges are snapshot locators; named symbols are the more stable reference after edits.
+The attached product-requirements guide applies only to the requirements file. It does not restrict this reference's design or technical detail. This revision uses the supplied [Unslop](https://skillsllm.com/skill/unslop) and [ASD-STE100 writing reference](https://github.com/danyuchn/asd-ste100-skill) to improve clarity. Exact code names, values, source quotes and uncertainty are retained. No certified STE compliance is claimed.
+
+**Audit date:** September 16, 2026. **App source baseline:** `e11670626f181a73c120118d28eb9d09d3a960ac`. The initial working tree was clean. This documentation revision started from `d0f62d427e333e6d0a3219e86170574c7e791ea8`. Application source was not changed during either documentation pass.
+
+The source review covers 56 native Swift view files, 11 models, three view models, five services, six utilities and three shaders. It also covers the separate web app, Worker, configuration, assets and declared tests.
+
+Paths are relative to the repository root. In tables, **N/** means `ios/Nudge/`, **V/** means `ios/Nudge/Views/`, **M** means `ios/Nudge/ViewModels/AppModel.swift`, and **W/** means `web/src/sano/`. Line ranges refer to the inspected snapshot. Use named symbols to locate code after later edits.
 
 ### Evidence vocabulary
 
@@ -38,11 +44,13 @@ The review covers all 56 native Swift view files, 11 native model files, three v
 | Unreachable / incomplete | A route or action exists without a reachable control, or the flow stops short of its stated purpose. |
 | Proposed | Not as-built; only used in the gap register for future remediation. |
 
-`LEGACY_REQUIREMENTS.md`, the v3/v4/v5 specifications and the older polish plan are historical context, not primary evidence. This audit supersedes conflicting **as-built claims** in those documents without rewriting their historical contents. In particular, the terms “faithful mirror,” “everything persists,” “everything deleted,” “always watching,” and “nothing leaves the device” overstate the actual code.
+`LEGACY_REQUIREMENTS.md`, the v3/v4/v5 specifications and the older polish plan provide historical context. Source code takes precedence when describing current behavior. This audit corrects conflicting as-built claims without rewriting those historical documents. Claims such as "everything persists", "everything deleted", "always watching" and "nothing leaves the device" exceed what the code implements. The web app is not a faithful behavioral mirror of native.
 
 ## Product and repository
 
-Rumi is a companion-led chronic-care experience: a persistent orb opens text or voice conversation; Today offers a small set of relevant moments; Care holds clinical tasks; You holds the health story; Journeys represents small habits; Currents presents finite educational content. Warm, intimate language and generative visual treatments distinguish it from a conventional patient portal. The current implementation is best described as a **fixture-backed interactive prototype with real AI/voice transport clients**.
+Rumi is a chronic-care companion app. Its persistent orb opens text or voice conversation. Today shows a few moments, Care holds care tasks, and You holds the health story. Journeys shows small habits. Currents provides a finite set of educational pieces.
+
+The app uses warm language, day/night backgrounds, glass controls and illustrated objects. It is a **fixture-backed interactive prototype with real AI and voice network clients**. The clients can send data externally. They do not make the simulated clinical and financial operations real.
 
 | Registered app | Folder | Actual role |
 |---|---|---|
@@ -54,9 +62,11 @@ Source: `rork.json`; `ios/Nudge.xcodeproj/project.pbxproj`; `web/package.json`; 
 
 ### Startup and state construction
 
-`NudgeApp.swift` registers bundled fonts, creates the observable model and manages ambient audio around scene changes. `ContentView.swift:10–24` always provides the living background and chooses onboarding or `RootView` using a local onboarding flag. `RootView.swift:14–95` mounts the selected tab, mini-orb, dock, conversation overlay, acknowledgement toast, three sheets and recap cover. There is no server session check at startup.
+`NudgeApp.swift` registers fonts, creates the observable model and manages ambient audio when the scene changes. `ContentView.swift:10–24` draws the living background. A local flag selects onboarding or `RootView`. `RootView.swift:14–95` mounts the tab, mini-orb, dock, conversation, acknowledgment toast, three sheets and recap cover. Startup does not check a server session.
 
-`AppModel.init:178–254` selects the saved pathway, seeds clinical/engagement arrays from fixtures, then restores a matching local snapshot. `CompanionEngine` holds a weak reference to the model; `OrbState` holds the companion's visual state. The native UI uses Swift Observation and SwiftUI environment/model access. Swift source is not shared with web, whose `SanoProvider` maintains its own state and localStorage snapshot.
+`AppModel.init:178–254` selects the saved pathway and seeds clinical and engagement arrays from fixtures. It then restores a matching local snapshot. `CompanionEngine` holds a weak model reference. `OrbState` holds the companion's visual state.
+
+Native uses Swift Observation and SwiftUI environment access. Web has its own `SanoProvider`, state and localStorage snapshot. The two apps do not share Swift source or patient data.
 
 ### Personas
 
@@ -67,11 +77,13 @@ Source: `rork.json`; `ios/Nudge.xcodeproj/project.pbxproj`; `web/package.json`; 
 | `procedure` | Sam | Procedure preparation and recovery. |
 | `cardiometabolic` | Rosa | Diabetes with heart disease and kidney-risk context, multiple specialists. |
 
-`N/Models/CareProfile.swift` defines the pathway/persona shapes; `PersonaFixtures.swift` supplies clinical and engagement scenarios; `CareHubFixtures.swift` supplies messages, appointments, bills, documents, requests and looking-ahead scenarios. Programs, raw record items, sources, consent ledger and initial memory are substantially shared Marcus fixtures. Selecting Rosa does not turn on a kidney prediction model; it chooses a scripted scenario. A user-entered name can appear beside invented clinical data and persona-name reports.
+`N/Models/CareProfile.swift` defines pathways and personas. `PersonaFixtures.swift` supplies clinical and engagement scenarios. `CareHubFixtures.swift` supplies messages, appointments, bills, documents, requests and looking-ahead content.
+
+Programs, raw records, sources, consent entries and initial memory largely use shared Marcus fixtures. Selecting Rosa chooses a scripted scenario, not a kidney prediction model. An entered name can appear beside invented clinical data, while reports still use the persona's name.
 
 ## Current information architecture
 
-This is the **current** map. It is separate from the proposed structural IA owned by [the re-scope proposal](RUMI_RESCOPE.md#proposed-information-architecture). Repeated destinations below often share a view but not a retained navigation stack.
+This is the current navigation map. The [change specification](RUMI_RESCOPE.md#proposed-information-architecture) owns the proposed map. Repeated destinations below often share a view, but their navigation stacks are not necessarily retained.
 
 ```text
 Launch
@@ -132,7 +144,7 @@ Sources: `V/RootView.swift:14–95`; `V/Today/TodayCanvasView.swift:141–145,25
 
 ## Native screen and journey reference
 
-Every native view file is represented in this section or the shared-component inventory. Names in parentheses identify meaningful secondary screens defined in the same file. Standard return caveats from the preceding section apply unless a more specific exit is noted.
+This section and the shared-component inventory cover every native view file. Parentheses identify secondary screens defined in the same file. The preceding navigation limitations apply unless a specific exit is described.
 
 ### Welcome and onboarding
 
@@ -146,7 +158,9 @@ The eight stage identifiers are welcome, aboutYou, path, shaping, connect, healt
 
 ### Today and global entry points
 
-`V/Today/TodayCanvasView.swift:32–111,133–183,215–270,332–475` renders a settings/condition-chip/music header, a large orb, greeting/status, pull-to-talk affordance, care alert, first proposed action, network pulse, up to three moments, Life strip and an independent plus button. A tail spacer clears the dock. Pull progress uses `translation.height × 0.7 / 110` and opens conversation on release at progress ≥0.95, approximately 149.3pt of downward translation; orb scales with that progress. This is a source-defined gesture, not a verified scrolling fix on all devices.
+`V/Today/TodayCanvasView.swift:32–111,133–183,215–270,332–475` renders a header with Settings, a condition chip and a direct music toggle. Below it are the large orb, greeting and pull-to-talk hint. Below are the care alert, first proposed action, network pulse, up to three moments and Life strip. The plus button sits outside the scroll content. A bottom spacer clears the dock.
+
+Pull progress is `translation.height × 0.7 / 110`. Releasing at progress ≥0.95 opens conversation, which requires approximately 149.3pt of downward translation. The orb scales with progress. This source-defined gesture has not been verified as a scrolling fix on all devices.
 
 - Orb/tap/pull enters conversation. Settings presents a sheet. Care alert selects Care root, not the exact unread item. Plus opens generic Quick Log.
 - First proposed action uses `AgentActionCard`: approval/decline modifies session state and acknowledges. It does not perform a payment/refill/message.
@@ -170,7 +184,7 @@ Looking-ahead explains a fixture population basis and can add a guide question, 
 | Same file — MessageThread, MessageBubble | Open thread → chronological care/user messages; origin/attachment labels; composer → send or save draft. Dismiss/pop returns to inbox. | Read flag changes without immediate save. Send appends a locally persisted `.sent` or `.draft` message and clears composer. No delivery, retry, attachment handling, new recipient/thread UI or portal copy/open handoff. Attachment is a string label, not a file. See `119–319`; M.`sendMessage`, `markThreadRead`. |
 | `V/Care/RequestsView.swift` — Requests, RequestProgress, ComposeRequestSheet | Messages → Requests → create refill/appointment/records/form request; optional subject/detail → Send → sheet closes; read-only three-step progress. | Persists a local submitted request with constructed routing text. Blank subject defaults to kind. No actual office submission, request detail, cancellation, receipt, or transition from submitted to resolved. See `24–246`; M.`submitRequest`. |
 
-Native symptom support, Guide and Visit prep each have additional send-like controls, but their success states are **view-local** rather than even persisted Messages entries. These are distinct implementations, not one reliable communication workflow.
+Symptom support, Guide and Visit prep have separate send-like controls. Their success states are view-local and do not create persisted Messages entries. They are not connected to one communication workflow.
 
 ### Appointments and visit logistics
 
@@ -252,7 +266,7 @@ Conflict view displays disagreement and an Ask action that sets a view-local fla
 
 `V/Components/MemoryOrbView.swift:8–126,134–323` defines MemoryOrbView, MemoryOrbGlass, MemoryPhoto, MemoryArcViewer and AddMemoryOrb. A real PhotosPicker loads a selected photo, saves a separate local file, then asks for caption. Metadata is persisted when accepted. The camera icon does not mean camera capture. Cancel after the file save can leave an orphan; failure has no user-facing recovery. Arc drag/tap selects photos; chevron dismisses. There is no photo edit/delete UI.
 
-Programs and sponsorship are static fixtures, not dynamic eligibility matching or sponsored inventory. Consent and decline limitations are documented under governance.
+Programs and sponsorship use static fixtures. There is no live eligibility matching or sponsored inventory service. Consent and decline limitations appear in the governance section.
 
 ### Currents
 
@@ -348,7 +362,7 @@ Source ranges: `VoiceSession.swift:36–86,95–138,146–238,242–320,330–36
 
 ## Models and data ownership
 
-The following is a domain reconstruction guide, not a proposed database schema. Source files own the exact field types and initial values; fixture arrays should be preserved as fixtures when recreating the demo, never imported as real patient records.
+The table below describes the current domain models. It is not a proposed database schema. Source files contain the exact types and initial values. When recreating the demo, keep fixture arrays labeled as fixtures. Never import them as real patient records.
 
 | Native model file | Important shapes / relationships |
 |---|---|
@@ -364,13 +378,15 @@ The following is a domain reconstruction guide, not a proposed database schema. 
 | `N/Models/CareHubFixtures.swift` | Per-pathway Care bundle: appointments/messages/bills/cost/documents/savings/requests/result/nudge. |
 | `N/Models/MarcusFixtures.swift` | Shared record/source/program/consent/memory seeds and legacy scenario data. |
 
-M owns native view state; `W/types.ts` and `W/store.tsx` define a separate browser model. Common names do not imply shared identifiers, account ownership or synchronization. Many entities generate UUIDs during fixture construction; stable paid-bill keys are explicitly used for relaunch persistence. Cross-reference stability for other saved/generated IDs is not guaranteed by a migration layer.
+M owns native view state. `W/types.ts` and `W/store.tsx` define the separate browser model. Similar names do not establish shared IDs, account ownership or sync.
+
+Many fixture entities generate UUIDs at initialization. Bills use explicit stable paid keys for persistence across launches. There is no migration layer guaranteeing stable references for other saved or generated IDs.
 
 ## Persistence and account boundaries
 
 ### Native
 
-`N/Services/PersistenceService.swift:7–54` stores one Documents JSON file, `sano_user_data.json`, with ISO-8601 dates and atomic writes. There is no schema version/migration, user-visible save failure, account scope or remote sync. Failed decode returns nil and startup can reseed fixtures.
+`N/Services/PersistenceService.swift:7–54` writes `sano_user_data.json` in Documents using ISO-8601 dates and atomic writes. It has no schema version, migration, account scope or remote sync. Save failure is not shown to the patient. A failed decode returns nil, which can cause startup to reseed fixtures.
 
 | Storage | Contents / actual boundary |
 |---|---|
@@ -381,9 +397,13 @@ M owns native view state; `W/types.ts` and `W/store.tsx` define a separate brows
 
 Defaults: not onboarded; Straight talk; epsilon true; era warmth Subtle; sound/music true; Auto appearance; looking-ahead opt-out false; metabolic pathway. Missing onboarding time falls back to 60 days ago. These are source facts, not recommended privacy defaults.
 
-M.`persistUserData:258–271` is called by entry/log/memory/guide/message/request/document/paid-bill/derived-goal operations, but not every model write. Thread read state and enrollment memory can piggyback on a later snapshot. Persisted does not mean all empty states survive: `M.init:237–249` restores most arrays only when nonempty; deleting the last item can bring fixtures back. Logs are restored even if empty.
+M.`persistUserData:258–271` runs after entry, log, memory, Guide, message, request, document, paid-bill and derived-goal operations. It does not run after every model write. A later snapshot can incidentally save thread-read state and enrollment memory.
 
-`switchPathway:282–320` replaces many arrays and resets conversation without saving the outgoing snapshot or loading a retained incoming profile. It retains some shared data, including programs/raw records/memory notes. One later save overwrites the single snapshot. Derived goal keys can survive while the corresponding Journey does not, preventing recreation. Account export/deletion does not fulfill its claim, as described above.
+`M.init:237–249` restores most arrays only when they contain items. Deleting the last item can therefore bring fixtures back on relaunch. Logs are restored even when empty.
+
+`switchPathway:282–320` replaces many arrays and resets conversation. It neither saves the outgoing snapshot nor loads a separately retained incoming profile. Some shared programs, raw records and memory notes remain. The next save overwrites the single snapshot.
+
+Derived-goal keys can survive without their Journey objects. The retained key can then prevent recreating the missing journey. Export and deletion have the limitations described above.
 
 ### Web
 
@@ -395,7 +415,7 @@ epsilon, eraWarmth, notifs, justBloomed,
 entries, logs, memories, guideItems, memory, threads, requests, documents
 ```
 
-No schema validation/migration/account scope/server sync is implemented. Storage failures are swallowed. Bills/paid state, derived-goal keys, journey/habit history, appointments, programs/declines, agent state/connections, report sent state, saved Currents, insights, result acknowledgment, quiet hours and chat are not persisted. Web differs from native even where both appear to save an action.
+Web has no schema validation, migration, account scope or server sync. Storage failures are ignored. It does not persist bills/paid state, derived-goal keys, habits, appointments, programs/declines, agents/connections, report sent state, saved Currents, insights, result acknowledgment, quiet hours or chat. The two platforms differ even when their interfaces both appear to save an action.
 
 Pathway switching overwrites this one data set. `cost` remains the initial bundle because it has no setter; some shared memory/program/profile fields remain. Wipe removes this key and reloads: browser reset, not cloud/account deletion. Existing platform storage protections should not be confused with an audited app encryption/retention policy.
 
@@ -441,7 +461,7 @@ Source locators: `W/screens/Care.tsx:27–72,143–155,223–263,308–352,374�
 
 `W/screens/Conversation.tsx:113–238` uses getUserMedia, MediaRecorder, Web Audio RMS, multipart STT and MP3 TTS. It is a real client path, not verified operational service. Risks include animation-frame-dependent silence thresholds, no no-speech timeout, stop on an inactive recorder, incomplete network-error handling, no cancellation of in-flight voice requests, and potential playback promise wait after a rejected autoplay. Web glow meters microphone but not spoken playback. Server multipart forwarding is also defective, as documented below.
 
-Everything called sent/paid/booked/connected in web still uses local mutations, not external care/payment providers. `W/store.tsx:569–598,639–679` is the critical evidence. Fixtures are the only clinical/agent source; no user account or patient data service joins the two platforms.
+Web's sent, paid, booked and connected states come from local changes, not external care or payment providers. See `W/store.tsx:569–598,639–679`. Fixtures supply the clinical and agent data. No account or patient-data service connects the two platforms.
 
 ### Parity contract currently not met
 
@@ -449,7 +469,7 @@ Native has richer onboarding identity/tone, real held-photo selection, subject l
 
 ## Design and construction reference
 
-This section records **existing** design/construction so it can be recreated. It is not visual direction for the re-scope, and is intentionally excluded from the functional requirements document. No current Figma file was supplied or checked.
+This section records existing design and construction. The change specification describes how to reuse or alter it. These measurements and implementation details belong here, outside the functional requirements file. No current Figma file was supplied or checked.
 
 ### Tokens and typography
 
@@ -474,9 +494,54 @@ This section records **existing** design/construction so it can be recreated. It
 
 The night gold token is lavender. Background dayparts are dawn 05–09, day 09–17, dusk 17–21, night 21–05. Conversation uses deeper palettes. Warm attention is an aesthetic choice, not a substitute for clear urgent meaning.
 
-`N/Utilities/NudgeType.swift:10–59` uses HermioneFREE for display, Fraunces 400/500/600/700 and 400 italic for editorial text, system rounded for functional text and monospaced digits for numbers. Kicker is 11pt semibold. Native registers six bundled fonts at launch; web declares six font faces. Fixed custom font sizes mean Dynamic Type support must be assessed rather than assumed.
+`N/Utilities/NudgeType.swift:10–59` uses HermioneFREE for display and Fraunces 400/500/600/700 plus 400 italic for editorial text. Functional text uses system rounded. Numbers use monospaced digits. Kicker is 11pt semibold. Native registers six bundled fonts at launch. Web declares six font faces.
+
+The helper accepts sizes from each call site. It does not define one named heading/body scale or explicit `relativeTo` roles. Custom font and system-size APIs differ in scaling behavior. Dynamic Type, text wrapping and control layout still require device evaluation.
 
 `N/Utilities/NudgeSpring.swift` defines UI response/damping 0.42/0.82, gentle 0.55/0.86 and delight 0.38/0.66. The comment that only springs are used is not literal: other animations exist. `Glossary.swift` contains vocabulary constants/commented bans, not a runtime filter.
+
+### Current sizes and layout
+
+These values come from source, not screenshots. Native dimensions are points. Web values are CSS pixels, except rem-based Tailwind spacing. Values below that translate Tailwind spacing assume a 16px root size.
+
+| Element | Native source value | Browser source value |
+|---|---|---|
+| Today greeting/status | Fraunces 28 / rounded 14. | Fraunces 27 / rounded 14. |
+| Care hub title/subtitle | Fraunces 32 / rounded 14. | Fraunces 32 / rounded 14. |
+| Moment title/body/action | Fraunces 18 / rounded 13.5 / 13 semibold. | Fraunces 17 / rounded 13 / 12.5 semibold. |
+| Proposed action title/detail | Fraunces 17 / rounded 13. | Fraunces 17 / rounded 13. |
+| Care tile title/status | Fraunces 17 / rounded 12. | Fraunces 16 / rounded 11.5. |
+| Conversation wordmark/input | Hermione 24 / rounded 15. | Hermione 24 / rounded 15. |
+| Dock label/icon | Rounded 9.5 medium / icon 17. | Rounded 9.5 semibold / icon 20. |
+| Kicker tracking | 1.6pt. | 0.16em. |
+| Main Today composition | Orb 150. Main horizontal margins 20. Moment gap 13. Bottom spacer 150. | Independent Today implementation inside a 440px maximum-width shell. |
+| Today plus | 56 × 56, trailing 22, bottom 96. Decorative ring 64. | Separate floating control in browser Today. |
+| Native dock | Outer horizontal margins 28. Interior horizontal padding 8, vertical 7. Equal flexible items, no fixed dock height. Root bottom padding 6. | Buttons 58 × 50, gap 4, interior padding 8, bottom padding 12. |
+| Mini-orb outside Today | Orb 34 with padding 5, trailing 20. | Orb 36 with padding 4, top 12, right 16, plus glass border. |
+| Acknowledgment | Bottom 112, card radius 30, inner padding 16, side margins 24. | Bottom 112, radius 28, inner padding 16, outer side margins 24. |
+| Organic card default | Radius 36, surface opacity 0.96, gradient edge 1, shadow opacity 0.16/radius 20/y 7. | Radius 28, 160° surface-to-raised gradient, edge 1. |
+| Press feedback | Scale 0.96, opacity 0.88, `NudgeSpring.ui`. | Scale 0.955, opacity 0.9, transition 0.18 seconds. |
+
+Sources: `V/Today/TodayCanvasView.swift`, `MomentCard.swift`, `V/Care/CareHubView.swift`, `V/Conversation/ConversationView.swift`, `V/RootView.swift`, `V/Components/NudgeDock.swift`, `GlassSurface.swift`, `Chips.swift`. Browser: `W/screens/Today.tsx`, `Care.tsx`, `Conversation.tsx`, `nav.tsx`, `W/ui/Dock.tsx`, `Glass.tsx`, `W/SanoApp.tsx`, `web/src/index.css`.
+
+Native `NudgeType.serif` defaults to semibold. Browser serif headings do not all set a weight. Cards also vary by use: native attention 24, Care tiles 26, pulse 28, action/toast 30, moments 32, default surfaces 36. There is no universal card radius.
+
+The native dock uses a cool tinted glass capsule on iOS 26. Older versions use the material fallback. The web dock uses CSS glass with a surface-based background, not the exact native dock tint. Its blur is 26px with saturation 180%, or 40px/200% for strong glass. These are visual approximations, not native refraction.
+
+### Existing copy and meaning
+
+The table records exact excerpts from native source. Preserve these as evidence, not as approved production wording. Proposed replacements are in [the change specification](RUMI_RESCOPE.md#copy-and-status-language).
+
+| Source | Existing excerpt | What the code supports |
+|---|---|---|
+| `TodayCanvasView.threadResolved` | "You're set for now — I'll keep watch." | No moments remain. No monitoring worker exists. |
+| `TodayCanvasView.lifeStrip` | "Today at your table" | Strip includes meals, activity and medication entries. |
+| `TodayCanvasView.plusButton` | "Log something — a symptom, a meal, a move, a med" | Accessibility label still says move while other surfaces display Activity. |
+| `ConnectionsView` | "A family of specialized agents working quietly behind Rumi. Tap any one to see what it's doing." | Agent detail is inspectable, but tasks and connected accounts are local fixtures/state. |
+| `ReportsView` | "Nothing sends without you" | A confirmation exists. Sending does not contact a recipient. Other chat/voice requests can transmit data without this report confirmation. |
+| `PrivacyCenterView` | "Export everything" | Sets a view-local confirmation. No export artifact is created. |
+| `PrivacyCenterView` | "Nothing here is used to advertise to you. Ever." | This is a copy claim. Source alone does not verify downstream data-use policy. |
+| `Glossary.swift` | Comments ban "streak", "goal", "compliance", "failed", "missed", "don't forget". | Constants/comments do not enforce a runtime vocabulary filter. |
 
 ### Complete shared-component construction inventory
 
@@ -512,7 +577,9 @@ Accessibility is partial, not certified: several labels/adjustable controls and 
 
 ## Assets and recreation inventory
 
-Counts are repository-file inventory, not a remote asset-library query or byte-equality audit. Native catalog has **67 imagesets + one colorset + one appiconset = 69 child directories**. It contains 138 files: 70 JSON, 57 PNG and 11 JPG; imagesets alone have 56 PNG and 11 JPG, with the extra PNG being the icon. Web `public/img` has 46 images: 35 PNG and 11 JPG. The 21 missing web names are the new native activity illustrations, not arbitrary missing media.
+These counts come from repository files. They do not establish remote asset-library contents or binary equality between platforms. The native catalog has 67 imagesets, one colorset and one appiconset: 69 child directories. Its 138 files comprise 70 JSON, 57 PNG and 11 JPG. Imagesets contain 56 PNG and 11 JPG. The extra PNG is the app icon.
+
+Web `public/img` has 46 images: 35 PNG and 11 JPG. The 21 native-only image names are the new activity illustrations.
 
 ### Complete image-name inventory
 
@@ -526,7 +593,13 @@ Counts are repository-file inventory, not a remote asset-library query or byte-e
 | Clinical/editorial/recap — 11 shared JPGs | `condition_chemo`, `condition_diabetes`, `condition_procedure`, `currents_a1c`, `currents_father_son`, `currents_kidney`, `currents_salt`, `currents_walk`, `recap_dawn`, `recap_garden`, `recap_path`. |
 | Other — 7 shared | `calendar_heart_stethoscope`, `cozy_dinner_table`, `gift_box_sprout`, `notebook_speech_bubble_star`, `open_folder_documents`, `pastel_gradient_glow_bg`, `tree_path_sunset_walk`. |
 
-Native media resides in `ios/Nudge/Assets.xcassets/<name>.imageset/`; each Contents.json identifies the exact filename. Web references `web/public/img`. The 24 activity choices use 21 native illustrations; shared aliases are intentional. Web's 24 choices still reuse four legacy images, including sneakers for several unlike activities. Native Quick Log's activity-category chooser still uses `yoga_mat_rolled`. `LifeLibrary.moveTable` is most-specific-first; preserve fallback `walking_shoes_stride` and legacy facts for old saved entries. Neither image matching nor approximate facts constitute image recognition or clinical nutrition analysis.
+Native images live in `ios/Nudge/Assets.xcassets/<name>.imageset/`. Each Contents.json gives the filename. Web uses `web/public/img`.
+
+The 24 native activity choices use 21 illustrations. Walk variants share shoes, and Bike ride/Cycling share the bicycle. Web's 24 choices still reuse four legacy images. Native Quick Log's activity-category chooser still uses `yoga_mat_rolled`.
+
+`LifeLibrary.moveTable` checks specific keywords first and uses `walking_shoes_stride` as its input-matching fallback. Stored entries keep their image keys. Legacy fact mappings support those old keys. This is neither image recognition nor clinical nutrition analysis.
+
+Visual inspection of `currents_kidney.jpg` shows textured sage/ochre anatomy within layered terracotta and cream forms. `walking_shoes_stride.png` shows dimensional cream-and-terracotta shoes in a softly lit scene. The images are not all transparent objects. Native subject lifting supplies some of that treatment at runtime.
 
 ### Fonts and media files
 
@@ -557,7 +630,7 @@ iOS / web UI
     placeholder provider-pay/telehealth URLs
 ```
 
-No live chargeable calls were made in this audit. Public environment **names**, not values, are recorded here. Configured client code does not prove a deployed secret, connected provider or working call.
+No live chargeable calls were made in this audit. This document records environment names, not values. Client configuration does not prove that a secret is deployed, a provider is connected or a request succeeds.
 
 | Configuration | Source consumer / purpose |
 |---|---|
@@ -583,7 +656,9 @@ No live chargeable calls were made in this audit. Public environment **names**, 
 
 TTS defaults: stability 0.48, similarity boost 0.82, style 0.2, speaker boost true. Caller may override model/settings. The exact voice identifier remains in server source and must be authorized in the provider account to reproduce its sound; it is not an entitlement guaranteed by possession of the app.
 
-There is no caller authentication/authorization, rate limit, app-level upload/text size bound, robust runtime schema validation or top-level upstream-error handling. A non-string text can throw at trim. Proxied responses strip set-cookie and add allow-origin; full CORS headers are not consistently applied to them. “Private proxy” refers only to keeping the provider key server-side, not to protected endpoint access.
+The Worker has no caller authentication, authorization, rate limits or app-level upload/text limits. Runtime schema validation and top-level upstream-error handling are missing. A non-string text value can throw at trim.
+
+Proxied responses strip set-cookie and add allow-origin. They do not consistently include the full CORS headers. The provider key stays server-side, but endpoint access is not protected. That is the limit of the "private proxy" description.
 
 ### Native project settings
 
@@ -611,7 +686,7 @@ Source: `CompanionEngine.swift:268–383`; `PersonaFixtures.swift` support-plan 
 
 ## Production and dead-end register
 
-Priorities below are **audit recommendations**, not approved implementation scope. “Before real users” means before processing real patient data or making external clinical/financial claims. Each entry gives the missing outcome so the next team can assess completion without confusing a cosmetic fix with production capability.
+The priorities below are audit recommendations, not approved implementation scope. "Before real users" means before processing real patient data or claiming external clinical or financial outcomes. Each row states the evidence needed to close the gap.
 
 | Area / priority | Source-backed gap | Completion evidence needed |
 |---|---|---|
@@ -657,6 +732,8 @@ Native tests contain four source-declared functions across three files: empty `N
 
 Web has two test cases: a trivial true assertion in `web/src/test/example.test.ts` and a generic calendar grid/button smoke case in `web/src/test/calendar.test.tsx`; `setup.ts` configures the test environment. The calendar component test is not an end-to-end appointment workflow test.
 
-**This documentation pass ran no app build, tests, simulator installation or live service calls.** Earlier conversation records a successful native build after a simulator installation error; that is historical build evidence only, not verification that installation or the reported runtime problem was resolved. Documentation review checks scope coverage, source correspondence, links and repository diff; it does not substitute for executable verification.
+No app build, tests, simulator installation or live service calls ran during these documentation passes. Earlier conversation records a successful native build after a simulator installation error. That historical build does not establish that installation or the runtime problem was resolved.
+
+Documentation checks cover feature coverage, source accuracy, links and the repository diff. They do not verify executable behavior.
 
 The source baseline was inspected with read-only Git commands. Rork handles repository synchronization automatically; writing these files is not proof of a remote GitHub commit/push. Final repository status should be reported from observed evidence, without a fabricated commit or deployment claim.
