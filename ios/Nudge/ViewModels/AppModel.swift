@@ -39,6 +39,12 @@ import Observation
     func appointment(withID id: UUID) -> Appointment? {
         appointments.first { $0.id == id }
     }
+    /// The next actual upcoming, non-cancelled visit; never substitutes an old fixture.
+    func nextAppointment(after date: Date) -> Appointment? {
+        appointments.filter { $0.date >= date && $0.status != .cancelled }
+            .min { $0.date < $1.date }
+    }
+
     var showConversation = false
     var conversationSeed: String? = nil
     var showQuickLog = false
@@ -191,10 +197,10 @@ import Observation
     init() {
         hasOnboarded = UserDefaults.standard.bool(forKey: "nudge.hasOnboarded")
         tonePreference = UserDefaults.standard.string(forKey: "nudge.tone") ?? "Straight talk"
-        epsilonConsent = UserDefaults.standard.object(forKey: "nudge.epsilon") as? Bool ?? true
+        epsilonConsent = UserDefaults.standard.object(forKey: "nudge.epsilon") as? Bool ?? false
         eraWarmth = UserDefaults.standard.string(forKey: "nudge.eraWarmth") ?? "Subtle"
         soundOn = UserDefaults.standard.object(forKey: "nudge.sound") as? Bool ?? true
-        musicOn = UserDefaults.standard.object(forKey: "nudge.music") as? Bool ?? true
+        musicOn = UserDefaults.standard.object(forKey: "nudge.music") as? Bool ?? false
         appearance = UserDefaults.standard.string(forKey: "nudge.appearance") ?? "Auto"
         lookingAheadOptOut = UserDefaults.standard.bool(forKey: "nudge.lookingAheadOptOut")
         let onboardedStamp = UserDefaults.standard.object(forKey: "nudge.onboardedAt") as? Double
@@ -633,10 +639,10 @@ import Observation
     func completeOnboarding(values: String, barrier: String, tone: String) {
         tonePreference = tone
         if !values.isEmpty {
-            memory.insert(MemoryItem(text: "What matters most: \(values)", learnedFrom: "Your first conversation"), at: 0)
+            memory.insert(MemoryItem(text: "What matters most: \(values)", learnedFrom: "Your setup preferences"), at: 0)
         }
         if !barrier.isEmpty {
-            memory.insert(MemoryItem(text: "Hardest part: \(barrier)", learnedFrom: "Your first conversation"), at: 1)
+            memory.insert(MemoryItem(text: "Hardest part: \(barrier)", learnedFrom: "Your setup preferences"), at: min(1, memory.count))
         }
         justBloomedToday = true
         onboardedAt = .now

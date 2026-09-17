@@ -1,17 +1,9 @@
 import SwiftUI
 
-/// Not a dashboard. One living scene: the orb in ambient state, the Thread
-/// (max 3 moments), the companion's pending actions, and the signature
-/// pull-to-talk gesture. The scene knows whose life it's holding.
+/// A short daily orientation with direct care actions and an optional companion.
 struct TodayCanvasView: View {
     @Environment(AppModel.self) private var model
     var orbSpace: Namespace.ID
-
-    @State private var pull: CGFloat = 0
-    @State private var pullTriggered = false
-    @State private var plusPulse = false
-
-    private var pullProgress: CGFloat { min(pull / 110, 1) }
 
     var body: some View {
         ZStack {
@@ -35,34 +27,33 @@ struct TodayCanvasView: View {
                 header
                     .padding(.top, 6)
 
-                Button {
-                    Haptics.glass()
-                    SoundEngine.shared.glass()
-                    model.openConversation()
-                } label: {
-                    VideoOrbView(size: 150, state: model.orb, showsHalo: true)
-                        .matchedGeometryEffect(id: "orb", in: orbSpace)
-                        .scaleEffect(1 + pullProgress * 0.14)
-                }
-                .buttonStyle(NudgeButtonStyle())
-                .accessibilityLabel("Talk with Rumi")
-                .highPriorityGesture(pullToTalk)
-                .padding(.top, 4)
-
-                VStack(spacing: 6) {
+                VStack(spacing: 8) {
+                    Button { model.openConversation() } label: {
+                        RumiMarkView(size: 66, animated: true)
+                            .matchedGeometryEffect(id: "orb", in: orbSpace)
+                    }
+                    .buttonStyle(NudgeButtonStyle())
+                    .accessibilityLabel("Talk with Rumi")
+                    Text(Date.now.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
+                        .font(NudgeType.rounded(12))
+                        .foregroundStyle(Theme.inkMuted)
                     Text(greeting)
                         .font(NudgeType.serif(28))
                         .foregroundStyle(Theme.ink)
-                    Text(statusLine)
+                        .multilineTextAlignment(.center)
+                    Text("A little clarity for your day.")
                         .font(NudgeType.rounded(14))
                         .foregroundStyle(Theme.inkMuted)
                 }
+                .padding(.horizontal, 24)
                 .padding(.top, 8)
+                .padding(.bottom, 8)
 
-                Text("pull down to talk")
-                    .font(NudgeType.rounded(11, .medium))
-                    .foregroundStyle(Theme.inkMuted.opacity(0.55 + pullProgress * 0.45))
-                    .padding(.top, 8)
+                if let appointment = model.nextAppointment(after: .now) {
+                    TodayVisitCard(appointment: appointment)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                }
 
                 // A gentle line when the care team has something new — so the
                 // user always knows to look, without it ever feeling like an alarm.
@@ -72,6 +63,10 @@ struct TodayCanvasView: View {
                         .padding(.top, 16)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
+
+                TodayMetricsView()
+                    .padding(.horizontal, 20)
+                    .padding(.top, 22)
 
                 // The companion's hands — steps it can take, waiting for one tap.
                 if let action = model.pendingActions.first {
@@ -104,8 +99,18 @@ struct TodayCanvasView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
 
-                lifeStrip
-                    .padding(.top, 18)
+                if !todayEntries.isEmpty {
+                    lifeStrip.padding(.top, 22)
+                }
+
+                Button { model.openConversation() } label: {
+                    Label("Ask Rumi", systemImage: "bubble.left")
+                        .font(NudgeType.rounded(14, .medium))
+                        .foregroundStyle(Theme.warm)
+                        .frame(minHeight: 44)
+                }
+                .buttonStyle(NudgeButtonStyle())
+                .padding(.top, 20)
 
                 // Generous tail so the last row always clears the floating dock
                 // and the whole page scrolls freely from anywhere on screen.
@@ -114,60 +119,33 @@ struct TodayCanvasView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.always)
-        .offset(y: pull * 0.3)
-        .sensoryFeedback(.impact(weight: .medium), trigger: pullTriggered)
-        .onAppear {
-            plusPulse = true
-            if model.justBloomedToday {
-                model.justBloomedToday = false
-                Task {
-                    try? await Task.sleep(for: .seconds(1.0))
-                    model.orb.celebrate()
-                    SoundEngine.shared.bloom()
-                }
-            }
-        }
+
     }
 
     // MARK: Header — settings · condition, one glass voice
 
     private var header: some View {
         HStack(spacing: 10) {
-            ChromeIcon(systemName: "slider.horizontal.3", accessibilityText: "Settings") {
+            Text("Rumi")
+                .font(NudgeType.display(29))
+                .foregroundStyle(Theme.ink)
+            Text("DEMO")
+                .font(NudgeType.rounded(10, .semibold))
+                .tracking(1)
+                .foregroundStyle(Theme.warm)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Theme.accentSoft, in: .capsule)
+            Spacer()
+            if model.musicOn {
+                ChromeIcon(systemName: "speaker.wave.2", accessibilityText: "Mute music") {
+                    model.musicOn = false
+                }
+            }
+            ChromeIcon(systemName: "person.crop.circle", accessibilityText: "Account and settings") {
                 model.showSettings = true
             }
-
-            // The condition is present, not shouted — one quiet chip into
-            // the full picture: conditions, plan, what to expect.
-            Button {
-                Haptics.tick()
-                model.openYou(.conditions)
-            } label: {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(Theme.life)
-                        .frame(width: 6, height: 6)
-                    Text(model.persona.conditionChip)
-                        .font(NudgeType.rounded(12, .medium))
-                        .foregroundStyle(Theme.ink.opacity(0.8))
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
-                .capsuleGlass()
-            }
-            .buttonStyle(NudgeButtonStyle())
-            .accessibilityLabel("Your conditions and care plan")
-
-            Spacer()
-
-            // The score's one-tap silence — top right, from the very first screen.
-            ChromeIcon(
-                systemName: model.musicOn ? "speaker.wave.2.fill" : "speaker.slash",
-                tint: model.musicOn ? Theme.gold : Theme.ink,
-                accessibilityText: model.musicOn ? "Mute music" : "Play music"
-            ) {
-                model.musicOn.toggle()
-            }
+            .accessibilityIdentifier("today.settings")
         }
         .padding(.horizontal, 20)
     }
@@ -181,28 +159,13 @@ struct TodayCanvasView: View {
             model.quickLogMedID = nil
             model.showQuickLog = true
         } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 20, weight: .regular))
-                .foregroundStyle(Theme.ink)
-                .frame(width: 56, height: 56)
-                .modifier(CircularGlass())
-                .background {
-                    // Breathing gradient ring — pure decoration, never a finger trap.
-                    Circle()
-                        .strokeBorder(
-                            AngularGradient(
-                                colors: [Theme.warm, Theme.rose, Theme.gold, Theme.warm],
-                                center: .center
-                            ),
-                            lineWidth: 2
-                        )
-                        .frame(width: 64, height: 64)
-                        .opacity(plusPulse ? 0.9 : 0.4)
-                        .scaleEffect(plusPulse ? 1.04 : 0.97)
-                        .animation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true), value: plusPulse)
-                        .allowsHitTesting(false)
-                }
-                .contentShape(Circle().inset(by: -8))
+            Label("Log", systemImage: "plus")
+                .font(NudgeType.rounded(15, .semibold))
+                .foregroundStyle(Theme.onAccent)
+                .padding(.horizontal, 20)
+                .frame(height: 50)
+                .background(Theme.buttonFill, in: .capsule)
+                .shadow(color: Theme.shadow.opacity(0.18), radius: 10, y: 4)
         }
         .buttonStyle(NudgeButtonStyle())
         .accessibilityLabel("Log something — a symptom, a meal, a move, a med")
@@ -218,7 +181,9 @@ struct TodayCanvasView: View {
                 openLife()
             } label: {
                 HStack {
-                    Kicker(text: "Today at your table")
+                    Text("Your day, logged")
+                        .font(NudgeType.serif(19))
+                        .foregroundStyle(Theme.ink)
                     Spacer()
                     HStack(spacing: 4) {
                         Text("See it all")
@@ -240,12 +205,6 @@ struct TodayCanvasView: View {
                             LifeThumb(entry: entry)
                         }
                         .buttonStyle(NudgeButtonStyle())
-                    }
-                    if todayEntries.isEmpty {
-                        Text("Nothing logged yet — the '+' is right there, glowing.")
-                            .font(NudgeType.rounded(12.5))
-                            .foregroundStyle(Theme.inkMuted)
-                            .padding(.vertical, 28)
                     }
                 }
             }
@@ -318,37 +277,6 @@ struct TodayCanvasView: View {
         model.entries.filter { Calendar.current.isDateInToday($0.at) }
     }
 
-    private var threadResolved: some View {
-        VStack(spacing: 10) {
-            SceneVisual(seed: 30, height: 70)
-            Text("You're set for now — I'll keep watch.")
-                .font(NudgeType.rounded(14))
-                .foregroundStyle(Theme.inkMuted)
-        }
-        .padding(.vertical, 16)
-    }
-
-    private var pullToTalk: some Gesture {
-        DragGesture()
-            .onChanged { value in
-                guard value.translation.height > 0,
-                      abs(value.translation.height) > abs(value.translation.width)
-                else { return }
-                pull = value.translation.height * 0.7
-                model.orb.set(.listening)
-            }
-            .onEnded { _ in
-                if pullProgress >= 0.95 {
-                    pullTriggered.toggle()
-                    SoundEngine.shared.whoosh()
-                    model.openConversation()
-                } else {
-                    model.orb.set(.ambient)
-                }
-                withAnimation(NudgeSpring.gentle) { pull = 0 }
-            }
-    }
-
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: .now)
         let name = model.displayFirstName
@@ -359,9 +287,6 @@ struct TodayCanvasView: View {
         }
     }
 
-    private var statusLine: String {
-        model.moments.isEmpty ? model.persona.statusQuiet : model.persona.statusBusy
-    }
 }
 
 /// A small studio-photo tile for the Today life strip.
@@ -404,7 +329,7 @@ struct AgentActionCard: View {
     @State private var sweep = 0
 
     var body: some View {
-        OrganicSurface(radius: 30) {
+        OrganicSurface(radius: 22) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 9) {
                     Image(systemName: action.glyph)
@@ -413,7 +338,7 @@ struct AgentActionCard: View {
                         .frame(width: 32, height: 32)
                         .background(Theme.gold.opacity(0.14), in: .circle)
                     VStack(alignment: .leading, spacing: 1) {
-                        Kicker(text: "I can take this one", color: Theme.gold)
+                        Kicker(text: "Suggested next step", color: Theme.gold)
                         Text(action.title)
                             .font(NudgeType.serif(17))
                             .foregroundStyle(Theme.ink)

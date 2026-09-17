@@ -20,22 +20,33 @@ struct CareHubView: View {
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 24) {
-                            Text("Care")
-                                .font(NudgeType.serif(32))
-                                .foregroundStyle(Theme.ink)
-                                .padding(.trailing, 52)
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text("Care")
+                                    .font(NudgeType.serif(32))
+                                    .foregroundStyle(Theme.ink)
+                                Text("Your next steps, all together.")
+                                    .font(NudgeType.rounded(14))
+                                    .foregroundStyle(Theme.inkMuted)
+                            }
+                            .padding(.trailing, 52)
+                            .padding(.top, 12)
                             surfacesGrid
-                            HStack(spacing: 24) {
-                                NavigationLink(value: YouDestination.care) {
-                                    Label("Care team", systemImage: "person.2")
-                                }
-                                NavigationLink(value: CareDestination.bills) {
-                                    Label("Bills & wallet", systemImage: "creditcard")
+                            OrganicSurface(radius: 22) {
+                                VStack(spacing: 0) {
+                                    NavigationLink(value: YouDestination.care) {
+                                        secondaryRow("Care team", glyph: "person.2")
+                                    }
+                                    Divider().overlay(Theme.edge).padding(.leading, 52)
+                                    NavigationLink(value: CareDestination.bills) {
+                                        secondaryRow("Bills & wallet", glyph: "creditcard")
+                                    }
+                                    Divider().overlay(Theme.edge).padding(.leading, 52)
+                                    NavigationLink(value: YouDestination.conditions) {
+                                        secondaryRow("Conditions", glyph: "heart.text.square")
+                                    }
                                 }
                             }
-                            .font(NudgeType.rounded(13, .medium))
-                            .foregroundStyle(Theme.inkMuted)
-                            .frame(minHeight: 44)
+                            .buttonStyle(NudgeButtonStyle())
                             if model.showsLookingAhead, let nudge = model.lookingAhead {
                                 LookingAheadCard(nudge: nudge) {
                                     model.addGuideItem(kind: .question, text: nudge.guideQuestion, from: "A look ahead")
@@ -56,6 +67,18 @@ struct CareHubView: View {
             .onAppear { consumePending() }
             .onChange(of: model.pendingCareDestination) { _, _ in consumePending() }
         }
+    }
+
+    private func secondaryRow(_ title: String, glyph: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: glyph).frame(width: 24).foregroundStyle(Theme.warm)
+            Text(title).foregroundStyle(Theme.ink)
+            Spacer()
+            Image(systemName: "chevron.right").font(.system(size: 11)).foregroundStyle(Theme.inkMuted)
+        }
+        .font(NudgeType.rounded(14, .medium))
+        .padding(.horizontal, 18)
+        .frame(minHeight: 56)
     }
 
     private var surfacesGrid: some View {
@@ -123,16 +146,16 @@ struct CareTile: View {
             SoundEngine.shared.tick()
             action()
         } label: {
-            OrganicSurface(radius: 26) {
+            OrganicSurface(radius: 22) {
                 VStack(alignment: .leading, spacing: 16) {
                     Image(systemName: glyph)
-                        .font(.system(size: 19, weight: .light))
+                        .font(.system(size: 21, weight: .regular))
                         .foregroundStyle(accent)
                         .frame(width: 42, height: 42)
                         .background(accent.opacity(0.14), in: .circle)
                     VStack(alignment: .leading, spacing: 5) {
                         Text(title)
-                            .font(NudgeType.serif(17))
+                            .font(NudgeType.rounded(15, .semibold))
                             .foregroundStyle(Theme.ink)
                         Text(status)
                             .font(NudgeType.rounded(12))
@@ -140,7 +163,7 @@ struct CareTile: View {
                     }
                     .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: .infinity, minHeight: 118, alignment: .topLeading)
+                .frame(maxWidth: .infinity, minHeight: 108, alignment: .topLeading)
                 .padding(16)
             }
         }

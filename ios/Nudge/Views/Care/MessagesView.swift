@@ -11,13 +11,15 @@ struct MessagesView: View {
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Messages")
-                        .font(NudgeType.serif(28))
+                        .font(NudgeType.serif(32))
                         .foregroundStyle(Theme.ink)
                     Text("Demo inbox · no messages leave Rumi")
                         .font(NudgeType.rounded(13))
                         .foregroundStyle(Theme.inkMuted)
                 }
-                .padding(.top, 8)
+                .padding(.top, 24)
+                .padding(.trailing, 48)
+                .padding(.bottom, 10)
 
                 ForEach(model.threads.sorted { $0.lastAt > $1.lastAt }) { thread in
                     NavigationLink(value: CareDestination.thread(thread.id)) {
@@ -58,16 +60,16 @@ struct MessagesView: View {
     }
 
     private func threadRow(_ thread: MessageThread) -> some View {
-        OrganicSurface(radius: 26) {
+        OrganicSurface(radius: 20) {
             HStack(spacing: 13) {
                 ZStack(alignment: .topTrailing) {
                     Circle()
-                        .fill(Theme.sky.opacity(0.16))
+                        .fill(Theme.accentSoft)
                         .frame(width: 46, height: 46)
                         .overlay(
                             Text(initials(thread.memberName))
                                 .font(NudgeType.rounded(15, .semibold))
-                                .foregroundStyle(Theme.sky)
+                                .foregroundStyle(Theme.warm)
                         )
                     if thread.unread {
                         Circle()
@@ -80,7 +82,7 @@ struct MessagesView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Text(thread.memberName)
-                            .font(NudgeType.serif(16.5))
+                            .font(NudgeType.rounded(15, .semibold))
                             .foregroundStyle(Theme.ink)
                             .lineLimit(1)
                         Spacer(minLength: 4)

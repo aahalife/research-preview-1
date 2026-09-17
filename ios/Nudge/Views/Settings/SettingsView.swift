@@ -6,7 +6,8 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
 
-    @State private var showPrivacy = false
+    @State private var showPrivacy: Bool = false
+    @State private var showWelcomePreview: Bool = false
 
     var body: some View {
         @Bindable var model = model
@@ -56,7 +57,7 @@ struct SettingsView: View {
                                     .padding(.vertical, 10)
                                     .background(.ultraThinMaterial, in: .capsule)
                                 }
-                                Text("Your name shapes the greeting; your birthday (set during setup) is what matches hospital records to you.")
+                                Text("Used for your greeting in this prototype. Editing your name does not verify your identity or connect medical records.")
                                     .font(NudgeType.rounded(11.5))
                                     .foregroundStyle(Theme.inkMuted)
                             }
@@ -69,7 +70,7 @@ struct SettingsView: View {
                         section("Day & night") {
                             VStack(alignment: .leading, spacing: 10) {
                                 choiceRow(options: ["Auto", "Day", "Night"], selection: $model.appearance)
-                                Text("Two worlds, one soul — Clay & Dawn by day, Indigo Night after dark. Auto follows your phone.")
+                                Text("Warm paper by day, soft espresso at night. Auto follows your phone.")
                                     .font(NudgeType.rounded(11.5))
                                     .foregroundStyle(Theme.inkMuted)
                             }
@@ -77,6 +78,23 @@ struct SettingsView: View {
 
                         // The previewer — feel how the experience re-shapes
                         // itself around a different life.
+                        section("Demo & welcome") {
+                            Button { showWelcomePreview = true } label: {
+                                HStack {
+                                    Label("Preview the welcome", systemImage: "sparkles")
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                }
+                                .font(NudgeType.rounded(15, .medium))
+                                .foregroundStyle(Theme.warm)
+                                .frame(minHeight: 44)
+                            }
+                            .accessibilityIdentifier("settings.previewWelcome")
+                            Text("Try the shorter introduction without changing your saved information or preferences.")
+                                .font(NudgeType.rounded(12))
+                                .foregroundStyle(Theme.inkMuted)
+                        }
+
                         section("Preview another journey") {
                             VStack(alignment: .leading, spacing: 10) {
                                 ForEach(CarePathway.allCases) { pathway in
@@ -110,6 +128,8 @@ struct SettingsView: View {
                                         .padding(.vertical, 6)
                                     }
                                     .buttonStyle(NudgeButtonStyle())
+                                    .accessibilityIdentifier("settings.scenario.\(pathway.rawValue)")
+                                    .accessibilityAddTraits(selected ? .isSelected : [])
                                 }
                                 Text("Everything adapts — symptoms, metrics, the plan, what I watch for. Same calm world, different life inside it.")
                                     .font(NudgeType.rounded(11.5))
@@ -164,7 +184,7 @@ struct SettingsView: View {
                                         Text("Music")
                                             .font(NudgeType.rounded(14.5))
                                             .foregroundStyle(Theme.ink)
-                                        Text("Stone Kintsugi carries the app; Barley Thunder welcomes you in. One tap and it all goes quiet.")
+                                        Text("An optional, quiet soundtrack. Off by default for new users.")
                                             .font(NudgeType.rounded(11.5))
                                             .foregroundStyle(Theme.inkMuted)
                                     }
@@ -222,6 +242,9 @@ struct SettingsView: View {
                 PrivacyCenterView()
             }
             .toolbar(.hidden, for: .navigationBar)
+        }
+        .fullScreenCover(isPresented: $showWelcomePreview) {
+            OnboardingFlowView(isPreview: true)
         }
     }
 

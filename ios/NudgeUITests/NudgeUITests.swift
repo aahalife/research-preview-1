@@ -1,41 +1,71 @@
-//
-//  NudgeUITests.swift
-//  NudgeUITests
-//
-//  Created by Rork on June 11, 2026.
-//
-
 import XCTest
 
 final class NudgeUITests: XCTestCase {
-
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it's important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testOnboardingChoicesBackAndSkipReachTodayWithoutChat() {
         let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "NO", "-nudge.music", "NO", "-nudge.sound", "NO", "-nudge.pathway", "metabolic"]
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTAssertTrue(app.buttons["onboarding.continue"].waitForExistence(timeout: 10))
+        app.buttons["onboarding.continue"].tap()
+        let scenario = app.buttons["onboarding.scenario.oncology"]
+        XCTAssertTrue(scenario.waitForExistence(timeout: 5))
+        scenario.tap()
+        XCTAssertTrue(scenario.isSelected)
+        app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(app.buttons["onboarding.skip"].waitForExistence(timeout: 5))
+        app.buttons["onboarding.back"].tap()
+        XCTAssertTrue(scenario.waitForExistence(timeout: 5))
+        XCTAssertTrue(scenario.isSelected)
+        app.buttons["onboarding.continue"].tap()
+        app.buttons["onboarding.skip"].tap()
+        XCTAssertTrue(app.buttons["tab.today"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["tab.care"].exists)
+        XCTAssertTrue(app.buttons["tab.messages"].exists)
+        XCTAssertTrue(app.buttons["tab.you"].exists)
+        XCTAssertFalse(app.buttons["onboarding.continue"].exists)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Warm Today after short onboarding"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
-        }
+    func testUnconnectedSignInDoesNotEnterApp() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "NO", "-nudge.music", "NO"]
+        app.launch()
+        XCTAssertTrue(app.buttons["onboarding.signIn"].waitForExistence(timeout: 10))
+        app.buttons["onboarding.signIn"].tap()
+        let notice = app.alerts["Sign-in isn't connected yet"]
+        XCTAssertTrue(notice.waitForExistence(timeout: 5))
+        notice.buttons["OK"].tap()
+        XCTAssertTrue(app.buttons["onboarding.continue"].exists)
+        XCTAssertFalse(app.buttons["tab.today"].exists)
+    }
+
+    @MainActor
+    func testWelcomePreviewDoesNotChangeActiveScenario() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "YES", "-nudge.music", "NO", "-nudge.sound", "NO", "-nudge.pathway", "metabolic"]
+        app.launch()
+        XCTAssertTrue(app.buttons["today.settings"].waitForExistence(timeout: 10))
+        app.buttons["today.settings"].tap()
+        let preview = app.buttons["settings.previewWelcome"]
+        XCTAssertTrue(preview.waitForExistence(timeout: 5))
+        if !preview.isHittable { app.swipeUp() }
+        preview.tap()
+        XCTAssertTrue(app.buttons["onboarding.continue"].waitForExistence(timeout: 5))
+        app.buttons["onboarding.continue"].tap()
+        app.buttons["onboarding.scenario.oncology"].tap()
+        app.buttons["onboarding.continue"].tap()
+        app.buttons["onboarding.skip"].tap()
+        let original = app.buttons["settings.scenario.metabolic"]
+        XCTAssertTrue(original.waitForExistence(timeout: 5))
+        XCTAssertTrue(original.isSelected)
     }
 }

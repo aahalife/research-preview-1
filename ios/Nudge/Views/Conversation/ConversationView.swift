@@ -11,7 +11,6 @@ struct ConversationView: View {
 
     @State private var input = ""
     @FocusState private var focused: Bool
-    @State private var rippleCounter = 0
     @State private var dragY: CGFloat = 0
     @State private var showVoice = false
 
@@ -26,24 +25,6 @@ struct ConversationView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 20) {
-                            HStack {
-                                Spacer()
-                                Button {
-                                    rippleCounter += 1
-                                    Haptics.glass()
-                                    SoundEngine.shared.glass()
-                                    model.orb.set(.listening)
-                                } label: {
-                                    VideoOrbView(size: 110, state: model.orb, showsHalo: true)
-                                        .matchedGeometryEffect(id: "orb", in: orbSpace)
-                                }
-                                .buttonStyle(NudgeButtonStyle())
-                                .accessibilityLabel("Rumi")
-                                Spacer()
-                            }
-                            .padding(.top, 2)
-                            .padding(.bottom, 4)
-
                             ForEach(model.companion.turns) { turn in
                                 TurnView(turn: turn)
                                     .transition(
@@ -106,9 +87,13 @@ struct ConversationView: View {
 
                 Spacer()
 
-                Text("Rumi")
-                    .font(NudgeType.display(24))
-                    .foregroundStyle(Theme.ink.opacity(0.9))
+                HStack(spacing: 6) {
+                    RumiMarkView(size: 34, animated: model.companion.isThinking)
+                        .matchedGeometryEffect(id: "orb", in: orbSpace)
+                    Text("Rumi")
+                        .font(NudgeType.display(24))
+                        .foregroundStyle(Theme.ink)
+                }
 
                 Spacer()
 
@@ -241,7 +226,6 @@ struct ConversationView: View {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         Haptics.glass()
         SoundEngine.shared.send()
-        rippleCounter += 1
         model.companion.send(text, orb: model.orb)
     }
 }

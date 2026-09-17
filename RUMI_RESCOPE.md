@@ -46,6 +46,9 @@ The re-scope begins: “Net new/rescoped features below. But also retain the key
 
 ### Confirmed in this review
 
+- **September 17 native style refinement:** the supplied [Nudge – Platform Flows](https://r2-pub.rork.com/attachments/dzpsmthuxdnvbfsx0zzbt.zip) now governs the native visual treatment: compact cards, editorial headings, grouped actions and a small concentric companion mark. Use cream, amber, clay and olive instead of the reference's blue/lavender. Keep Today / Care / Messages / You rather than copying the older five-tab reference. The attachment is visual guidance, not evidence of integrations, provider approval, insurance coverage or clinical outcomes.
+- **Shorter native onboarding:** welcome → explicit sample-story selection → optional tone/music preferences. Add Back and Skip, no staged chat or timed narration, and no pretend Apple/phone sign-in. Until authentication is implemented, Sign in explains unavailability without advancing. Do not collect identity fields for a sample-data tour. Keep optional connection/personalization controls in their existing homes and leave new-user personalization off. Existing saved preferences are not reset. Provide a non-mutating welcome preview in Settings. This overrides conflicting older onboarding, music-autoplay and palette directions below. The separate web app remains unchanged in this native refinement.
+
 - Keep exactly three review documents. The requester approved a feature-by-feature requirements compendium instead of separate feature files. Its contents list is the feature index. Reconcile existing Confluence pages before publication.
 - “AFB” in Symptom Tracking means **both AI-generated and rules-based feedback** for this scope. No unsupported expansion of the acronym or clinical thresholds is assumed.
 - Staged implementation is approved. Retain the existing AI and agent experiences while making status truthful and reducing repeated attention surfaces.
@@ -278,7 +281,7 @@ Keep the semantic tokens in `ios/Nudge/Utilities/Theme.swift` and `web/src/index
 | rose | `#D8849B` | `#FF9FB2` | Existing editorial accents. |
 | attention | `#D98A3D` | `#FFBE8F` | Attention, with a written reason and urgency level. |
 
-Keep the existing dawn/day/dusk/night palettes and deeper conversation palette. Do not add a colored panel behind every section. Clinical urgency needs an explicit message and action. A warm dot alone is insufficient.
+Use the updated warm-paper/espresso native palettes with restrained amber washes; the web palette remains its previous treatment until a separate parity pass. Do not add a colored panel behind every section. Clinical urgency needs an explicit message and action. A warm dot alone is insufficient.
 
 `NudgeType.swift` is a set of font helpers, not a universal type scale. Keep HermioneFREE for the wordmark and existing display moments. Keep Fraunces for editorial headings and system rounded text for controls and data. Preserve monospaced digits for values. The browser has the same six font files but uses a system rounded fallback stack.
 
@@ -332,7 +335,7 @@ Keep `NudgeSpring.ui` response/damping 0.42/0.82, gentle 0.55/0.86 and delight 0
 
 Use the existing orb modes only when they match actual state. Listening starts after capture starts. Thinking follows an active request. Speaking follows playback. A declined task must never trigger a success celebration. Keep a static orb and readable status when reduced motion is enabled.
 
-Retain the Barley Thunder onboarding bed, Stone Kintsugi app bed, recap score and existing tap recordings. Reserve completion sounds for confirmed local saves or verified action outcomes. Navigation does not need a completion sound. Pause app audio before opening the microphone. Restore the prior bed only if the user's music preference still allows it.
+Keep the bundled audio assets. Native onboarding no longer autoplays a bed; new-user background music is off, while existing saved music preferences remain intact. Stone Kintsugi remains optional app music; preserve the recap score and tap recordings. Reserve completion sounds for confirmed local saves or verified action outcomes. Navigation does not need a completion sound. Pause app audio before opening the microphone. Restore the prior bed only if the user's music preference still allows it.
 
 Extend reduced-motion handling to video breathing, memory bob, voice particles and the Today plus pulse. Keep chart values and garden history accessible as text. Add a list alternative to the body map. Browser sheets need focus containment, Escape handling and focus return. VoiceOver and keyboard users must be able to review sources, correct input and decline actions without a drag gesture.
 

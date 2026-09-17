@@ -36,8 +36,8 @@ struct RootView: View {
                             SoundEngine.shared.glass()
                             model.openConversation()
                         } label: {
-                            OrbView(size: 34, state: model.orb)
-                                .padding(5)
+                            RumiMarkView(size: 38)
+                                .padding(3)
                                 .modifier(CircularGlass())
                         }
                         .buttonStyle(NudgeButtonStyle())

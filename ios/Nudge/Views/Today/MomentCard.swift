@@ -12,13 +12,13 @@ struct MomentCard: View {
     @State private var actionFired = false
 
     var body: some View {
-        OrganicSurface(radius: 32) {
+        OrganicSurface(radius: 22) {
             HStack(alignment: .top, spacing: 14) {
                 thumb
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(moment.title)
-                        .font(NudgeType.serif(18))
+                        .font(NudgeType.rounded(15, .semibold))
                         .foregroundStyle(Theme.ink)
                     Text(moment.body)
                         .font(NudgeType.rounded(13.5))
@@ -32,7 +32,7 @@ struct MomentCard: View {
                             .font(NudgeType.rounded(13, .semibold))
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 15)
-                            .padding(.vertical, 8)
+                            .frame(minHeight: 44)
                             .background(Theme.raised.opacity(0.9), in: .capsule)
                             .overlay(Capsule().strokeBorder(Theme.edge.opacity(0.7), lineWidth: 0.8))
                     }

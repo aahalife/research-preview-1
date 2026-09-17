@@ -32,6 +32,13 @@ The original source review covered 56 native Swift view files, 11 models, three 
 
 Paths are relative to the repository root. In tables, **N/** means `ios/Nudge/`, **V/** means `ios/Nudge/Views/`, **M** means `ios/Nudge/ViewModels/AppModel.swift`, and **W/** means `web/src/sano/`. Line ranges refer to the inspected snapshot. Use named symbols to locate code after later edits.
 
+### Native warm-style validation — September 17
+
+- Applied the supplied Platform Flows visual language in the native app only: cream/amber/earthy tokens, quieter cards, smaller companion mark, labeled Log control and compact visit/metric access. Web remains at the prior visual/onboarding version.
+- Replaced native onboarding with three screens and a non-mutating Settings preview. Stored user data and saved preference values are not reset; this is not a new authenticated patient mode.
+- `swiftTest` selection `NudgeTests` plus `NudgeUITests/NudgeUITests` passed **12 tests** in 106 seconds. The selection contains nine unit tests and three UI flows covering onboarding selection/Back/Skip, unavailable sign-in and preservation of the active scenario after welcome preview. An earlier attempt could not compile because an obsolete animation counter was still referenced; that reference was removed before this passing run.
+- Simulator compilation succeeded. Full VoiceOver, large-text, day/night visual evaluation, physical-device builds and service integration validation remain outstanding. These tests do not establish clinical readiness.
+
 ### Evidence vocabulary
 
 | Classification | Meaning in this document |
@@ -150,21 +157,23 @@ This section and the shared-component inventory cover every native view file. Pa
 
 ### Welcome and onboarding
 
+**Current native refinement (September 17):** three screens replace the eight-stage flow: welcome, explicit demo scenario, optional tone/music preferences. Back retains local selection. Skip completes without applying edited preferences. No onboarding chat, wait sequence, name/birthday collection, pretend identity confirmation or provider/Health connection tour remains on the active path. Sign in presents an unavailable notice and does not advance. Settings → Preview the welcome runs the same screens without writing preferences, changing scenarios or resetting saved data. Live identity, legal acceptance and clinical connectivity remain unimplemented. The legacy connection/interview components below are retained source, no longer stages of native onboarding.
+
 | File / surfaces | Entry, content and actions | Result, return and limitations |
 |---|---|---|
-| `V/Onboarding/OnboardingFlowView.swift` — flow, Welcome, AboutYou, PathChoice, Shaping, Aura | Launch without local onboarding flag. Welcome orb, music toggle; Apple/phone continuation; editable name/birthday; four pathway choices; timed reshaping narrative. | Both sign-in choices only advance. No authentication, SMS number/OTP flow or Apple identity result. Profile/pathway persist locally. No general backward/restart control; untouched birthday can retain its default. Shaping is timed fixture narration. See `158–300,319–499`. |
+| `V/Onboarding/OnboardingFlowView.swift` | Welcome → sample story → optional preferences, with Back, explicit Continue and Skip. Three-stage progress; cream/amber treatment; small concentric mark. | Native sign-in is explicitly unavailable, not simulated. Final completion commits the chosen sample pathway and optionally preferences. Preview completion only dismisses. No personal identity fields are collected. |
 | `V/Onboarding/RecordConnectView.swift` — provider picker/sign-in/match/found, HealthKitAsk, EpsilonConsent | Seven fixed providers searchable locally; username/password; identity derived from entered profile; delayed discovery sequence; skip/back/not-me; individual Health toggles; separate yes/no personalization consent. | Username nonempty gates mock sign-in; password is unused outside local UI. Match stores provider name only. Health Connect persists its Boolean before the one-second delay, ignoring selected scopes; no HealthKit authorization. Skip continues. Epsilon persists a Boolean but does not gate AI data transmission. See `21–36,177–331,398–560`. |
 | `V/Onboarding/OnboardingConversationView.swift` | Two nonblank personal answers followed by tone selection, with local word-streamed questions (about 45ms per word after a 350ms delay). | This step advances to Epsilon. Final onboarding completion after that choice saves answers as memory notes and tone, celebrates and enters Today. These are not model-generated interview turns. No skip/back in this step. See `16–20,36–123`; M.`completeOnboarding`. |
 
-The eight stage identifiers are welcome, aboutYou, path, shaping, connect, healthKit, conversation and epsilon. Completion stamps onboarding time, which later gates looking-ahead visibility. The flow does not include functioning terms acceptance, analytics consent, notification authorization, Google SSO or a crisis handoff. These belong to the proposed re-scope rather than as-built onboarding.
+The current native stage identifiers are welcome, scenario and preferences. The old web onboarding remains separate and unchanged. Completion stamps onboarding time, which later gates looking-ahead visibility. The flow does not include functioning terms acceptance, analytics consent, notification authorization, Google SSO or a crisis handoff. These belong to the proposed re-scope rather than as-built onboarding.
 
 ### Today and global entry points
 
-`V/Today/TodayCanvasView.swift:32–111,133–183,215–270,332–475` renders a header with Settings, a condition chip and a direct music toggle. Below it are the large orb, greeting and pull-to-talk hint. Below are one consolidated updates area (first item plus expandable remaining routine updates), first proposed action, a quiet helper link with waiting-request count, up to three moments and Life strip. Empty Thread no longer inserts a filler card. The plus button sits outside the scroll content. A bottom spacer clears the dock.
+`V/Today/TodayCanvasView.swift` renders a Rumi wordmark, Demo label and Settings; a mute control appears if music is playing. A 66pt concentric mark, date and greeting replace the large video orb. The earliest upcoming non-cancelled appointment links to that exact visit and preparation; past fixtures are not substituted. Consolidated updates retain their routes. Up to three sample metrics show actual stored values and dated sparklines, linking to exact series details under Care. Existing proposed action, helper link and up to three moments remain below. Life appears only with today's entries. A labeled static Log button replaces the pulsing plus; a bottom spacer clears the dock.
 
-Pull progress is `translation.height × 0.7 / 110`. Releasing at progress ≥0.95 opens conversation, which requires approximately 149.3pt of downward translation. The orb scales with progress. This source-defined gesture has not been verified as a scrolling fix on all devices.
+Today no longer binds pull-to-talk or offsets the scroll view. Tapping the small mark or the labeled Ask Rumi button opens the companion. The conversation header now uses the compact amber mark rather than a large tappable video orb.
 
-- Orb/tap/pull enters conversation. Settings presents a sheet. Today updates open their stored destination: exact threads, bills and appointments; result/refill targets remain category-level and need further work. Plus opens generic Quick Log.
+- The companion mark or Ask Rumi enters conversation. Settings presents a sheet. Today updates open their stored destination: exact threads, bills and appointments; result/refill targets remain category-level and need further work. Plus opens generic Quick Log.
 - First proposed action uses `AgentActionCard`: approval/decline modifies session state and acknowledges. It does not perform a payment/refill/message.
 - `LifeThumb` entries route to the shared Life shortcut rather than the selected item. Thumbnail media is bundled/locally resolved.
 - `V/Today/MomentCard.swift:50–63,127–160` supports swipe dismissal, local melt, and a single action. Insight selects You/Insights; habit keeps the first habit in the first journey; task always seeds refill conversation; check-in opens generic conversation. These are not per-moment typed business operations. Dismissals/kept dates are session-only; there is no undo.
@@ -288,7 +297,7 @@ Programs and sponsorship use static fixtures. There is no live eligibility match
 
 ### Conversation surface and orb
 
-`V/Conversation/ConversationView.swift` defines ConversationView, InputGlass, ConversationScene, TurnView, ConversationProgramCard, StreamingText and ThinkingShimmer (`31–35,87–245,334–625`). Companion words render directly on a deeper ambient canvas; user words appear in glass; rich content arrives after text; input can send or enter voice. Closing cancels an active generation and restores the underlying tab but does not clear chat history. Tapping the conversation orb changes its visual mode; it does not start microphone capture. Pathway-specific starter prompts appear while history contains at most one turn. The header also provides direct Day/Night and music controls and drag dismissal (`ConversationView.swift:77–79,115–188`).
+`V/Conversation/ConversationView.swift` defines ConversationView, InputGlass, ConversationScene, TurnView, ConversationProgramCard, StreamingText and ThinkingShimmer (`31–35,87–245,334–625`). Companion words render directly on a deeper ambient canvas; user words appear in glass; rich content arrives after text; input can send or enter voice. Closing cancels an active generation and restores the underlying tab but does not clear chat history. The conversation's old decorative tap-to-listen orb was removed; voice is still entered through the explicit microphone/voice control. Pathway-specific starter prompts appear while history contains at most one turn. The header also provides direct Day/Night and music controls and drag dismissal (`ConversationView.swift:77–79,115–188`).
 
 `N/ViewModels/OrbState.swift` has seven modes: ambient, listening, thinking, speaking, celebrating, concerned and resting. Energy transitions smooth over approximately 0.9 seconds; celebration returns after approximately 1.6 seconds. Energy/breath pairs are ambient 0.25/4.0s, listening 0.70/2.6s, thinking 0.55/2.0s, speaking 0.62/1.7s, celebrating 1.0/1.2s, concerned 0.16/5.5s, resting 0.10/6.0s. These are visualization states, not evidence that a microphone, model or task is active.
 
@@ -397,7 +406,7 @@ Many fixture entities generate UUIDs at initialization. Bills use explicit stabl
 | Separate local files | User-selected held photos; temporary microphone audio; lifted-image PNG cache. These are not deleted by `wipe`. |
 | Session/view only | Chat, moments, insights, full journeys/habit dates, program enrollment/declines, medication adherence/supply changes, appointments, savings, wallet/connections, agent toggles/tasks/actions, report-sent keys, Currents bookmarks/taste, notification classes/quiet hours, most consent ledger state and send/export confirmation Booleans. |
 
-Defaults: not onboarded; Straight talk; epsilon true; era warmth Subtle; sound/music true; Auto appearance; looking-ahead opt-out false; metabolic pathway. Missing onboarding time falls back to 60 days ago. These are source facts, not recommended privacy defaults.
+Native defaults: not onboarded; Straight talk; epsilon false; era warmth Subtle; touch sound true and background music false; Auto appearance; looking-ahead opt-out false; metabolic demo pathway. Existing saved preference values remain unchanged. Missing onboarding time falls back to 60 days ago. These are source facts, not recommended privacy defaults.
 
 M.`persistUserData:258–271` runs after entry, log, memory, Guide, message, request, document, paid-bill and derived-goal operations. It does not run after every model write. Thread-read state and reply drafts now save directly. A later snapshot can still incidentally save enrollment memory.
 
@@ -475,26 +484,26 @@ This section records existing design and construction. The change specification 
 
 ### Tokens and typography
 
-`N/Utilities/Theme.swift:28–98` supplies dynamic day/night colors and separate companion/daypart/conversation palettes. `W/theme.ts` and `web/src/index.css` mirror many colors, not identical rendering.
+`N/Utilities/Theme.swift` now supplies warm-paper and espresso day/night colors with amber, clay and olive accents, based on the supplied Platform Flows. `W/theme.ts` and `web/src/index.css` retain the previous palette; this refinement changes native only.
 
 | Token | Light | Dark |
 |---|---|---|
-| base | `#F6EEE3` | `#0D1126` |
-| surface | `#FFFCF7` | `#1E2449` |
-| raised | `#FFF8EE` | `#2A3160` |
-| ink | `#2E2418` | `#F4F1EA` |
-| inkMuted | `#6F6151` | `#A7ADCE` |
-| edge | `#E7D8C4` | `#3A4178` |
-| shadow | `#C59A6E` | `#000000` |
-| warm | `#E0764E` | `#FF9E7E` |
-| life | `#7FAE7E` | `#8FEFC0` |
-| sky | `#6E9CC8` | `#8FC6FF` |
-| gold | `#D9A348` | `#C8B6FF` |
-| rose | `#D8849B` | `#FF9FB2` |
-| attention | `#D98A3D` | `#FFBE8F` |
-| dockTint | `#F4FBFF` at 0.30 | `#3C4A86` at 0.30 |
+| base | `#FAF7F1` | `#1C1915` |
+| surface | `#FFFDFA` | `#29241E` |
+| raised | `#F4EBDB` | `#352D23` |
+| ink | `#30281F` | `#F6EEE1` |
+| inkMuted | `#766958` | `#C2B39E` |
+| edge | `#E8DFD1` | `#4B4032` |
+| shadow | `#AA8555` | `#000000` |
+| warm | `#98621C` | `#E2AD60` |
+| life | `#68734C` | `#B2C28D` |
+| sky | `#61796F` | `#ACC6B8` |
+| gold | `#A36A1E` | `#E9B76E` |
+| rose | `#AC6D56` | `#D9A18A` |
+| attention | `#A35325` | `#EAB17E` |
+| dockTint | `#FFFAED` at 0.25 | `#493A26` at 0.25 |
 
-The night gold token is lavender. Background dayparts are dawn 05–09, day 09–17, dusk 17–21, night 21–05. Conversation uses deeper palettes. Warm attention is an aesthetic choice, not a substitute for clear urgent meaning.
+Gold stays amber at night. Background variation is restrained warm paper by day and espresso at night; conversation uses a slightly deeper amber wash. Warm attention is an aesthetic choice, not a substitute for clear urgent meaning.
 
 `N/Utilities/NudgeType.swift:10–59` uses HermioneFREE for display and Fraunces 400/500/600/700 plus 400 italic for editorial text. Functional text uses system rounded. Numbers use monospaced digits. Kicker is 11pt semibold. Native registers six bundled fonts at launch. Web declares six font faces.
 
@@ -510,25 +519,25 @@ These values come from source, not screenshots. Native dimensions are points. We
 |---|---|---|
 | Today greeting/status | Fraunces 28 / rounded 14. | Fraunces 27 / rounded 14. |
 | Care hub title/subtitle | Fraunces 32 / rounded 14. | Fraunces 32 / rounded 14. |
-| Moment title/body/action | Fraunces 18 / rounded 13.5 / 13 semibold. | Fraunces 17 / rounded 13 / 12.5 semibold. |
+| Moment title/body/action | Rounded 15 semibold / 13.5 / 13 semibold. | Fraunces 17 / rounded 13 / 12.5 semibold. |
 | Proposed action title/detail | Fraunces 17 / rounded 13. | Fraunces 17 / rounded 13. |
-| Care tile title/status | Fraunces 17 / rounded 12. | Fraunces 16 / rounded 11.5. |
+| Care tile title/status | Rounded 15 semibold / rounded 12. | Fraunces 16 / rounded 11.5. |
 | Conversation wordmark/input | Hermione 24 / rounded 15. | Hermione 24 / rounded 15. |
-| Dock label/icon | Rounded 9.5 medium / icon 17. | Rounded 9.5 semibold / icon 20. |
+| Dock label/icon | Rounded 11 medium / icon 17. | Rounded 9.5 semibold / icon 20. |
 | Kicker tracking | 1.6pt. | 0.16em. |
-| Main Today composition | Orb 150. Main horizontal margins 20. Moment gap 13. Bottom spacer 150. | Independent Today implementation inside a 440px maximum-width shell. |
-| Today plus | 56 × 56, trailing 22, bottom 96. Decorative ring 64. | Separate floating control in browser Today. |
-| Native dock | Outer horizontal margins 28. Interior horizontal padding 8, vertical 7. Equal flexible items, no fixed dock height. Root bottom padding 6. | Buttons 58 × 50, gap 4, interior padding 8, bottom padding 12. |
-| Mini-orb outside Today | Orb 34 with padding 5, trailing 20. | Orb 36 with padding 4, top 12, right 16, plus glass border. |
+| Main Today composition | Concentric mark 66. Main horizontal margins 20. Moment gap 13. Bottom spacer 150. | Independent Today implementation inside a 440px maximum-width shell. |
+| Today Log | Labeled capsule, height 50, trailing 22, bottom 96. No pulsing ring. | Separate floating control in browser Today. |
+| Native dock | Outer horizontal margins 18. Interior horizontal padding 8, vertical 7. Equal flexible items, no fixed dock height. Root bottom padding 6. | Buttons 58 × 50, gap 4, interior padding 8, bottom padding 12. |
+| Mini-orb outside Today | Concentric mark 38 with padding 3, trailing 20. | Orb 36 with padding 4, top 12, right 16, plus glass border. |
 | Acknowledgment | Bottom 112, card radius 30, inner padding 16, side margins 24. | Bottom 112, radius 28, inner padding 16, outer side margins 24. |
-| Organic card default | Radius 36, surface opacity 0.96, gradient edge 1, shadow opacity 0.16/radius 20/y 7. | Radius 28, 160° surface-to-raised gradient, edge 1. |
+| Organic card default | Radius 22, opaque surface, semantic edge 0.7, shadow opacity 0.07/radius 12/y 4. | Radius 28, 160° surface-to-raised gradient, edge 1. |
 | Press feedback | Scale 0.96, opacity 0.88, `NudgeSpring.ui`. | Scale 0.955, opacity 0.9, transition 0.18 seconds. |
 
 Sources: `V/Today/TodayCanvasView.swift`, `MomentCard.swift`, `V/Care/CareHubView.swift`, `V/Conversation/ConversationView.swift`, `V/RootView.swift`, `V/Components/NudgeDock.swift`, `GlassSurface.swift`, `Chips.swift`. Browser: `W/screens/Today.tsx`, `Care.tsx`, `Conversation.tsx`, `nav.tsx`, `W/ui/Dock.tsx`, `Glass.tsx`, `W/SanoApp.tsx`, `web/src/index.css`.
 
-Native `NudgeType.serif` defaults to semibold. Browser serif headings do not all set a weight. Cards also vary by use: native attention 24, Care tiles 26, pulse 28, action/toast 30, moments 32, default surfaces 36. There is no universal card radius.
+Native `NudgeType.serif` defaults to semibold. Browser serif headings do not all set a weight. Cards vary by use: native attention 26, Care tiles 22, messages 20, metrics 18, moments/actions/default surfaces 22; older detail screens retain their individual radii. There is no universal card radius.
 
-The native dock uses a cool tinted glass capsule on iOS 26. Older versions use the material fallback. The web dock uses CSS glass with a surface-based background, not the exact native dock tint. Its blur is 26px with saturation 180%, or 40px/200% for strong glass. These are visual approximations, not native refraction.
+The native dock uses a warm tinted glass capsule on iOS 26. Older versions use the material fallback. The web dock uses CSS glass with a surface-based background, not the exact native dock tint. Its blur is 26px with saturation 180%, or 40px/200% for strong glass. These are visual approximations, not native refraction.
 
 ### Existing copy and meaning
 
@@ -692,7 +701,7 @@ The priorities below are audit recommendations, not approved implementation scop
 
 | Area / priority | Source-backed gap | Completion evidence needed |
 |---|---|---|
-| Identity — before real users | Welcome Apple/phone and provider flows only advance; web forms cannot accept credentials. | Verified identity/session, recovery/linking policy, expiry/revocation and account isolation; demo explicitly separated. |
+| Identity — before real users | Native Welcome explicitly blocks unconnected sign-in; legacy provider flows simulate connection; web forms cannot accept credentials. | Verified identity/session, recovery/linking policy, expiry/revocation and account isolation; demo explicitly separated. |
 | Consent — before real users | Ledger is not an enforcement layer; audio privacy wording contradicts transport. | Versioned purpose-specific consent, revocation effects, permitted data selection and accurate disclosures. |
 | Clinical truth — before real users | Fixture scenarios can be sent as real context; shared Marcus records across pathways. | Source/date/patient provenance, missing/conflict handling and separation of demo/user/clinician/AI information. |
 | Crisis/clinical safety — before real users | Prompt-only controls, no verified crisis handoff, stale fixed clinical dates. | Clinician-approved rules/content/precedence, localized escalation, service-unavailable fallback and safety evaluation. |

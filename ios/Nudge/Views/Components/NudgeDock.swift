@@ -11,9 +11,7 @@ struct NudgeDock: View {
     var body: some View {
         Group {
             if #available(iOS 26.0, *) {
-                // A soft cool/bright tint lifts the glass off the warm living
-                // ground so the refraction and edge actually read — untinted
-                // glass over the warm gradient nearly vanished.
+                // Warm navigation glass stays separate from opaque content.
                 bar
                     .glassEffect(.regular.tint(Theme.dockTint), in: .capsule)
                     .overlay(
@@ -29,8 +27,8 @@ struct NudgeDock: View {
                 GlassSurface(radius: 34) { bar }
             }
         }
-        .padding(.horizontal, 28)
-        .shadow(color: Theme.shadow.opacity(0.22), radius: 24, y: 11)
+        .padding(.horizontal, 18)
+        .shadow(color: Theme.shadow.opacity(0.12), radius: 16, y: 6)
         .sensoryFeedback(.impact(weight: .light), trigger: tapped)
     }
 
@@ -66,15 +64,15 @@ struct NudgeDock: View {
                         }
                     }
                 Text(tab.rawValue)
-                    .font(NudgeType.rounded(9.5, .medium))
+                    .font(NudgeType.rounded(11, .medium))
             }
-            .foregroundStyle(selected ? Theme.ink : Theme.inkMuted)
+            .foregroundStyle(selected ? Theme.warm : Theme.inkMuted)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 7)
             .background {
                 if selected {
                     Capsule(style: .continuous)
-                        .fill(Theme.warm.opacity(0.16))
+                        .fill(Theme.accentSoft)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                 }

@@ -34,28 +34,22 @@ struct GlassSurface<Content: View>: View {
     }
 }
 
-/// Soft organic surface — the standard non-glass card ground. Clearly raised
-/// above the living gradient: porcelain-bright by day, lifted indigo at night,
-/// with a hairline edge and a warm tinted shadow.
+/// Quiet paper-like cards. Content stays opaque and legible; glass belongs to chrome.
 struct OrganicSurface<Content: View>: View {
-    var radius: CGFloat = 36
+    var radius: CGFloat = 22
     @ViewBuilder var content: Content
 
     var body: some View {
         content
-            .background(Theme.surface.opacity(0.96), in: .rect(cornerRadius: radius, style: .continuous))
+            .background(Theme.surface, in: .rect(cornerRadius: radius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
                     .strokeBorder(
-                        .linearGradient(
-                            colors: [Color.white.opacity(0.85), Theme.edge.opacity(0.55)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
+                        Theme.edge.opacity(0.55),
+                        lineWidth: 0.7
                     )
             )
-            .shadow(color: Theme.shadow.opacity(0.16), radius: 20, y: 7)
+            .shadow(color: Theme.shadow.opacity(0.07), radius: 12, y: 4)
     }
 }
 
@@ -75,7 +69,7 @@ struct NudgeButtonStyle: ButtonStyle {
 /// reads identically across screens. True interactive glass on iOS 26.
 struct ChromeIcon: View {
     var systemName: String
-    var size: CGFloat = 38
+    var size: CGFloat = 44
     var tint: Color = Theme.ink
     var accessibilityText: String
     var action: () -> Void

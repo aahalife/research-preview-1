@@ -52,7 +52,22 @@ struct YouView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                Text("You")
+                    .font(NudgeType.serif(32))
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                Button { model.showSettings = true } label: {
+                    Image(systemName: "person.crop.circle")
+                        .font(.system(size: 20, weight: .regular))
+                        .foregroundStyle(Theme.inkMuted)
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("Account and settings")
+                .padding(.trailing, 50)
+            }
+            HStack(spacing: 12) {
             GlassSurface(radius: 24) {
                 HStack(spacing: 4) {
                     ForEach(Section.allCases, id: \.self) { item in
@@ -77,17 +92,10 @@ struct YouView: View {
                 .padding(4)
             }
             Spacer(minLength: 0)
-            Button { model.showSettings = true } label: {
-                Image(systemName: "gearshape")
-                    .font(.system(size: 17, weight: .light))
-                    .foregroundStyle(Theme.inkMuted)
-                    .frame(width: 44, height: 44)
             }
-            .accessibilityLabel("Account and settings")
         }
-        .padding(.leading, 20)
-        .padding(.trailing, 72)
-        .padding(.top, 8)
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
         .padding(.bottom, 6)
     }
 

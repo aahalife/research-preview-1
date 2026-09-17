@@ -5,6 +5,23 @@ import Testing
 
 @MainActor
 struct NudgeTests {
+    @Test func onboardingHasThreeShortStages() {
+        #expect(OnboardingFlowView.Stage.allCases == [.welcome, .scenario, .preferences])
+    }
+
+    @Test func nextVisitIgnoresPastAndCancelledAppointments() {
+        let model = AppModel()
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let old = Appointment(with: "Past", date: now.addingTimeInterval(-100), location: "Clinic", prepReady: true)
+        let cancelled = Appointment(with: "Cancelled", date: now.addingTimeInterval(50), location: "Clinic", prepReady: true, status: .cancelled)
+        let next = Appointment(with: "Next", date: now.addingTimeInterval(100), location: "Clinic", prepReady: true)
+        let later = Appointment(with: "Later", date: now.addingTimeInterval(200), location: "Clinic", prepReady: true)
+        model.appointments = [later, cancelled, old, next]
+        #expect(model.nextAppointment(after: now)?.id == next.id)
+        model.appointments = [old, cancelled]
+        #expect(model.nextAppointment(after: now) == nil)
+    }
+
     @Test func fourPrimaryDestinations() {
         #expect(AppModel.Tab.allCases.map(\.rawValue) == ["Today", "Care", "Messages", "You"])
     }
