@@ -8,7 +8,8 @@ struct VoiceModeView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
 
-    @State private var session = VoiceSession()
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var session: VoiceSession = VoiceSession()
 
     var body: some View {
         ZStack {
@@ -80,6 +81,8 @@ struct VoiceModeView: View {
         .onDisappear {
             session.teardown(orb: model.orb)
         }
+        .onChange(of: model.aiRouter.revision) { _, _ in session.stop(model: model) }
+        .onChange(of: scenePhase) { _, phase in if phase != .active { session.stop(model: model) } }
     }
 
     private var header: some View {

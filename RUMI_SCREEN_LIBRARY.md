@@ -10,6 +10,10 @@ An ordered reference for product walkthroughs, design review and presentations. 
 
 **Records or Connections → Fasten test setup → check configuration → inspect setup addresses → Close.** This separate developer-facing screen sends no patient information and does not alter the local sample import. It distinguishes server credential configuration from authorization and completed import; browser authorization remains unavailable. Suggested caption: **“Check the connection setup without changing your records.”** No AI is needed for this deterministic setup task. This new screen has no accepted screenshot; the existing capture counts are unchanged.
 
+### AI connection choice — not captured
+
+**Settings → AI connection** or **Conversation → current AI mode** → choose Temporary AI/Rumi backend → Apply/Keep current → return to the separately retained conversation. Unconfigured backend mode offers setup rather than silently using temporary AI. Backend endpoint/session changes start a fresh conversation; previous backend transcripts are read-only under Saved backend conversations. This is a deterministic connection choice, not a task requiring AI. Suggested caption: **“Choose how Rumi connects. Keep your place.”** Native build/automated testing is not a new accepted presentation capture. Both options remain sample-data use; dedicated text interoperability and backend voice require current server verification.
+
 ## How to tell the Rumi story
 
 **The difference is continuity, not AI everywhere.** Start with the patient's job. Show the relevant evidence, the help that reduces effort, the decision that remains theirs, and the work they can return to. Present only implemented behavior as current; distinguish the longer connected-care vision.

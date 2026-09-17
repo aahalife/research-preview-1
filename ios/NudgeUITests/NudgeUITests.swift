@@ -6,6 +6,48 @@ final class NudgeUITests: XCTestCase {
     }
 
     @MainActor
+    func testAIConnectionSwitchPreservesTemporaryDraftAndBlocksUnconfiguredBackend() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "YES", "-nudge.music", "NO", "-nudge.sound", "NO", "-nudge.pathway", "metabolic"]
+        app.launch()
+        XCTAssertTrue(app.buttons["rumi.floating"].waitForExistence(timeout: 10))
+        app.buttons["rumi.floating"].tap()
+        app.buttons["chat.aiConnection"].tap()
+        XCTAssertTrue(app.buttons["ai.mode.showcase"].waitForExistence(timeout: 5))
+        app.buttons["ai.mode.showcase"].tap()
+        let apply = app.buttons["ai.connection.apply"]
+        for _ in 0..<8 where !apply.isHittable { app.swipeUp() }
+        apply.tap()
+        app.buttons.matching(identifier: "ai.connection.confirm").firstMatch.tap()
+        app.buttons["ai.connection.close"].tap()
+        let composer = app.textFields["chat.composer"]
+        XCTAssertTrue(composer.waitForExistence(timeout: 5))
+        composer.tap()
+        let existing = composer.value as? String ?? ""
+        if existing != "What's on your mind?" { composer.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count)) }
+        composer.typeText("Keep this temporary question")
+        app.buttons["chat.aiConnection"].tap()
+        app.buttons["ai.mode.backend"].tap()
+        for _ in 0..<10 where !apply.isHittable { app.swipeUp() }
+        apply.tap()
+        app.buttons.matching(identifier: "ai.connection.confirm").firstMatch.tap()
+        app.buttons["ai.connection.close"].tap()
+        XCTAssertTrue(app.buttons["chat.backendSetup"].waitForExistence(timeout: 5))
+        XCTAssertNotEqual(composer.value as? String, "Keep this temporary question")
+        app.buttons["chat.aiConnection"].tap()
+        app.buttons["ai.mode.showcase"].tap()
+        for _ in 0..<8 where !apply.isHittable { app.swipeUp() }
+        apply.tap()
+        app.buttons.matching(identifier: "ai.connection.confirm").firstMatch.tap()
+        app.buttons["ai.connection.close"].tap()
+        XCTAssertEqual(composer.value as? String, "Keep this temporary question")
+        XCTAssertFalse(app.buttons["chat.backendSetup"].exists)
+        composer.tap()
+        composer.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: "Keep this temporary question".count))
+        app.buttons["chat.close"].tap()
+    }
+
+    @MainActor
     func testOnboardingChoicesBackAndSkipReachTodayWithoutChat() {
         let app = XCUIApplication()
         app.launchArguments = ["-nudge.hasOnboarded", "NO", "-nudge.music", "NO", "-nudge.sound", "NO", "-nudge.pathway", "metabolic"]

@@ -3,6 +3,8 @@ import SwiftUI
 struct ConversationView: View {
     @Environment(AppModel.self) private var model
     var orbSpace: Namespace.ID
+    @State private var showAIConnection: Bool = false
+    @State private var showVoiceUnavailable: Bool = false
     @State private var showVoice: Bool = false
     @State private var followLatest: Bool = true
     @FocusState private var focused: Bool
@@ -18,11 +20,15 @@ struct ConversationView: View {
                     RumiMarkView(size: 30, animated: model.companion.isThinking)
                     Text("Rumi").font(NudgeType.display(26))
                     Spacer()
-                    Button { showVoice = true } label: { Image(systemName: "waveform").frame(width: 44, height: 44) }
+                    Button { if model.aiRouter.mode == .showcase { showVoice = true } else { showVoiceUnavailable = true } } label: { Image(systemName: "waveform").frame(width: 44, height: 44) }
                         .accessibilityLabel("Talk out loud")
                 }.padding(.horizontal, 18)
-                Text("AI companion · sample care context")
-                    .font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted).padding(.bottom, 12)
+                Button { focused = false; showAIConnection = true } label: {
+                    HStack(spacing: 6) {
+                        Text("\(model.aiRouter.mode.title) · sample care")
+                        Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))
+                    }.font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted).frame(minHeight: 44)
+                }.accessibilityIdentifier("chat.aiConnection")
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 20) {
@@ -59,6 +65,13 @@ struct ConversationView: View {
                     Text("Send shares this context and your question with AI. Close returns without sending.")
                         .font(NudgeType.rounded(11)).foregroundStyle(Theme.inkMuted).padding(.horizontal, 22).padding(.top, 4)
                 }
+                if model.aiRouter.mode == .backend && !model.aiRouter.canSend {
+                    Button("Finish backend setup to send") { showAIConnection = true }
+                        .font(NudgeType.rounded(13)).frame(minHeight: 44).accessibilityIdentifier("chat.backendSetup")
+                }
+                if let error = model.companion.lastError {
+                    Text(error).font(NudgeType.rounded(12)).foregroundStyle(Theme.attention).padding(.horizontal, 20)
+                }
                 HStack(alignment: .bottom, spacing: 10) {
                     TextField("What's on your mind?", text: Binding(get: { model.companion.composerDraft }, set: { model.companion.setDraft($0) }), axis: .vertical)
                         .font(NudgeType.rounded(16)).lineLimit(1...5).focused($focused)
@@ -73,12 +86,16 @@ struct ConversationView: View {
                         Button { model.companion.send(model.companion.composerDraft, orb: model.orb) } label: {
                             Image(systemName: "arrow.up").font(.system(size: 18, weight: .semibold))
                                 .foregroundStyle(Theme.onAccent).frame(width: 48, height: 48).background(Theme.buttonFill, in: .circle)
-                        }.accessibilityLabel("Send").accessibilityIdentifier("chat.send")
+                        }.accessibilityLabel("Send").accessibilityIdentifier("chat.send").disabled(!model.aiRouter.canSend || model.companion.isThinking)
                     }
                 }.padding(.horizontal, 18).padding(.vertical, 12)
             }
         }
         .foregroundStyle(Theme.ink)
+        .sheet(isPresented: $showAIConnection) { AIConnectionView() }
+        .alert("Backend voice isn't connected yet", isPresented: $showVoiceUnavailable) {
+            Button("OK", role: .cancel) { }
+        } message: { Text("This adapter currently supports text. No microphone audio will be sent to temporary services while Rumi backend is selected.") }
         .fullScreenCover(isPresented: $showVoice) { VoiceModeView() }
         .onDisappear { model.persistUserData() }
         .alert("Keep your current question?", isPresented: Binding(get: { model.companion.replacementContext != nil }, set: { if !$0 { model.companion.replacementContext = nil } })) {
@@ -120,7 +137,8 @@ private struct ConversationTurnView: View {
                 if turn.delivery == .interrupted || turn.delivery == .failed {
                     Text(turn.delivery == .failed ? "Reply unavailable. Your message is kept." : "Reply stopped. This answer may be incomplete.")
                         .font(NudgeType.rounded(13)).foregroundStyle(Theme.attention).accessibilityIdentifier("chat.interrupted")
-                    if model.companion.canRetry(turn) {
+                    if model.companion.canRetry(turn) && model.aiRouter.canSend {
+                        if model.aiRouter.mode == .backend { Text("The server may have processed this message. Trying again can repeat it.").font(.caption).foregroundStyle(Theme.inkMuted) }
                         Button("Try again") { model.companion.retry(turnID: turn.id, orb: model.orb) }.frame(minHeight: 44)
                     }
                 }

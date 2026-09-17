@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
 
+    @State private var showAIConnection: Bool = false
     @State private var showPrivacy: Bool = false
     @State private var showWelcomePreview: Bool = false
 
@@ -61,6 +62,19 @@ struct SettingsView: View {
                                     .font(NudgeType.rounded(11.5))
                                     .foregroundStyle(Theme.inkMuted)
                             }
+                        }
+
+                        section("Rumi AI") {
+                            Button { showAIConnection = true } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("AI connection").font(NudgeType.serif(22))
+                                        Text(model.aiRouter.mode.title).font(NudgeType.rounded(13)).foregroundStyle(Theme.inkMuted)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                }.foregroundStyle(Theme.ink).frame(minHeight: 44)
+                            }.accessibilityIdentifier("settings.aiConnection")
                         }
 
                         section("How I speak with you") {
@@ -243,6 +257,7 @@ struct SettingsView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
+        .sheet(isPresented: $showAIConnection) { AIConnectionView() }
         .fullScreenCover(isPresented: $showWelcomePreview) {
             OnboardingFlowView(isPreview: true)
         }

@@ -91,7 +91,11 @@ import Observation
 
     func send(_ text: String, orb: OrbState) {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty, !isThinking else { return }
+        if let app, !app.aiRouter.canSend {
+            lastError = "Finish backend setup before sending. Your question is still here; temporary AI has not been used."
+            return
+        }
         endSession(orb: orb)
         composerDraft = ""
         var user = ConversationTurn(role: .user, text: text)
@@ -139,8 +143,10 @@ import Observation
 
     /// Voice shares the same operation coordinator; cancellation cannot append a fallback answer.
     func voiceReply(to text: String, orb: OrbState) async -> String {
-        guard !Task.isCancelled else { return "" }
+        guard !Task.isCancelled, !isThinking, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return "" }
+        if let app, !app.aiRouter.canSend { return "" }
         send(text, orb: orb)
+        guard isThinking else { return "" }
         let operation = generation
         let work = streamTask
         await withTaskCancellationHandler {
@@ -197,7 +203,7 @@ import Observation
                 turns[index].streaming = false
                 turns[index].rich = .none
                 turns[index].delivery = Task.isCancelled ? .interrupted : .failed
-                if !Task.isCancelled { lastError = "Rumi couldn't finish this reply. Your message is kept; try again when you're connected." }
+                if !Task.isCancelled { lastError = (error as? RumiConnectionError)?.errorDescription ?? "Rumi couldn't finish this reply. Your message is kept; try again when you're connected." }
             }
             guard generation == requestID else { return }
             isThinking = false

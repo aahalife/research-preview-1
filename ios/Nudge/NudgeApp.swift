@@ -23,6 +23,8 @@ struct NudgeApp: App {
                     SoundEngine.shared.playBed(bed, fade: 1.8)
                 }
             case .background:
+                model.companion.endSession(orb: model.orb)
+                model.aiRouter.suspend()
                 SoundEngine.shared.pauseBed(fade: 0.6)
             default:
                 break

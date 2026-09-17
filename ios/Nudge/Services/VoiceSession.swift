@@ -39,6 +39,10 @@ nonisolated private struct VoiceScribeResponse: Codable {
 
     /// Starts the hands-free call. Once started, turns auto-commit on silence.
     func start(model: AppModel) {
+        guard model.aiRouter.mode == .showcase else {
+            phase = .unavailable("Backend voice is not enabled. No audio was sent to temporary services.")
+            return
+        }
         guard phase == .idle || isUnavailable else { return }
         shouldContinue = true
         startListening(model: model)
@@ -93,6 +97,7 @@ nonisolated private struct VoiceScribeResponse: Codable {
     // MARK: - Listening
 
     private func startListening(model: AppModel) {
+        guard shouldContinue, model.aiRouter.mode == .showcase else { return }
         heardText = ""
         replyText = ""
         Task {
@@ -101,6 +106,7 @@ nonisolated private struct VoiceScribeResponse: Codable {
                 phase = .unavailable("I'd love to hear you — allow the microphone in Settings and we'll talk.")
                 return
             }
+            guard shouldContinue, model.aiRouter.mode == .showcase else { return }
             beginRecording(model: model)
         }
     }

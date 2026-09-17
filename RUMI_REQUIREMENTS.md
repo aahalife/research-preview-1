@@ -1,5 +1,17 @@
 # Rumi: functional requirements compendium
 
+## AI connection selection — current extension
+
+- Offer explicit Temporary AI and Rumi backend choices from Settings and chat. Default existing demo use to Temporary AI; selection is not patient authentication or permission to execute external care actions.
+- Route implemented chat, contextual help, review-first AI suggestions and visit questions through the same selected provider. Never silently fall back, replay a message, or move provider history into another service.
+- Preserve the outgoing conversation, composer and selected evidence; stop active generation; restore the chosen provider workspace. Failed persistence keeps the previous mode. Changing endpoint/host credentials starts a separate backend workspace and retains prior conversations as read-only archives.
+- Keep each scenario and backend configuration's server client ID separate. Require verified server-side tenant/user ownership before production; a random client ID and a demo persona do not establish it.
+- Obtain short-lived chat tokens only through the host's authorized token service; tenant API keys remain server-side. Authenticate configuration and the WebSocket using the documented mechanism. Reject insecure endpoints, redirects, malformed/oversized responses, authentication failure, expired tokens and truncated turns. Never log or persist tokens in conversation data.
+- On expiry, refresh and re-authenticate without replaying uncertain work. On Stop, disconnect or background, suppress stale output and retain incomplete status. Unless a server acknowledgment exists, do not claim processing was cancelled or deduplicated. Manual retry must explain possible repeat processing.
+- Distinguish setup saved, transport open, configuration fetched, auth accepted, reply completed and verified external action. One state cannot establish another. Match the current wire contract before claiming interoperability; the supplied server reference is explicitly outdated.
+- Preserve existing temporary voice behavior; dedicated-backend voice must not send audio to temporary services. Keep unsupported voice visibly unavailable until its native format, modality and permission/lifecycle behavior are verified.
+- In this build both options remain sample-data modes. Production host login, verified patient association, current server policy, AWS/private-network access, clinical/tool approval and dedicated native voice remain delivery gates. Mode selection does not claim full implementation of all 43 requested capabilities.
+
 ## Table of Contents
 
 **Review context**

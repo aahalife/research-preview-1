@@ -193,7 +193,9 @@ import Observation
 
     // MARK: Companion
     let orb = OrbState()
-    let companion = CompanionEngine()
+    let companion: CompanionEngine
+    let aiRouter: RumiAIRouter
+    var aiWorkspaces: [String: RumiChatWorkspace] = [:]
 
     /// Transient acknowledgment after a quick log — every log gets a response,
     /// never a mute database write.
@@ -201,7 +203,10 @@ import Observation
 
     private let storageDirectory: URL
 
-    init(storageDirectory: URL = .documentsDirectory) {
+    init(storageDirectory: URL = .documentsDirectory, aiRouter: RumiAIRouter? = nil) {
+        let router = aiRouter ?? RumiAIRouter()
+        self.aiRouter = router
+        companion = CompanionEngine(transport: router)
         self.storageDirectory = storageDirectory
         hasOnboarded = UserDefaults.standard.bool(forKey: "nudge.hasOnboarded")
         tonePreference = UserDefaults.standard.string(forKey: "nudge.tone") ?? "Straight talk"
@@ -277,7 +282,7 @@ import Observation
             journeys = saved.journeys ?? journeys
             habitCheckIns = saved.habitCheckIns ?? []
             workflows = saved.workflows ?? []
-            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "", context: saved.pendingCareContext?.scenario == pathway.rawValue ? saved.pendingCareContext : nil)
+            restoreAIWorkspace(from: saved)
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for billIndex in bills.indices where saved.paidBillKeys.contains(bills[billIndex].key) {
                 bills[billIndex].status = .paid
@@ -292,6 +297,8 @@ import Observation
     /// Persists everything the user owns. Cheap enough to call on every write.
     @discardableResult
     func persistUserData() -> Bool {
+        captureAIWorkspace()
+        let temporary = aiWorkspaces["showcase"]
         let saved = PersistenceService.save(SanoUserData(
             pathway: pathway.rawValue,
             entries: entries,
@@ -310,10 +317,13 @@ import Observation
             visitPreps: visitPreps,
             journeys: journeys,
             habitCheckIns: habitCheckIns,
-            conversation: companion.turns,
-            composerDraft: companion.composerDraft,
+            conversation: temporary?.turns ?? [],
+            composerDraft: temporary?.draft ?? "",
             workflows: workflows,
-            pendingCareContext: companion.pendingContext
+            pendingCareContext: temporary?.context,
+            aiMode: aiRouter.mode,
+            aiBackend: aiRouter.settings,
+            aiWorkspaces: aiWorkspaces
         ), directory: storageDirectory)
         storageError = !saved
         return saved
@@ -332,6 +342,10 @@ import Observation
         companion.endSession(orb: orb)
         guard persistUserData() else { return }
         companion.reset()
+        aiRouter.suspend()
+        aiRouter.configure(mode: .showcase, settings: .init())
+        aiRouter.clientID = UUID()
+        aiWorkspaces = [:]
         demoRecordImport = nil
         visitPreps = [:]
         habitCheckIns = []
@@ -396,7 +410,7 @@ import Observation
             journeys = saved.journeys ?? journeys
             habitCheckIns = saved.habitCheckIns ?? []
             workflows = saved.workflows ?? []
-            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "", context: saved.pendingCareContext?.scenario == pathway.rawValue ? saved.pendingCareContext : nil)
+            restoreAIWorkspace(from: saved)
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for index in bills.indices where saved.paidBillKeys.contains(bills[index].key) {
                 bills[index].status = .paid
