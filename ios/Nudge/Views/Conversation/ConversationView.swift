@@ -38,11 +38,11 @@ struct ConversationView: View {
                     .onChange(of: model.companion.turns.last?.text) { _, _ in if followLatest { proxy.scrollTo("latest", anchor: .bottom) } }
                     .onAppear { proxy.scrollTo("latest", anchor: .bottom) }
                 }
-                if model.companion.turns.count <= 1 {
+                if model.companion.turns.count <= 1 && model.companion.pendingContext == nil {
                     ScrollView(.horizontal) {
                         HStack(spacing: 8) {
                             ForEach(["Help me prepare for a visit", "Make a habit easier", "A question about my results"], id: \.self) { text in
-                                Button(text) { model.companion.send(text, orb: model.orb) }
+                                Button(text) { if model.companion.composerDraft.isEmpty { model.companion.setDraft(text) } }
                                     .font(NudgeType.rounded(13)).padding(.horizontal, 14).frame(minHeight: 44)
                                     .background(Theme.surface, in: .capsule)
                             }
@@ -52,6 +52,12 @@ struct ConversationView: View {
                 if model.companion.turns.count <= 1 {
                     Text("Messages and sample context are processed by AI. Please don't enter real medical information in this demo.")
                         .font(NudgeType.rounded(11)).foregroundStyle(Theme.inkMuted).padding(.horizontal, 22).padding(.top, 10)
+                }
+                if let context = model.companion.pendingContext {
+                    CareContextView(context: context, remove: { model.companion.removeContext() })
+                        .padding(.horizontal, 18).padding(.top, 8)
+                    Text("Send shares this context and your question with AI. Close returns without sending.")
+                        .font(NudgeType.rounded(11)).foregroundStyle(Theme.inkMuted).padding(.horizontal, 22).padding(.top, 4)
                 }
                 HStack(alignment: .bottom, spacing: 10) {
                     TextField("What's on your mind?", text: Binding(get: { model.companion.composerDraft }, set: { model.companion.setDraft($0) }), axis: .vertical)
@@ -75,6 +81,10 @@ struct ConversationView: View {
         .foregroundStyle(Theme.ink)
         .fullScreenCover(isPresented: $showVoice) { VoiceModeView() }
         .onDisappear { model.persistUserData() }
+        .alert("Keep your current question?", isPresented: Binding(get: { model.companion.replacementContext != nil }, set: { if !$0 { model.companion.replacementContext = nil } })) {
+            Button("Keep current draft", role: .cancel) { model.companion.replacementContext = nil }
+            Button("Replace draft and context", role: .destructive) { model.companion.replaceDraftAndContext() }
+        } message: { Text("You have edited a question about another item. Replacing starts a new question about \(model.companion.replacementContext?.title ?? "the selected item") and replaces the unsent words.") }
     }
 }
 
@@ -100,6 +110,7 @@ private struct ConversationTurnView: View {
         HStack {
             if turn.role == .user { Spacer(minLength: 36) }
             VStack(alignment: .leading, spacing: 12) {
+                if turn.role == .user, let context = turn.context { CareContextView(context: context) }
                 if !turn.text.isEmpty {
                     Text(turn.text).font(NudgeType.rounded(16)).textSelection(.enabled)
                         .fixedSize(horizontal: false, vertical: true)
@@ -125,7 +136,7 @@ private struct ConversationTurnView: View {
             }
         }
         .sheet(isPresented: $showWorkflow) {
-            WorkflowReviewView(originID: turn.id, title: proposalTitle, detail: proposalDetail)
+            WorkflowReviewView(originID: turn.id, title: proposalTitle, detail: proposalDetail, context: turn.context)
         }
     }
 

@@ -4,9 +4,10 @@ import SwiftUI
 struct TodayCanvasView: View {
     @Environment(AppModel.self) private var model
     var orbSpace: Namespace.ID
+    @State private var showPreparedWork: Bool = false
 
     var body: some View {
-        scroll
+        scroll.sheet(isPresented: $showPreparedWork) { WorkflowLibraryView() }
     }
 
     private var scroll: some View {
@@ -50,24 +51,18 @@ struct TodayCanvasView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 22)
 
-                // The companion's hands — steps it can take, waiting for one tap.
-                if let action = model.pendingActions.first {
-                    AgentActionCard(action: action)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 18)
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                }
-
-                // The agent network, surfaced — calm by default, capable when you
-                // look. Rumi's quiet differentiator, never hidden.
-                if !model.agentTasksInMotion.isEmpty || !model.agentTasksWaiting.isEmpty {
-                    Button(model.agentTasksWaiting.isEmpty ? "Your helpers" : "\(model.agentTasksWaiting.count) helper requests to review") { model.showAgentNetwork = true }
-                        .font(NudgeType.rounded(13, .medium))
-                        .foregroundStyle(Theme.inkMuted)
-                        .frame(minHeight: 44)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 14)
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                if !model.workflows.isEmpty {
+                    Button { showPreparedWork = true } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "doc.text").foregroundStyle(Theme.warm)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Pick up your prepared work").font(NudgeType.rounded(15, .semibold))
+                                Text("Saved drafts · nothing sent").font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right").font(.caption)
+                        }.padding(17).foregroundStyle(Theme.ink).background(Theme.surface, in: .rect(cornerRadius: 22))
+                    }.padding(.horizontal, 20).padding(.top, 18)
                 }
 
                 // The Thread — the companion's chosen moments for right now.
@@ -300,7 +295,7 @@ struct LifeThumb: View {
 struct AgentActionCard: View {
     @Environment(AppModel.self) private var model
     let action: AgentAction
-    @State private var sweep = 0
+    @State private var review: ReviewedWorkflow? = nil
 
     var body: some View {
         OrganicSurface(radius: 22) {
@@ -312,7 +307,7 @@ struct AgentActionCard: View {
                         .frame(width: 32, height: 32)
                         .background(Theme.gold.opacity(0.14), in: .circle)
                     VStack(alignment: .leading, spacing: 1) {
-                        Kicker(text: "Suggested next step", color: Theme.gold)
+                        Kicker(text: "Demonstration task idea", color: Theme.gold)
                         Text(action.title)
                             .font(NudgeType.serif(17))
                             .foregroundStyle(Theme.ink)
@@ -325,10 +320,9 @@ struct AgentActionCard: View {
 
                 HStack(spacing: 10) {
                     Button {
-                        sweep += 1
-                        model.approveAction(action.id)
+                        review = model.workflowForAction(action.id)
                     } label: {
-                        Text(action.leavesDevice ? "Approve & go" : "Yes, do it")
+                        Text("Review task idea")
                             .font(NudgeType.rounded(13.5, .semibold))
                             .foregroundStyle(Theme.base)
                             .padding(.horizontal, 16)
@@ -358,7 +352,7 @@ struct AgentActionCard: View {
                         HStack(spacing: 4) {
                             Image(systemName: "hand.raised")
                                 .font(.system(size: 9, weight: .medium))
-                            Text("Nothing sends without you")
+                            Text("Nothing will be sent")
                                 .font(NudgeType.rounded(10, .medium))
                         }
                         .foregroundStyle(Theme.inkMuted.opacity(0.8))
@@ -367,8 +361,9 @@ struct AgentActionCard: View {
             }
             .padding(17)
         }
-        .lightSweep(trigger: sweep, strength: 0.7)
-        .rippleOnTap(glow: 0.45)
+        .sheet(item: $review) { value in
+            WorkflowReviewView(originID: value.originID, title: value.title, detail: value.detail, context: value.context)
+        }
     }
 }
 

@@ -25,8 +25,8 @@ struct QuickLogView: View {
     @State private var note = ""
     @State private var plan: SupportPlan? = nil
     @State private var addedToGuide = false
-    @State private var messageSent = false
-    @State private var confirmingMessage = false
+    @State private var confirmingMessage: Bool = false
+    @State private var workflowOrigin: UUID = UUID()
     @State private var logged = false
 
     private let columns = [GridItem(.flexible(), spacing: 11), GridItem(.flexible(), spacing: 11)]
@@ -76,11 +76,21 @@ struct QuickLogView: View {
             .padding(.horizontal, 24)
             .animation(NudgeSpring.ui, value: step)
         }
+        .sheet(isPresented: $confirmingMessage) {
+            if let plan { WorkflowReviewView(originID: workflowOrigin, title: "Symptom question · \(kind?.name ?? "My observation")", detail: plan.draftMessage, context: symptomContext) }
+        }
         .sensoryFeedback(.success, trigger: logged)
         .onAppear {
             // Logging from a med surface goes straight to the symptom flow.
             if linkedMedID != nil { step = .what }
         }
+    }
+
+    private var symptomContext: CareContext {
+        .init(id: workflowOrigin.uuidString, scenario: model.pathway.rawValue,
+              title: kind?.name ?? "Symptom observation", source: "Patient-entered observation in Demo",
+              detail: "Body region: \(region?.rawValue ?? "Not specified"). Self-rated severity: \(severity). Note: \(note). Linked medication: \(linkedMed?.name ?? "None selected"). Timing alone does not establish medication causation.",
+              question: "Help me put this observation into a question for my care team.")
     }
 
     // MARK: Step — what kind of moment is this?
@@ -464,7 +474,7 @@ struct QuickLogView: View {
 
                 OrganicSurface(radius: 28) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Kicker(text: "While we watch it", color: Theme.life)
+                        Kicker(text: "Support to consider", color: Theme.life)
                         ForEach(plan.tips, id: \.self) { tip in
                             HStack(alignment: .top, spacing: 9) {
                                 Circle()
@@ -495,24 +505,13 @@ struct QuickLogView: View {
                     }
 
                     supportAction(
-                        glyph: messageSent ? "checkmark" : "paperplane",
-                        title: messageSent ? "Note sent to \(model.persona.officeName)" : "Send a note to \(model.persona.officeName)",
-                        detail: messageSent ? "They'll see it before your next visit" : "I've drafted it — you approve before anything goes",
+                        glyph: "doc.text",
+                        title: "Prepare a note for my care team",
+                        detail: "Review the wording and recipient · nothing sent",
                         accent: Theme.sky,
-                        done: messageSent
+                        done: false
                     ) {
                         confirmingMessage = true
-                    }
-                    .confirmationDialog(
-                        plan.draftMessage,
-                        isPresented: $confirmingMessage,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Send it") {
-                            withAnimation(NudgeSpring.ui) { messageSent = true }
-                            Haptics.success()
-                        }
-                        Button("Not now", role: .cancel) {}
                     }
 
                     supportAction(
@@ -528,14 +527,14 @@ struct QuickLogView: View {
                     supportAction(
                         glyph: "bubble",
                         title: "Talk it through with me",
-                        detail: "I'll hold it against your meds, readings, and the week",
+                        detail: "Bring this observation into a question you can edit",
                         accent: Theme.rose,
                         done: false
                     ) {
                         dismiss()
                         Task {
                             try? await Task.sleep(for: .milliseconds(350))
-                            model.openConversation(seed: "symptom:\(kind?.name.lowercased() ?? "this")")
+                            model.openConversation(context: symptomContext)
                         }
                     }
                 }

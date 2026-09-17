@@ -198,13 +198,6 @@ private struct InsightSpread: View {
     }
 
     private func act() {
-        switch insight.category {
-        case .headsUp:
-            model.openConversation(seed: "refill")
-        case .pattern:
-            model.openConversation(seed: "visit")
-        default:
-            model.openConversation(seed: insight.headline.lowercased())
-        }
+        model.openConversation(context: model.context(for: insight))
     }
 }

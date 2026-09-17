@@ -88,6 +88,30 @@ final class NudgeUITests: XCTestCase {
     }
 
     @MainActor
+    func testMedicationHelpKeepsSelectedContextWithoutSending() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "YES", "-nudge.pathway", "metabolic", "-nudge.music", "NO", "-nudge.sound", "NO"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab.care"].waitForExistence(timeout: 10))
+        app.buttons["tab.care"].tap()
+        app.buttons["care.Meds & refills"].tap()
+        let medication = app.buttons["medication.open.atorvastatin"]
+        XCTAssertTrue(medication.waitForExistence(timeout: 5))
+        for _ in 0..<4 where !medication.isHittable { app.swipeUp() }
+        medication.tap()
+        let help = app.buttons["Help me frame the question"]
+        XCTAssertTrue(help.waitForExistence(timeout: 5))
+        help.tap()
+        XCTAssertTrue(app.buttons["chat.context.remove"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["chat.context.title"].label.localizedCaseInsensitiveContains("atorvastatin"))
+        XCTAssertFalse(app.buttons["chat.stop"].exists)
+        app.buttons["chat.context.remove"].tap()
+        XCTAssertFalse(app.buttons["chat.context.remove"].exists)
+        app.buttons["chat.close"].tap()
+        XCTAssertTrue(help.waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testUnconnectedSignInDoesNotEnterApp() {
         let app = XCUIApplication()
         app.launchArguments = ["-nudge.hasOnboarded", "NO", "-nudge.music", "NO"]

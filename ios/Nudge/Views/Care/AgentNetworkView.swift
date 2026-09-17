@@ -1,10 +1,6 @@
 import SwiftUI
 
-/// The agent network, made visible. Rumi's quiet differentiator is that a family
-/// of specialized agents is always at work — reading across your connected
-/// sources, doing the safe things itself, and holding the consequential ones for
-/// one human tap. This surface shows that machine working, without ever letting
-/// it overshadow the calm of the rest of the app.
+/// Saved reviewable work comes first; agent-domain examples are explicitly illustrative.
 struct AgentNetworkView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
@@ -33,13 +29,17 @@ struct AgentNetworkView: View {
                             }
                         }
 
-                        if !model.agentTasksWaiting.isEmpty {
-                            waitingSection
-                        }
+                        DisclosureGroup("Explore agent examples") {
+                            VStack(alignment: .leading, spacing: 18) {
+                                Text("Illustrative tasks, not live monitoring. Open a proposal to inspect and edit it; no external action runs.")
+                                    .font(NudgeType.rounded(13)).foregroundStyle(Theme.inkMuted)
+                                ForEach(model.pendingActions) { action in AgentActionCard(action: action) }
+                                if !model.agentTasksWaiting.isEmpty { waitingSection }
+                                agentsSection
+                            }.padding(.top, 12)
+                        }.font(NudgeType.rounded(15, .semibold))
 
-                        agentsSection
-
-                        ProvenanceChip(text: "Your agents only read what you've connected — and ask before anything leaves your phone.")
+                        ProvenanceChip(text: "Prepared here. Reviewed by you. External delivery remains unconnected.")
                             .padding(.top, 2)
                     }
                     .padding(.horizontal, 20)
@@ -90,10 +90,10 @@ struct AgentNetworkView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text("One companion, many hands")
+            Text("Help that leaves you with less to do")
                 .font(NudgeType.serif(28))
                 .foregroundStyle(Theme.ink)
-            Text("A family of specialized agents works quietly behind Rumi — noticing, arranging, and protecting your time. Here's what each is doing right now.")
+            Text("Start with a real concern. Rumi helps prepare the words and next step; you inspect the basis, make changes and decide what to keep.")
                 .font(NudgeType.rounded(14))
                 .foregroundStyle(Theme.inkMuted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -112,37 +112,26 @@ struct AgentNetworkView: View {
                         .foregroundStyle(Theme.sky)
                         .frame(width: 32, height: 32)
                         .background(Theme.sky.opacity(0.14), in: .circle)
-                    Text("Reading across your world")
+                    Text("From concern to prepared work")
                         .font(NudgeType.serif(16))
                         .foregroundStyle(Theme.ink)
                 }
-                Text("Rumi connects the dots between everything you've shared — proactively, and the moment something new lands.")
+                Text("A medication question can become an editable draft. Visit concerns can become a reviewed brief. The useful part is the work you can return to—not another chat bubble.")
                     .font(NudgeType.rounded(13))
                     .foregroundStyle(Theme.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
-                FlowChips(sources: liveSources)
-                if !unconnected.isEmpty {
-                    Text("Connect \(unconnected.map(\.name).joined(separator: ", ")) to widen what your agents can see and do.")
-                        .font(NudgeType.rounded(12))
-                        .foregroundStyle(Theme.inkMuted.opacity(0.9))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 1)
-                }
+                FlowChips(sources: ["Selected context", "Editable draft", "Your review"])
+                Text("This build prepares and saves. It does not contact your care team, book, pay or change treatment.")
+                    .font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted)
             }
             .padding(15)
         }
     }
 
-    private var liveSources: [String] {
-        ["Your record", "Apple Health", "Your pharmacy"] + model.connections.filter(\.connected).map(\.name)
-    }
-    private var unconnected: [Connection] {
-        model.connections.filter { !$0.connected }
-    }
 
     private var waitingSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Kicker(text: "Waiting for your ok", color: Theme.warm)
+            Kicker(text: "Proposals to explore", color: Theme.warm)
             ForEach(model.agentTasksWaiting) { task in
                 AgentTaskCard(task: task, showAgentName: true)
             }
@@ -211,8 +200,8 @@ struct AgentRow: View {
 
     private var statusLine: String {
         if !service.active { return "Paused — tap to see its work" }
-        if waiting > 0 { return "\(waiting) waiting · \(active) in motion" }
-        return active > 0 ? "\(active) in motion" : service.role
+        if waiting > 0 { return "Demo · \(waiting) reviewable examples" }
+        return "Demonstration · \(service.role)"
     }
 }
 
@@ -239,7 +228,7 @@ struct AgentDetailView: View {
                             sectionView(title: titleAndKind.0, tasks: titleAndKind.1)
                         }
                     }
-                    ProvenanceChip(text: "Pausing an agent stops its work without losing anything it's already done.")
+                    ProvenanceChip(text: "Demo pause prevents reviewing new proposals. There is no connected background service in this build.")
                         .padding(.top, 2)
                 }
                 .padding(.horizontal, 20)
@@ -276,7 +265,7 @@ struct AgentDetailView: View {
                     Circle()
                         .fill(service.active ? Theme.life : Theme.inkMuted.opacity(0.5))
                         .frame(width: 8, height: 8)
-                    Text(service.active ? "Active — working for you" : "Paused")
+                    Text(service.active ? "Demo examples available" : "Demo paused")
                         .font(NudgeType.rounded(13, .semibold))
                         .foregroundStyle(service.active ? Theme.life : Theme.inkMuted)
                     Spacer()
@@ -305,10 +294,10 @@ struct AgentDetailView: View {
         let working = tasks.filter { $0.status == .working }
         let scheduled = tasks.filter { $0.status == .scheduled }
         let done = tasks.filter { $0.status == .done }
-        if !waiting.isEmpty { out.append(("Waiting for your ok", waiting)) }
-        if !working.isEmpty { out.append(("Working now", working)) }
-        if !scheduled.isEmpty { out.append(("Queued up", scheduled)) }
-        if !done.isEmpty { out.append(("Recently done", done)) }
+        if !waiting.isEmpty { out.append(("Example proposals", waiting)) }
+        if !working.isEmpty { out.append(("Illustrative work", working)) }
+        if !scheduled.isEmpty { out.append(("Illustrative scheduling", scheduled)) }
+        if !done.isEmpty { out.append(("Example outcomes · not receipts", done)) }
         return out
     }
 
@@ -345,6 +334,7 @@ struct AgentTaskCard: View {
     @Environment(AppModel.self) private var model
     let task: AgentTask
     var showAgentName: Bool
+    @State private var review: ReviewedWorkflow? = nil
 
     private var agentName: String? {
         model.agentServices.first { $0.id == task.agentID }?.name
@@ -372,7 +362,7 @@ struct AgentTaskCard: View {
                         .font(NudgeType.serif(16.5))
                         .foregroundStyle(Theme.ink)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text(task.status == .done ? task.outcomeLine : task.detail)
+                    Text(task.status == .done ? "Illustrative outcome: " + task.outcomeLine : task.detail)
                         .font(NudgeType.rounded(13))
                         .foregroundStyle(Theme.inkMuted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -393,9 +383,9 @@ struct AgentTaskCard: View {
                 if task.status == .waiting {
                     HStack(spacing: 10) {
                         Button {
-                            model.approveAgentTask(task.id)
+                            review = model.workflowForAgentTask(task.id)
                         } label: {
-                            Text("Approve & go")
+                            Text("Review proposal")
                                 .font(NudgeType.rounded(13.5, .semibold))
                                 .foregroundStyle(Theme.base)
                                 .padding(.horizontal, 16)
@@ -403,6 +393,7 @@ struct AgentTaskCard: View {
                                 .background(Theme.ink, in: .capsule)
                         }
                         .buttonStyle(NudgeButtonStyle())
+                        .disabled(model.agentServices.first(where: { $0.id == task.agentID })?.active != true)
                         Button {
                             model.declineAgentTask(task.id)
                         } label: {
@@ -421,6 +412,9 @@ struct AgentTaskCard: View {
             }
             .padding(15)
         }
+        .sheet(item: $review) { value in
+            WorkflowReviewView(originID: value.originID, title: value.title, detail: value.detail, context: value.context)
+        }
     }
 
     private var modeChip: some View {
@@ -429,7 +423,7 @@ struct AgentTaskCard: View {
         return HStack(spacing: 5) {
             Image(systemName: isAuto ? "sparkles" : "hand.raised")
                 .font(.system(size: 9, weight: .semibold))
-            Text(task.mode.label)
+            Text(task.mode == .automatic ? "Demo example" : "Review-first example")
                 .font(NudgeType.rounded(10.5, .semibold))
         }
         .foregroundStyle(tint)
@@ -461,7 +455,7 @@ struct AgentPulseCard: View {
                     HStack(spacing: 9) {
                         agentDots
                         VStack(alignment: .leading, spacing: 1) {
-                            Kicker(text: "Your network is on it", color: Theme.sky)
+                            Kicker(text: "Explore agent examples", color: Theme.sky)
                             Text(summaryLine)
                                 .font(NudgeType.rounded(12.5))
                                 .foregroundStyle(Theme.inkMuted)
@@ -491,9 +485,9 @@ struct AgentPulseCard: View {
                                 .fixedSize(horizontal: false, vertical: true)
                             HStack(spacing: 9) {
                                 Button {
-                                    model.approveAgentTask(first.id)
+                                    model.openAgentNetwork(focus: first.agentID)
                                 } label: {
-                                    Text("Approve & go")
+                                    Text("Review proposal")
                                         .font(NudgeType.rounded(13, .semibold))
                                         .foregroundStyle(Theme.base)
                                         .padding(.horizontal, 15)
@@ -531,8 +525,8 @@ struct AgentPulseCard: View {
 
     private var summaryLine: String {
         let w = waiting.count
-        if w > 0 { return "\(inMotion) in motion · \(w) waiting for your ok" }
-        return "\(inMotion) things in motion across your agents"
+        if w > 0 { return "Demo examples · \(w) proposals to review" }
+        return "Illustrative agent tasks · no external actions"
     }
 
     private var agentDots: some View {
@@ -574,12 +568,12 @@ struct FlowSourceChips: View {
         let needsConnect = connection != nil && connection?.connected == false
         if needsConnect, let connection {
             Button {
-                model.toggleConnection(connection.id)
+                model.openCare(.connections)
             } label: {
                 HStack(spacing: 4) {
                     Image(systemName: "plus.circle")
                         .font(.system(size: 9, weight: .semibold))
-                    Text("Connect \(source.label)")
+                    Text("Demo source: \(source.label)")
                         .font(NudgeType.rounded(10.5, .medium))
                 }
                 .foregroundStyle(Theme.inkMuted)
@@ -592,7 +586,7 @@ struct FlowSourceChips: View {
         } else {
             HStack(spacing: 4) {
                 Circle().fill(Theme.life).frame(width: 5, height: 5)
-                Text(source.label)
+                Text("Example: " + source.label)
                     .font(NudgeType.rounded(10.5, .medium))
             }
             .foregroundStyle(Theme.ink.opacity(0.75))

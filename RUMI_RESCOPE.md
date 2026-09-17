@@ -1,5 +1,33 @@
 # Rumi: re-scope and change specification
 
+## Full-feature presentation extension — September 17
+
+Latest source: [rumi re-scope.docx](https://r2-pub.rork.com/attachments/ra176ma71ass9gt2x7vv9.docx), retained at `tmp/rumi-re-scope.docx` and inspected by extracting every paragraph and table. It repeats the 36 retained features and lists the seven connected-care additions. The user explicitly requests screens across the entire set, meaningful contextual AI, and clear useful agentic differentiation—not another selected marketing set.
+
+### Presentation contract
+- Organize around the patient's job, not the architecture: entry → evidence/input → optional help → review/choice → outcome/return. Keep the same patient and item throughout each sequence.
+- The feature remains the hero. Use a real readable screen and one short caption; add explanatory presenter notes outside the phone. No floating robots, network diagrams or repeated AI badges on clinical facts.
+- Explain Rumi's difference through visible work: preserve context so patients do not repeat themselves; help turn observations into questions; prepare editable drafts; adapt a chosen step to a stated barrier; retain the resulting work.
+- Use three distinct meanings: **Explain** helps understand selected evidence; **Suggest** offers an optional editable next step; **Prepare** assembles work for patient review. A saved draft is not an executed external action.
+- Keep AI absent from sign-in, legal acceptance, permission toggles, simple logging controls and financial confirmation. Direct non-chat paths remain first-class.
+- Give every one of the 36 features and seven additions a coverage row. Separate primary feature coverage from success/recovery-state coverage. Missing implementations are not satisfied by unrelated screenshots, stale mockups or fabricated UI.
+- Capture all available feature chapters. Do not stop at ten or describe a written inventory as full visual coverage. Raw images, branded slides, source dates and missing variants remain distinguishable.
+
+### Current implementation work
+Implemented selected-item snapshots for medication, series, record, insight, Currents and Life handoffs; symptom observations retain entered details. Entry previews before Send; full source details open in a scrolling sheet; edited drafts are protected when switching attached items. Sent turns retain their original evidence snapshot. Replaced false medication refill/delivery and record/symptom sent-note claims with review-first work. Messages now has Prepared work. Agent proposals create persistent drafts instead of instant external success; saved work is primary and illustrative domains are disclosed separately. Context-derived drafts reopen their edited version from the same source. Autosaves are debounced and flushed on close/background; broader background storage optimization remains open.
+
+Record category fixtures existed only for Marcus. They are now shown only in that scenario, not silently relabeled for Elena/Sam/Rosa. Those other scenarios retain their own medication/lab workspaces; their full attributed record-category fixtures remain incomplete. Live record ingestion and comprehensive ownership/reconciliation are not implied.
+
+The records chapter produced ten accepted slides. The visit chapter was cancelled; screenshot generation is paused, not retried. Twenty accepted slides (intro + records) are retained, with ten staged/unaccepted visit originals indexed separately in `screenshots/library-captures.json`. A capture run replaced the prior slide directory; the ten earlier accepted PNGs were recovered byte-for-byte from the existing repository artifact without altering source history. Future chapter runs must archive accepted PNGs and manifests before invoking the single-deck capture tool. Full feature/state visual coverage remains unchecked. Real service access is not a prerequisite for showing useful local patient-controlled work.
+
+### Extension verification and next handoff
+
+- Final native selection `NudgeTests` + `NudgeUITests/NudgeUITests`: **31 passed in 128 seconds**. Final `runChecks(ios)` passed. One intermediate compile error from changing record fixtures during scenario switches was fixed by making the record collection mutable.
+- `python screenshots/validate_library.py` verifies 20 accepted original/slide pairs, all local library links, 36 retained + 7 added feature rows and the exact QMS closing note. Presentation slides are PNG; some raw capture files contain original JPEG bytes under the tool's `.png` path and are validated without re-encoding.
+- Today no longer promotes seeded delivery/task ideas as current care work; it offers actual saved drafts. The older task cards remain under the disclosed agent examples and now prepare editable drafts rather than reporting completion.
+- Next: ask whether to resume screenshot production after the cancelled visit chapter. Do not retry it without confirmation. Then use the remaining chapter list in the screen library, including meaningful AI-output → patient-choice → saved-outcome frames, not just feature entry screens. Archive existing accepted slides and the multi-chapter manifest before any new capture tool call.
+- Full visual/state coverage, all 43 capabilities' implementation, live clinical integrations and release readiness remain incomplete. A mapped feature is not an implemented or captured feature.
+
 ## Active handoff — September 17, connected onboarding and behavioral support
 
 **Current pass:** native iOS only. The scoped demo/continuity increment is implemented, simulator-built and tested (23 passing tests); ten primary screenshots and presentation slides are captured. Live integration and exhaustive screen/state coverage remain open. This section overrides older visual/onboarding directions below. Keep this file as the living working document, `RUMI_REQUIREMENTS.md` as the behavior contract, and `RUMI_SCREEN_LIBRARY.md` as the presentation/visual journey library. `RUMI_AS_BUILT.md` remains the supporting implementation audit; do not delete its history to meet an obsolete three-file limit.

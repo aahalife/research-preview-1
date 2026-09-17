@@ -64,7 +64,7 @@ struct RecapPlayerView: View {
                 Chapter(image: "recap_path", kicker: "The habit", title: "The morning you never miss",
                         detail: "Two weeks on the scale, steady within a pound."),
                 Chapter(image: "recap_garden", kicker: "The catch", title: "Kidneys, protected early",
-                        detail: "The risk model saw it coming — and your medicine answered."),
+                        detail: "An illustrative chapter about keeping care connected, not a verified prediction."),
                 Chapter(image: "recap_dawn", kicker: "Still going", title: "Quiet is the goal",
                         detail: "A1c near target, breath easy, numbers that hold."),
             ]
@@ -120,6 +120,8 @@ struct RecapPlayerView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 14)
 
+                Text("Sample story · illustrative recap")
+                    .font(NudgeType.rounded(12)).foregroundStyle(.white.opacity(0.9)).padding(.top, 12)
                 Spacer()
 
                 if index < chapters.count {

@@ -1,0 +1,41 @@
+{
+  "edition": "2026-09-17 native iPhone",
+  "coverage": "Incomplete. Further capture generation paused after visit chapter cancellation.",
+  "note": "Each capture tool run replaces the active deck and captures.json. This manifest preserves the multi-chapter library. Do not treat staged originals as accepted presentation slides.",
+  "accepted": [
+    {"label":"Today","chapter":"introduction","file":"01_today","source":"https://r2-pub.rork.com/app-store-screenshots/3876cd5a-4ef2-4b14-824a-777d86aebf22.jpg"},
+    {"label":"Confirm sample profile","chapter":"introduction","file":"02_confirm_sample_profile","source":"https://r2-pub.rork.com/app-store-screenshots/dba80554-48a9-4e1c-a83e-0af1cc3dc839.jpg"},
+    {"label":"Choose sharing","chapter":"introduction","file":"03_choose_sharing","source":"https://r2-pub.rork.com/app-store-screenshots/2943da89-7bd8-404c-8bb7-987f1639c7a4.jpg"},
+    {"label":"Sample import review","chapter":"introduction","file":"04_sample_import_review","source":"https://r2-pub.rork.com/app-store-screenshots/47f21b0d-d897-4a36-9512-09a1d3d40808.jpg"},
+    {"label":"Care hub","chapter":"introduction","file":"05_care_hub","source":"https://r2-pub.rork.com/app-store-screenshots/62105dca-04e9-4fa3-92aa-f529e4e13e8d.jpg"},
+    {"label":"Visit preparation focus","chapter":"introduction","file":"06_visit_preparation_focus","source":"https://r2-pub.rork.com/app-store-screenshots/c4a790c2-1639-47c6-9238-3c9de3e1205e.jpg"},
+    {"label":"Visit preparation review","chapter":"introduction","file":"07_visit_preparation_review","source":"https://r2-pub.rork.com/app-store-screenshots/f777cfa7-793a-45d0-9c8c-25d932cb366d.jpg"},
+    {"label":"Small step plan","chapter":"introduction","file":"08_small_step_plan","source":"https://r2-pub.rork.com/app-store-screenshots/e433e646-faed-46c3-a2ba-8dbde5a1def7.jpg"},
+    {"label":"Rumi conversation","chapter":"introduction","file":"09_rumi_conversation","source":"https://r2-pub.rork.com/app-store-screenshots/c515542b-c25f-400c-9e56-7d14a360994c.jpg"},
+    {"label":"Messages","chapter":"introduction","file":"10_messages","source":"https://r2-pub.rork.com/app-store-screenshots/8e9c8cea-aece-4c15-baaa-fe299472dd86.jpg"},
+    {"label":"Records overview","chapter":"records","file":"01_records_overview","source":"https://r2-pub.rork.com/app-store-screenshots/86a0757a-e9c5-4441-afe7-f090d9038333.jpg"},
+    {"label":"Lab records","chapter":"records","file":"02_lab_records","source":"https://r2-pub.rork.com/app-store-screenshots/cfdde477-df03-462b-8039-84ac58348f16.jpg"},
+    {"label":"Selected lab history","chapter":"records","file":"03_selected_lab_history","source":"https://r2-pub.rork.com/app-store-screenshots/993d8a7b-6a2e-4bc8-a8ab-bec6eb5fdf3b.jpg"},
+    {"label":"Result context before asking","chapter":"records","file":"04_result_context_before_asking","source":"https://r2-pub.rork.com/app-store-screenshots/bda1e313-4e69-40aa-abf0-7170e29e3602.jpg"},
+    {"label":"Medication source conflict","chapter":"records","file":"05_medication_source_conflict","source":"https://r2-pub.rork.com/app-store-screenshots/05636a60-8f1a-4864-8ff8-cc58d5757b70.jpg"},
+    {"label":"Clarification draft review","chapter":"records","file":"06_clarification_draft_review","source":"https://r2-pub.rork.com/app-store-screenshots/03a0432b-d224-4cc2-9362-23789ab956e9.jpg"},
+    {"label":"Immunization records","chapter":"records","file":"07_immunization_records","source":"https://r2-pub.rork.com/app-store-screenshots/a0809b0c-a52c-4a59-8527-642d86500822.jpg"},
+    {"label":"Clinical notes","chapter":"records","file":"08_clinical_notes","source":"https://r2-pub.rork.com/app-store-screenshots/97ca958d-dae3-4ec8-aa3e-8bea0254a3d2.jpg"},
+    {"label":"Procedure history","chapter":"records","file":"09_procedure_history","source":"https://r2-pub.rork.com/app-store-screenshots/dc5fdef3-719b-4f43-bfc9-7b4bdce30b84.jpg"},
+    {"label":"Condition record context","chapter":"records","file":"10_condition_record_context","source":"https://r2-pub.rork.com/app-store-screenshots/38e98e75-95a2-4138-8abb-0e99f13ba589.jpg"}
+  ],
+  "originalPathPattern": "screenshots/captures/iphone/{file}.png",
+  "presentationPathPattern": "screenshots/iphone/en/{file}.png",
+  "stagedNotAccepted": [
+    {"label":"Appointments list","source":"https://r2-pub.rork.com/app-store-screenshots/1e7a2567-9c96-4106-b61b-69e8798ae329.jpg"},
+    {"label":"Selected appointment","source":"https://r2-pub.rork.com/app-store-screenshots/a3563db3-d1b1-4eb0-a615-b44941c9301f.jpg"},
+    {"label":"Visit travel checklist","source":"https://r2-pub.rork.com/app-store-screenshots/8fbd491a-4107-48df-bb77-b3e6617a5089.jpg"},
+    {"label":"Reschedule choice","source":"https://r2-pub.rork.com/app-store-screenshots/7855aad5-4d06-4aa2-a4d7-010c61cce21d.jpg"},
+    {"label":"Virtual visit readiness","source":"https://r2-pub.rork.com/app-store-screenshots/daced832-4803-4ae7-ab8b-526ac503f23e.jpg"},
+    {"label":"Visit changes and concerns","source":"https://r2-pub.rork.com/app-store-screenshots/d3313698-4893-491e-a01e-b5c9d4189063.jpg"},
+    {"label":"AI visit question suggestions","source":"https://r2-pub.rork.com/app-store-screenshots/888280eb-3e19-4090-8006-42845231c545.jpg"},
+    {"label":"Reviewed brief export","source":"https://r2-pub.rork.com/app-store-screenshots/5730a420-a605-4dfc-82b5-6568315de311.jpg"},
+    {"label":"Care team people","source":"https://r2-pub.rork.com/app-store-screenshots/736b3d7c-ab04-41fd-9e9c-8303efee4648.jpg"},
+    {"label":"Care team thread draft","source":"https://r2-pub.rork.com/app-store-screenshots/2112868c-f6fb-49f5-8ba2-13affea8eccd.jpg"}
+  ]
+}

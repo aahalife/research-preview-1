@@ -106,7 +106,7 @@ import Observation
     var careTeam: [CareTeamMember]
     var appointments: [Appointment]
     var guideItems: [GuideItem]
-    let recordItems: [RecordItem]
+    var recordItems: [RecordItem]
     var sources: [RecordSource]
     var consents: [ConsentEntry]
     var memory: [MemoryItem]
@@ -247,8 +247,8 @@ import Observation
         resultAcknowledged = UserDefaults.standard.bool(forKey: "nudge.resultAck.\(savedPathway.rawValue)")
         guideItems = activePersona.guideSeed
         programs = MarcusFixtures.programs
-        recordItems = MarcusFixtures.recordItems
-        sources = MarcusFixtures.sources
+        recordItems = savedPathway == .metabolic ? MarcusFixtures.recordItems : []
+        sources = savedPathway == .metabolic ? MarcusFixtures.sources : []
         consents = MarcusFixtures.consents
         memory = MarcusFixtures.memory
         entries = Self.seedEntries(for: activePersona)
@@ -277,7 +277,7 @@ import Observation
             journeys = saved.journeys ?? journeys
             habitCheckIns = saved.habitCheckIns ?? []
             workflows = saved.workflows ?? []
-            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "")
+            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "", context: saved.pendingCareContext?.scenario == pathway.rawValue ? saved.pendingCareContext : nil)
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for billIndex in bills.indices where saved.paidBillKeys.contains(bills[billIndex].key) {
                 bills[billIndex].status = .paid
@@ -312,7 +312,8 @@ import Observation
             habitCheckIns: habitCheckIns,
             conversation: companion.turns,
             composerDraft: companion.composerDraft,
-            workflows: workflows
+            workflows: workflows,
+            pendingCareContext: companion.pendingContext
         ), directory: storageDirectory)
         storageError = !saved
         return saved
@@ -354,6 +355,8 @@ import Observation
             labSeries = activePersona.labSeries
             storyEvents = activePersona.storyEvents
             careTeam = activePersona.careTeam
+            recordItems = newPathway == .metabolic ? MarcusFixtures.recordItems : []
+            sources = newPathway == .metabolic ? MarcusFixtures.sources : []
             let careBundle = CareHubFixtures.bundle(for: newPathway)
             appointments = careBundle.appointments
             threads = careBundle.threads
@@ -393,7 +396,7 @@ import Observation
             journeys = saved.journeys ?? journeys
             habitCheckIns = saved.habitCheckIns ?? []
             workflows = saved.workflows ?? []
-            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "")
+            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "", context: saved.pendingCareContext?.scenario == pathway.rawValue ? saved.pendingCareContext : nil)
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for index in bills.indices where saved.paidBillKeys.contains(bills[index].key) {
                 bills[index].status = .paid
@@ -492,24 +495,14 @@ import Observation
 
     // MARK: Agentic actions — the companion does things, with one human tap
 
-    func approveAction(_ id: UUID) {
-        guard let index = agentActions.firstIndex(where: { $0.id == id }) else { return }
-        let action = agentActions[index]
-        withAnimation(NudgeSpring.delight) { agentActions[index].state = .done }
-        storyEvents.insert(
-            StoryEvent(kind: .companion, date: .now,
-                       title: action.title,
-                       detail: action.outcomeLine),
-            at: 0
-        )
-        quickLogAck = action.outcomeLine
-        orb.celebrate()
-        Haptics.bloom()
-        SoundEngine.shared.bloom()
-        Task {
-            try? await Task.sleep(for: .seconds(5))
-            if quickLogAck == action.outcomeLine { quickLogAck = nil }
-        }
+    func workflowForAction(_ id: UUID) -> ReviewedWorkflow? {
+        guard let action = agentActions.first(where: { $0.id == id }), action.state == .proposed else { return nil }
+        let context = CareContext(id: "idea|\(action.title)", scenario: pathway.rawValue, title: action.title,
+                                  source: "Illustrative task idea · not a live service", detail: action.detail,
+                                  question: "Review this task idea.")
+        let draft = workflowDraft(originID: action.id, title: action.title, detail: action.detail, context: context)
+        saveWorkflow(draft)
+        return storageError ? nil : draft
     }
 
     func declineAction(_ id: UUID) {
@@ -914,22 +907,29 @@ import Observation
         agentTasks.filter { $0.agentID == id && $0.status == .waiting }.count
     }
 
-    /// Approving an agent's task — one tap, then it's done and remembered.
-    func approveAgentTask(_ id: String) {
-        guard let index = agentTasks.firstIndex(where: { $0.id == id }) else { return }
-        let task = agentTasks[index]
-        withAnimation(NudgeSpring.delight) { agentTasks[index].status = .done }
-        storyEvents.insert(StoryEvent(kind: .companion, date: .now, title: task.title, detail: task.outcomeLine), at: 0)
-        quickLogAck = task.outcomeLine
-        orb.celebrate(); Haptics.bloom(); SoundEngine.shared.bloom()
-        Task {
-            try? await Task.sleep(for: .seconds(5))
-            if quickLogAck == task.outcomeLine { quickLogAck = nil }
-        }
+    /// A demonstration proposal can become reviewable work, never an external success.
+    func workflowForAgentTask(_ id: String) -> ReviewedWorkflow? {
+        guard let task = agentTasks.first(where: { $0.id == id }), task.status == .waiting,
+              agentServices.first(where: { $0.id == task.agentID })?.active == true else { return nil }
+        if let existing = workflows.first(where: { $0.agentTaskID == id }) { return existing }
+        let context = CareContext(id: task.id, scenario: pathway.rawValue, title: task.title,
+                                  source: "Demonstration proposal · not live monitoring",
+                                  detail: task.detail + "\nIllustrative source labels: " + task.sources.map(\.label).joined(separator: ", "),
+                                  question: "Review this proposed task.")
+        let draft = ReviewedWorkflow(originID: UUID(), title: task.title, detail: task.detail,
+                                     context: context, agentTaskID: task.id)
+        saveWorkflow(draft)
+        return storageError ? nil : draft
     }
 
     func declineAgentTask(_ id: String) {
-        withAnimation(NudgeSpring.ui) { agentTasks.removeAll { $0.id == id } }
+        if let index = workflows.firstIndex(where: { $0.agentTaskID == id }) {
+            workflows[index].status = .declined
+            workflows[index].reviewedAt = nil
+            persistUserData()
+        } else {
+            withAnimation(NudgeSpring.ui) { agentTasks.removeAll { $0.id == id } }
+        }
         Haptics.tick()
     }
 

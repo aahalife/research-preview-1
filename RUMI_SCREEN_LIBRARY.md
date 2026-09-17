@@ -4,7 +4,79 @@
 
 An ordered reference for product walkthroughs, design review and presentations. Each journey names its feature, screens, patient actions and outcome. The separate [working document](RUMI_RESCOPE.md) owns implementation decisions; [functional requirements](RUMI_REQUIREMENTS.md) own expected behavior. This library describes the current native app unless a screen is explicitly marked planned or legacy. Web has not received this native refinement.
 
-**Screenshot coverage:** ten primary screens have fresh original simulator captures and accepted branded presentation slides, refreshed after the Fields font correction. Originals are embedded beside the corresponding screens below; slide links provide the real-screen-plus-short-caption version. The full inventory includes additional screens and state variants whose captures remain explicitly pending. This is not an exhaustive screenshot pass. All captures use synthetic information; no live Fasten/EHR capability is implied.
+**Screenshot coverage: incomplete and paused.** Twenty accepted presentation slides are retained: the original ten-screen introduction plus ten new records/contextual-help screens. The visit chapter was cancelled; its ten staged raw captures are not accepted slides and do not close coverage. No further generation ran after cancellation. [The multi-chapter manifest](screenshots/library-captures.json) separates accepted assets from staged originals and preserves their source URLs; the tool's `deck.json`/`captures.json` describe only its latest run. All captures use synthetic information. No live Fasten/EHR capability is implied. The records chapter predates the final context-details change from inline expansion to a scrollable sheet; it remains dated evidence, not an exhaustive final-build visual check.
+
+## How to tell the Rumi story
+
+**The difference is continuity, not AI everywhere.** Start with the patient's job. Show the relevant evidence, the help that reduces effort, the decision that remains theirs, and the work they can return to. Present only implemented behavior as current; distinguish the longer connected-care vision.
+
+- **Understand:** a selected lab or record → inspect source/history → ask about that exact evidence. Benefit: less re-explaining; not an automated diagnosis.
+- **Prepare:** symptom or medication concern → draft a question → choose wording/recipient → retain the reviewed draft. Benefit: less blank-page work; not an invented provider receipt.
+- **Get ready:** one appointment → patient priorities and changes → optional AI questions → accepted questions → reviewed brief. Benefit: help organizing the visit without taking over the agenda.
+- **Adapt:** a chosen habit → stated cue and obstacle → smaller version → actual patient check-in → revise. Benefit: support fits real life; no inferred personality score.
+- **Follow through:** contextual proposal → known basis → exact plan/draft → patient review → honest status. This is the agentic story; a diagram of eight agents is not proof of useful work.
+- **Stay quiet:** authentication, permissions, simple logging, basic navigation and payment confirmation do not need AI commentary.
+
+### Full attachment coverage index
+
+Source: [latest re-scope](https://r2-pub.rork.com/attachments/ra176ma71ass9gt2x7vv9.docx). Every retained feature appears below. References point into the ordered inventory; **a mapped screen is not a completed screenshot**. The capture line under each entry is the evidence ledger.
+
+| # | Requested feature | Screen sequence / current gap | Rumi's contextual role |
+|---|---|---|---|
+| 1 | Welcome Router | 1.01–1.10 | Orient; no forced chat. |
+| 2 | Mobile SMS OTP Auth | 1.02 / 1.11; actual OTP screens unbuilt | No AI involvement in identity verification. |
+| 3 | Apple Auth | 1.02 / 1.11; OAuth unbuilt | No AI verification or invented profile claims. |
+| 4 | Google Auth | 1.02 / 1.11; OAuth unbuilt | Social claims are not clinical authorization. |
+| 5 | Terms & Privacy Consent | 10.04 partial; versioned legal acceptance unbuilt | Explain approved terms only on request; no AI agreement. |
+| 6 | Analytics Consent | 10.04 partial; enforced analytics choice unbuilt | No persuasion to opt in. |
+| 7 | Select Care Pathway | 1.03 | Coherent sample story, not a new patient identity. |
+| 8 | Records Connection | 1.04–1.08 → 3.03 → 7.07 | Help understand imported scope; local Fasten demo. |
+| 9 | Notification Consent | 10.03 partial; permission/reminder policy incomplete | Patient sets the pace; no simulated permission success. |
+| 10 | Interactive Elements | All feature journeys | Task-specific actions, accessible without AI. |
+| 11 | Crisis/Self-Harm Handoff | 5.01 / 8.03 partial; approved dedicated handoff unbuilt | Safety and human help precede engagement; not validated triage. |
+| 12 | Visible Editable Memory | 10.04 | Inspect/correct retained knowledge; full enforcement incomplete. |
+| 13 | Agentic Action Cards | 5.06 → 7.04 → 7.05 | Prepare → review → retain; external execution unavailable. |
+| 14 | Sponsored Responses | 6.07 / 10.02 related; sponsored chat intentionally inactive | Separate optional commercial context from clinical help. |
+| 15 | Relevant Card Stack / Thread | 2.01 → 2.05 → selected workspace | One relevant next step, no repeated agent dashboard. |
+| 16 | Needs You clinical alerts | 2.02 → 3.05 / 7.02 | Direct to evidence/contact; opening is not resolution. |
+| 17 | Tracking Entry Point | 8.01–8.06 | Log directly, ask only when useful. |
+| 18 | Care Plan | 8.08 → 6.01–6.05 | Turn a chosen goal into a practical patient-owned step. |
+| 19 | Discussion Guide | 4.11 → 4.07–4.10 | Turn concerns into questions, explicitly selected for a visit. |
+| 20 | Providers | 4.12 → 4.02 | Preserve the chosen clinician; do not guess a recipient. |
+| 21 | Appointments Mgmt | 4.01–4.04 | Prepare for selected visit; actual booking gated. |
+| 22 | Virtual Visits | 4.04 | Readiness checklist; not AI video-clinician care. |
+| 23 | Messaging | 7.01–7.04 | Draft with context; keep care-team replies distinct from AI. |
+| 24 | Forms | 8.09 / 7.03 partial; full form workflow unbuilt | Help review missing information; no fabricated submission. |
+| 25 | AI Companion, Atomic Habits & Journeys | 5.01–5.07 → 6.01–6.05 | Preserve context; adapt to stated cue/barrier; patient chooses. |
+| 26 | Medications with AI support | 8.07 → 5.01 / 7.04 | Explain selected medication context; prepare a concern. |
+| 27 | Medications Sponsored Pages | 10.02; savings route lacks ordinary entry | Disclosed optional offer; not guaranteed eligibility/savings. |
+| 28 | Immunizations with AI support | 3.04 → 3.06 | Explain the selected record; no invented due-date surveillance. |
+| 29 | Documents with AI support | 8.09 → 3.06 | Explain available metadata; no claim to read an absent scan. |
+| 30 | Notes with AI support | 3.04 → 3.06 | Explain supplied note text; preserve clinician authorship. |
+| 31 | Vitals with AI support | 2.03 → 3.05–3.06 | Explain dated values and limitations. |
+| 32 | Labs with AI support | 3.04–3.06 → 5.01 | Evidence before explanation; same result in conversation. |
+| 33 | Conditions with AI support | 3.08 / 3.04 → 3.06 | Explain condition context without making a new diagnosis. |
+| 34 | Allergies / other clinical information | 3.09; allergy-specific screen unbuilt, Procedures retained | Never turn no available record into no known allergies. |
+| 35 | Sponsored Programs | 6.07 | Explain fit/disclosure; decline without losing care access. |
+| 36 | Symptom Tracking with AFB | 8.02–8.03 → 4.11 / 7.04 | Rules and AI remain distinct; support and patient review. |
+| +1 | Unified longitudinal record | 3.02–3.09 | Explain across attributable evidence; reconciliation incomplete. |
+| +2 | Pre-visit brief to EHR | 4.05–4.10; EHR delivery unavailable | Gather, suggest, review, export; receipt remains separate. |
+| +3 | Priority provider messaging | 7.01–7.04 | Less effort drafting; no promised clinician response speed. |
+| +4 | Results viewing | 1.08 → 3.03–3.06 | Source and trend first; live Fasten ingestion gated. |
+| +5 | Privia scheduling/rescheduling | 4.01–4.04; live service unavailable | Selected visit, reviewed change, honest outcome. |
+| +6 | In-app care-plan reminders | 8.08 partial; reminder management unbuilt | Patient chooses timing; reminder is not task completion. |
+| +7 | Medication-derived refill tracking | 8.07 partial; calculation basis incomplete | Verify supply before estimating; no complex pharmacy promise. |
+
+### Capture chapters and presentation rules
+
+1. First use and trust: welcome, scenario, records, choices, settings/memory. Keep security/consent gaps visible in the index, not invented screens.
+2. Records: overview, all available categories, source conflicts, selected series and contextual explanation.
+3. Visits and communication: selected visit, logistics, changes/questions/AI suggestions, reviewed brief, Guide, care team, threads, requests/forms.
+4. Daily support: medication, symptom/body/severity/support, meal/activity/dose entry, saved history, care plan, habit/check-in/adaptation.
+5. Personal story: Story/Insights, Currents formats, held memories/recap, optional programs.
+6. Agent work and optional services: contextual review, saved work, demonstrative agent domains, connections, bills/wallet/savings.
+
+Use one feature per slide and at least two adjacent frames for a meaningful AI handoff. The slide caption names the patient action/benefit; notes explain AI's role and boundaries outside the phone. Keep source screens intact and large enough to read. No decorative robot, glowing neural network or AI panel pasted onto a screen that does not contain one. Existing ten captures are the starting set, not completion of these chapters.
 
 ## 1. First use — understand Rumi, choose a story, connect optionally
 
@@ -95,7 +167,7 @@ An ordered reference for product walkthroughs, design review and presentations. 
 ### 2.01 Today
 - **Shows:** Fields greeting, date, Demo label, consolidated updates, sample metrics and up to three optional moments. Upcoming visit appears only when an actual stored appointment is in the future and not cancelled.
 - **Patient action:** open a relevant item, Settings, Rumi or Log.
-- **Capture:** normal sample day captured; quiet/upcoming-visit variants pending.
+- **Capture:** earlier sample day retained below as historical evidence. It contains the now-replaced seeded delivery card; the current Today instead surfaces actual saved prepared work. Fresh Today/quiet/upcoming-visit variants pending; do not use the older image to imply delivery execution.
 
 ![Today — original screen with Fields greeting](screenshots/captures/iphone/01_today.png)
 
@@ -128,6 +200,27 @@ An ordered reference for product walkthroughs, design review and presentations. 
 
 **Journey:** Care → Records & results → category or Fasten import → exact item → explanation/question.
 
+### Accepted records chapter — real screens and patient captions
+
+| Screen | Patient-centered caption | Original | Branded slide |
+|---|---|---|---|
+| Records overview | Find the record you need. | [Screen](screenshots/captures/iphone/01_records_overview.png) | [Slide](screenshots/iphone/en/01_records_overview.png) |
+| Lab records | See the result and its source. | [Screen](screenshots/captures/iphone/02_lab_records.png) | [Slide](screenshots/iphone/en/02_lab_records.png) |
+| Selected lab history | Look at change over time. | [Screen](screenshots/captures/iphone/03_selected_lab_history.png) | [Slide](screenshots/iphone/en/03_selected_lab_history.png) |
+| Result context before asking | Bring this result into your question. | [Screen](screenshots/captures/iphone/04_result_context_before_asking.png) | [Slide](screenshots/iphone/en/04_result_context_before_asking.png) |
+| Medication source conflict | See where the sources disagree. | [Screen](screenshots/captures/iphone/05_medication_source_conflict.png) | [Slide](screenshots/iphone/en/05_medication_source_conflict.png) |
+| Clarification draft review | Prepare a clear question to review. | [Screen](screenshots/captures/iphone/06_clarification_draft_review.png) | [Slide](screenshots/iphone/en/06_clarification_draft_review.png) |
+| Immunization records | Review what's recorded. | [Screen](screenshots/captures/iphone/07_immunization_records.png) | [Slide](screenshots/iphone/en/07_immunization_records.png) |
+| Clinical notes | Find the note from a visit. | [Screen](screenshots/captures/iphone/08_clinical_notes.png) | [Slide](screenshots/iphone/en/08_clinical_notes.png) |
+| Procedure history | Keep past procedures within reach. | [Screen](screenshots/captures/iphone/09_procedure_history.png) | [Slide](screenshots/iphone/en/09_procedure_history.png) |
+| Condition record context | Ask about the entry you're reading. | [Screen](screenshots/captures/iphone/10_condition_record_context.png) | [Slide](screenshots/iphone/en/10_condition_record_context.png) |
+
+**Presenter's thread:** begin with the lab evidence, then the attached question. Separately show the medication discrepancy and the clarification draft. The first is contextual AI access; the second is a deterministic prepared question, not newly generated AI output or completed reconciliation. Do not claim the captured pre-send frame shows an AI answer. A follow-up AI-response frame and a saved/reopened-work frame are still needed.
+
+![Selected result carried into the patient's question](screenshots/captures/iphone/04_result_context_before_asking.png)
+
+![Source conflict becomes editable clarification work](screenshots/captures/iphone/06_clarification_draft_review.png)
+
 ### 3.01 Care hub
 - **Shows:** Appointments, Care plan, Meds & refills, Records & results; grouped contextual care links.
 - **Patient action:** open the task workspace directly.
@@ -140,7 +233,7 @@ An ordered reference for product walkthroughs, design review and presentations. 
 ### 3.02 Records browser
 - **Shows:** category grid, documents link, sample sources and Fasten connection card.
 - **Patient action:** choose a category, inspect sources or demonstrate a connection.
-- **Capture:** records overview; pending.
+- **Capture:** records overview accepted in the records chapter above.
 
 ### 3.03 Fasten source and import card
 - **Shows:** not connected, sample import ready, partial sample import, or real-connection unavailable notice. Expanded rows show the retained import snapshot.
@@ -151,23 +244,23 @@ An ordered reference for product walkthroughs, design review and presentations. 
 - **Shows:** selected category rows with source/date and explanation entry.
 - **Variants:** Labs, Medications, Conditions, Immunizations, Procedures, Notes, Documents.
 - **Patient action:** select an exact item or inspect a conflict.
-- **Capture:** each category; pending.
+- **Capture:** Labs, Immunizations, Notes, Procedures and a Conditions explanation accepted. Medication conflict is captured; the ordinary medication category and Documents category still need separate frames.
 
 ### 3.05 Lab or vital series detail
 - **Shows:** selected metric history, values/units, source and explanatory context.
 - **Patient action:** inspect history and open explanation.
-- **Capture:** glucose/A1c, blood pressure and other available scenario series; pending.
+- **Capture:** A1c history accepted; blood pressure and other scenario series pending.
 
 ### 3.06 Result explanation
 - **Shows:** reading explanation, possible next discussion and question framing for the selected series.
 - **Patient action:** return to evidence or bring a question into care preparation.
 - **Boundary:** fixture explanation is not a newly verified clinical interpretation.
-- **Capture:** explanation sheet; pending.
+- **Capture:** Conditions explanation accepted; selected A1c context-before-Send accepted. The full series explanation and an actual contextual AI answer remain pending.
 
 ### 3.07 Record conflict
 - **Shows:** conflicting source details and a care-team question route.
-- **Boundary:** legacy mock contact behavior is not verified delivery and must not be described as such in presentations.
-- **Capture:** disagreement state; pending.
+- **Boundary:** Prepare a clarification question opens editable, source-linked work. It never marks the conflict resolved or the question sent.
+- **Capture:** disagreement and clarification-draft states accepted; reviewed/reopened variants pending.
 
 ### 3.08 Conditions overview
 - **Shows:** the selected sample person's condition context and care-plan links.
@@ -274,7 +367,7 @@ An ordered reference for product walkthroughs, design review and presentations. 
 **Journey:** floating Rumi → text/voice → response → optional draft/habit/question review → return to the original task.
 
 ### 5.01 Text conversation
-- **Shows:** readable native message surfaces, sample/AI context, multiline composer and close/voice controls.
+- **Shows:** readable native message surfaces, sample/AI context, multiline composer and close/voice controls. Item-specific entry attaches the actual snapshot before Send, with a source-details sheet and Remove. Entering does not submit a message or discard an edited draft.
 - **Patient action:** ask a question, send another thought or leave a draft.
 - **Outcome:** completed history and unsent composer persist per scenario. Close hides chat; Stop ends generation.
 - **Capture:** actual text exchange captured, with the AI's completed reply. Additional history/keyboard/error variants pending.
@@ -391,10 +484,10 @@ An ordered reference for product walkthroughs, design review and presentations. 
 - **Shows:** exact editable draft, required intended recipient, no-fees/no-delivery disclosure and Save reviewed draft / Save for later / Decline.
 - **Patient action:** review the actual content. Editing invalidates prior approval.
 - **Outcome:** reviewed does not mean sent. No action, cost or clinical write occurs.
-- **Capture:** draft/reviewed/edited/declined; pending.
+- **Capture:** record-clarification draft accepted in the records chapter; reviewed/edited/declined states pending. Source context, exact wording and intended recipient remain inspectable.
 
 ### 7.05 Agent overview and saved drafts
-- **Shows:** eight retained helper domains and the new persistent reviewed-draft list.
+- **Shows:** persistent prepared work first, with eight retained helper domains under an explicit Explore agent examples disclosure. Messages also opens Prepared work directly.
 - **Patient action:** reopen a saved proposal and inspect its state.
 - **Boundary:** older task timelines are simulated, not proof that agents are continuously monitoring real data.
 - **Capture:** helper overview and saved drafts; pending.
@@ -402,7 +495,7 @@ An ordered reference for product walkthroughs, design review and presentations. 
 ### 7.06 Agent detail
 - **Shows:** domain-specific source, task and pause presentation.
 - **Variants:** risk, monitoring, alerts, scheduling, education, pathway, adherence, lifestyle.
-- **Boundary:** live capability and pause enforcement require the backend stage.
+- **Boundary:** these are explicitly illustrative domains, not active monitoring. Local pause blocks opening/reviewing an agent proposal; no external backend is running.
 - **Capture:** eight domain variants and empty state; pending.
 
 ### 7.07 Connections
@@ -428,7 +521,7 @@ An ordered reference for product walkthroughs, design review and presentations. 
 
 ### 8.03 Symptom support and note review
 - **Shows:** existing rules-based support, guide/question options and note review.
-- **Boundary:** AFB includes AI and rules; the legacy clinical rules and mock sent-note state are not validated live triage/delivery.
+- **Boundary:** AFB includes AI and rules. Existing support rules are not validated live triage. The note action now creates editable review-first work instead of a mock sent-note success.
 - **Capture:** ordinary/urgent/contextual question variants; pending.
 
 ### 8.04 Meal, activity and medication quick add
@@ -510,7 +603,7 @@ An ordered reference for product walkthroughs, design review and presentations. 
 
 ### 10.02 Wallet and savings
 - **Shows:** sample payment/insurance information and available savings presentation.
-- **Boundary:** no payment processor, verified benefit or pharmacy enrollment is connected. Savings has a route but may lack a visible entry point.
+- **Boundary:** no payment processor, verified benefit or pharmacy enrollment is connected. Medication detail now exposes cost-support examples; Check availability explains unavailability without applying a discount.
 - **Capture:** wallet and reachable savings detail; pending.
 
 ### 10.03 Settings
@@ -533,6 +626,16 @@ These are included so a presentation does not accidentally promote an older mock
 - **Planned connected care:** real Fasten provider catalog/authorization/webhooks/FHIR ingestion, Privia/athena scheduling/messaging/writeback, verified receipts and unknown-outcome recovery.
 - **Planned behavior engine:** user's WebSocket integration, evidenced profile/reflection/learning loops, reviewed safety and crisis policy, appropriate opt-in proactivity.
 - **Planned retained-feature completion:** reminder management, justified refill estimates, new provider messages/attachments, complete form journeys and full longitudinal reconciliation.
+
+## Remaining capture chapters — paused, not complete
+
+Resume only after the user asks to continue. The visit run's original URLs remain staged in the manifest, but no visit-chapter slide was accepted. Do not regenerate or promote them automatically.
+
+- **Visits/communication:** appointments (Find your visit), selected visit (Keep its next steps together), logistics (Get ready to arrive), rescheduling (Review the change), virtual readiness (Get ready to connect), Changes (Bring your observations), AI questions (Choose useful questions), reviewed export (Take your copy), care team (Find the right person), thread/draft (Keep the question in context). Then Discussion Guide, reports, requests and forms states.
+- **Daily support:** medication list/detail (Understand this medicine), contextual refill question → prepared draft → saved work (Pick it up later); symptom/body/severity/context (Describe what changed) → support → Guide/note; meal/activity/dose entry and saved Life detail (Keep a useful record); care plan → habit cue/barrier/fallback → check-in/undo (Make the step fit).
+- **Story/content:** Story (See your history), each Insights category with basis expanded (See why this appeared), Currents Glance/Read/Watch/Listen/end (A little, not endless), held memory/add/viewer (Keep what matters), recap (Revisit a sample chapter), programs/disclosure/decline (Choose optional support).
+- **Agents/optional services:** actual prepared work → source/details → edited recipient/text → reviewed-not-sent → return/reopen (Less to arrange, still your decision). Separately capture illustrative agent domains and paused state, Connections demo controls, bills/detail, wallet and savings/availability. No live-work story from seeded task counts.
+- **First use/trust:** Welcome, unavailable sign-in, scenario choice, Records introduction, preferences, preview, Settings and editable memory. Working OTP/Apple/Google auth, full legal/analytics/notification consent, approved dedicated crisis handoff, allergy-specific records, full reminder management, verified refill calculations, complete forms/attachments and live EHR/Privia/Fasten screens remain implementation gaps—not just missing screenshots.
 
 ## Presentation routes
 

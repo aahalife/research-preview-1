@@ -491,7 +491,7 @@ struct LifeEntryDetailView: View {
 
             Button {
                 onClose()
-                model.openConversation(seed: "I logged \(entry.title.lowercased()) — anything worth noticing?")
+                model.openConversation(context: model.context(for: entry))
             } label: {
                 Label("Ask Rumi about it", systemImage: "bubble")
                     .font(NudgeType.rounded(13.5, .semibold))

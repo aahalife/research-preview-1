@@ -6,7 +6,9 @@ struct MedDetailView: View {
     @Environment(AppModel.self) private var model
     let medication: Medication
 
-    @State private var showPDC = false
+    @State private var showPDC: Bool = false
+    @State private var showRefillDraft: Bool = false
+    @State private var refillOrigin: UUID = UUID()
 
     var body: some View {
         ScrollView {
@@ -26,17 +28,17 @@ struct MedDetailView: View {
                     OrganicSurface(radius: 30) {
                         VStack(alignment: .leading, spacing: 9) {
                             Kicker(text: "Heads-up", color: Theme.attention)
-                            Text("You'll run out next Thursday")
+                            Text("Make room for a refill question")
                                 .font(NudgeType.serif(18))
                                 .foregroundStyle(Theme.ink)
-                            Text("The refill is ready at \(medication.pharmacy). If getting there is the hard part this week, delivery is one tap away.")
+                            Text("The sample list shows \(medication.supplyDaysRemaining) days of supply. Confirm what you have before planning a refill; pharmacy availability isn't connected.")
                                 .font(NudgeType.rounded(13.5))
                                 .foregroundStyle(Theme.inkMuted)
                                 .fixedSize(horizontal: false, vertical: true)
                             Button {
-                                model.openConversation(seed: "refill")
+                                model.openConversation(context: model.context(for: medication))
                             } label: {
-                                Text("Sort it with me")
+                                Text("Help me frame the question")
                                     .font(NudgeType.rounded(13.5, .semibold))
                                     .foregroundStyle(Theme.base)
                                     .padding(.horizontal, 17)
@@ -44,6 +46,9 @@ struct MedDetailView: View {
                                     .background(Theme.ink, in: .capsule)
                             }
                             .buttonStyle(NudgeButtonStyle())
+                            Button("Draft a request myself") { showRefillDraft = true }
+                                .font(NudgeType.rounded(13)).frame(minHeight: 44)
+                                .accessibilityIdentifier("medication.refillDraft")
                         }
                         .padding(17)
                     }
@@ -69,22 +74,31 @@ struct MedDetailView: View {
                 }
 
                 detailSection(kicker: "Good to know", color: Theme.sky, items: medication.guidance)
-                detailSection(kicker: "We watch for", color: Theme.warm, items: medication.watchlist)
+                detailSection(kicker: "Concerns to discuss", color: Theme.warm, items: medication.watchlist)
                 detailSection(kicker: "Dose history", color: Theme.life, items: medication.history)
 
                 logSection
+                NavigationLink(value: CareDestination.savings(medication.id)) {
+                    Label("Explore cost-support examples", systemImage: "tag")
+                        .font(NudgeType.rounded(14)).frame(minHeight: 44)
+                }.accessibilityIdentifier("medication.savings")
 
-                ProvenanceChip(text: "Dispense data from \(medication.pharmacy) · checked against your full med list")
+                ProvenanceChip(text: "Sample medication history · not a live pharmacy record or interaction check")
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 120)
         }
         .scrollIndicators(.hidden)
+        .sheet(isPresented: $showRefillDraft) {
+            WorkflowReviewView(originID: refillOrigin, title: "Refill question · \(medication.name)",
+                               detail: "I'd like to discuss a refill for \(medication.name), listed as \(medication.dose). I still need to confirm my remaining supply and the next step with my care team.",
+                               context: model.context(for: medication))
+        }
     }
 
     private var pdcLine: String {
         let pdc = Int((medication.tideLevel * 100).rounded())
-        return "PDC \(pdc)% — solidly covered"
+        return "Sample coverage \(pdc)% · not confirmed doses"
     }
 
     /// Symptoms logged in this med's orbit — and the door to add one.

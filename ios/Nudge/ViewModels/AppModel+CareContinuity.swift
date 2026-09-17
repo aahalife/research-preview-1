@@ -7,7 +7,14 @@ extension AppModel {
         persistUserData()
     }
 
+    func workflowDraft(originID: UUID, title: String, detail: String, context: CareContext?) -> ReviewedWorkflow {
+        if let saved = workflows.first(where: { $0.originID == originID }) { return saved }
+        if let context, let saved = workflows.first(where: { $0.context?.id == context.id && $0.context?.scenario == context.scenario && $0.title == title }) { return saved }
+        return .init(originID: originID, title: title, detail: detail, context: context)
+    }
+
     func saveWorkflow(_ value: ReviewedWorkflow) {
+        guard value.context == nil || value.context?.scenario == pathway.rawValue else { return }
         if let index = workflows.firstIndex(where: { $0.originID == value.originID }) { workflows[index] = value }
         else { workflows.insert(value, at: 0) }
         persistUserData()

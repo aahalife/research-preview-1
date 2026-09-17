@@ -137,8 +137,10 @@ struct MomentCard: View {
             model.openYou(.journeys)
             dismissQuietly()
         case .task:
-            model.openConversation(seed: "refill")
-            dismissQuietly()
+            if let id = moment.medID, let medication = model.medications.first(where: { $0.id == id }) {
+                model.openConversation(context: model.context(for: medication))
+                dismissQuietly()
+            } else { model.openCare(.medications) }
         case .checkIn:
             model.openConversation()
             dismissQuietly()

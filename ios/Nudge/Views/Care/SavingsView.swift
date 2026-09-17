@@ -11,6 +11,7 @@ struct SavingsView: View {
     let medID: String
 
     @State private var sponsorExplain: String?
+    @State private var showUnavailable: Bool = false
 
     private var options: [MedicationSaving] {
         medID.isEmpty ? model.savings : model.savings(for: medID)
@@ -34,9 +35,11 @@ struct SavingsView: View {
                 }
                 .padding(.top, 8)
 
+                Text("Sample offers · eligibility, prices and enrollment are not verified.")
+                    .font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted)
                 if options.isEmpty {
                     OrganicSurface(radius: 26) {
-                        Text("Nothing to flag right now — you're already on a low-cost option.")
+                        Text("No sample offers are available for this medication. This does not mean you have the lowest price.")
                             .font(NudgeType.rounded(14))
                             .foregroundStyle(Theme.inkMuted)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -65,6 +68,9 @@ struct SavingsView: View {
             .padding(.bottom, 120)
         }
         .scrollIndicators(.hidden)
+        .alert("Enrollment isn't connected", isPresented: $showUnavailable) {
+            Button("OK", role: .cancel) {}
+        } message: { Text("No details were shared, no application was submitted and no discount was applied.") }
         .alert("How this is supported", isPresented: Binding(
             get: { sponsorExplain != nil },
             set: { if !$0 { sponsorExplain = nil } }
@@ -112,22 +118,17 @@ struct SavingsView: View {
                 }
 
                 if saving.applied {
-                    Label("Applied — savings will show on your next fill", systemImage: "checkmark.seal.fill")
+                    Label("Chosen in demo · no discount applied", systemImage: "checkmark.seal.fill")
                         .font(NudgeType.rounded(13, .semibold))
                         .foregroundStyle(Theme.life)
                 } else {
                     Button {
-                        if saving.requiresPII {
-                            // Surfaced as a confirm — handled in the alert below via dialog.
-                            apply(saving, requiresConfirm: true)
-                        } else {
-                            apply(saving, requiresConfirm: false)
-                        }
+                        showUnavailable = true
                     } label: {
                         HStack(spacing: 7) {
                             Image(systemName: saving.requiresPII ? "person.text.rectangle" : "checkmark")
                                 .font(.system(size: 12, weight: .semibold))
-                            Text(saving.requiresPII ? "Review & apply" : "Use this")
+                            Text("Check availability")
                                 .font(NudgeType.rounded(14, .semibold))
                         }
                         .foregroundStyle(Theme.base)
@@ -139,7 +140,7 @@ struct SavingsView: View {
                     .confirmationDialog(confirmPrompt(saving),
                                         isPresented: confirmBinding(for: saving),
                                         titleVisibility: .visible) {
-                        Button("Apply with my details") { model.applySaving(saving.id) }
+                        Button("Check availability") { showUnavailable = true }
                         Button("Not now", role: .cancel) { pendingConfirmID = nil }
                     }
                 }

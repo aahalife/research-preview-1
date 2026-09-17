@@ -72,4 +72,5 @@ nonisolated struct ConversationTurn: Identifiable, Equatable, Codable {
     var declined: Bool = false
     var replyTo: UUID? = nil
     var createdAt: Date = .now
+    var context: CareContext? = nil
 }

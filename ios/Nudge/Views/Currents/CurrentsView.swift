@@ -74,7 +74,7 @@ private struct CurrentPage: View {
                         .background(.ultraThinMaterial, in: .capsule)
 
                         if piece.aiGenerated {
-                            Text("AI-crafted for you")
+                            Text("Sample AI-assisted editorial")
                                 .font(NudgeType.rounded(10.5, .medium))
                                 .foregroundStyle(Theme.inkMuted)
                                 .padding(.horizontal, 10)
@@ -212,7 +212,7 @@ private struct CurrentPage: View {
         HStack(spacing: 10) {
             actionChip(
                 glyph: piece.saved ? "bookmark.fill" : "bookmark",
-                label: piece.saved ? "Saved to story" : "Save",
+                label: piece.saved ? "Saved this session" : "Save",
                 active: piece.saved
             ) {
                 saveFired.toggle()
@@ -225,7 +225,7 @@ private struct CurrentPage: View {
                 withAnimation(NudgeSpring.ui) { model.setTaste(piece.id, value: -1) }
             }
             actionChip(glyph: "bubble", label: "Ask", active: false) {
-                model.openConversation(seed: piece.headline.lowercased())
+                model.openConversation(context: model.context(for: piece))
             }
         }
     }

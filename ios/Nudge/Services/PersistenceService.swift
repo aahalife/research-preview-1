@@ -29,6 +29,7 @@ struct SanoUserData: Codable {
     var conversation: [ConversationTurn]? = nil
     var composerDraft: String? = nil
     var workflows: [ReviewedWorkflow]? = nil
+    var pendingCareContext: CareContext? = nil
 }
 
 enum PersistenceService {

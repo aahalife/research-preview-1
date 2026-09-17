@@ -5,6 +5,7 @@ import SwiftUI
 /// words go. Nothing ever sends without an explicit tap (MSG-3).
 struct MessagesView: View {
     @Environment(AppModel.self) private var model
+    @State private var showPreparedWork: Bool = false
 
     var body: some View {
         ScrollView {
@@ -20,6 +21,18 @@ struct MessagesView: View {
                 .padding(.top, 24)
                 .padding(.trailing, 48)
                 .padding(.bottom, 10)
+
+                Button { showPreparedWork = true } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "doc.text").foregroundStyle(Theme.warm)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Prepared work").font(NudgeType.rounded(15, .semibold))
+                            Text("Review or return to a saved draft").font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.caption)
+                    }.padding(16).foregroundStyle(Theme.ink).background(Theme.surface, in: .rect(cornerRadius: 20))
+                }.accessibilityIdentifier("messages.preparedWork")
 
                 ForEach(model.threads.sorted { $0.lastAt > $1.lastAt }) { thread in
                     NavigationLink(value: CareDestination.thread(thread.id)) {
@@ -39,7 +52,7 @@ struct MessagesView: View {
                             Text("Requests")
                                 .font(NudgeType.rounded(14.5, .semibold))
                                 .foregroundStyle(Theme.ink)
-                            Text("Refills, records, forms — tracked end to end")
+                            Text("Refills, records and forms · demo requests")
                                 .font(NudgeType.rounded(12))
                                 .foregroundStyle(Theme.inkMuted)
                         }
@@ -57,6 +70,7 @@ struct MessagesView: View {
             .padding(.bottom, 120)
         }
         .scrollIndicators(.hidden)
+        .sheet(isPresented: $showPreparedWork) { WorkflowLibraryView() }
     }
 
     private func threadRow(_ thread: MessageThread) -> some View {

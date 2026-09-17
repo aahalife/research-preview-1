@@ -21,7 +21,7 @@ struct MedicationsView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     TideView(level: overallTide)
-                    Text("Your last 30 days, as a tide — full and steady.")
+                    Text("Sample coverage over 30 days · not confirmed dose-taking.")
                         .font(NudgeType.rounded(12))
                         .foregroundStyle(Theme.inkMuted)
                 }
@@ -83,6 +83,7 @@ struct MedicationsView: View {
                         }
                     }
                     .buttonStyle(NudgeButtonStyle())
+                    .accessibilityIdentifier("medication.open.\(med.id)")
                     Spacer()
                     supplyChip(med)
                 }
@@ -120,7 +121,7 @@ struct MedicationsView: View {
 
     private func supplyChip(_ med: Medication) -> some View {
         let soon = med.supplyDaysRemaining <= 7
-        return Text("\(med.supplyDaysRemaining) days left")
+        return Text("Sample: \(med.supplyDaysRemaining) days")
             .font(NudgeType.number(11, .medium))
             .foregroundStyle(soon ? Theme.attention : Theme.inkMuted)
             .padding(.horizontal, 10)

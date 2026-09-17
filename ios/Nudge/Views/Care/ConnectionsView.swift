@@ -13,15 +13,15 @@ struct ConnectionsView: View {
                 header
                 FastenRecordsCard()
 
-                group(title: "Google", subtitle: "Context and sending, with your permission",
+                group(title: "Google", subtitle: "Connection examples · not authorized services",
                       items: model.connections.filter { $0.group == .google })
 
-                group(title: "Your channels", subtitle: "Where Rumi can reach you, and you can reply",
+                group(title: "Your channels", subtitle: "Channel examples · no outreach is active",
                       items: model.connections.filter { $0.group == .channel })
 
                 agentFamily
 
-                ProvenanceChip(text: "Connect or disconnect any time — Rumi only uses what you allow")
+                ProvenanceChip(text: "These toggles change the local demo only. No account is authorized and no data is sent.")
                     .padding(.top, 2)
             }
             .padding(.horizontal, 20)
@@ -36,7 +36,7 @@ struct ConnectionsView: View {
             Text("Connections")
                 .font(NudgeType.serif(30))
                 .foregroundStyle(Theme.ink)
-            Text("Bring your world in — Rumi gets smarter and meets you where you already are.")
+            Text("Review the sample record connection and explore what optional services could support.")
                 .font(NudgeType.rounded(14))
                 .foregroundStyle(Theme.inkMuted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -69,7 +69,7 @@ struct ConnectionsView: View {
                     Text("Your Rumi network")
                         .font(NudgeType.serif(19))
                         .foregroundStyle(Theme.ink)
-                    Text("A family of specialized agents working quietly behind Rumi. Tap any one to see what it's doing.")
+                    Text("Inspect prepared work or explore illustrative helper roles. External agent services aren't connected.")
                         .font(NudgeType.rounded(12.5))
                         .foregroundStyle(Theme.inkMuted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -126,7 +126,7 @@ struct ConnectionRow: View {
                         Text(connection.name)
                             .font(NudgeType.serif(16))
                             .foregroundStyle(Theme.ink)
-                        Text(connection.connected ? (connection.accountLine ?? "Connected") : connection.detail)
+                        Text(connection.connected ? "Enabled in local demo only" : connection.detail)
                             .font(NudgeType.rounded(12))
                             .foregroundStyle(connection.connected ? Theme.life : Theme.inkMuted)
                             .lineLimit(1)
@@ -135,7 +135,7 @@ struct ConnectionRow: View {
                     Button {
                         model.toggleConnection(connection.id)
                     } label: {
-                        Text(connection.connected ? "Connected" : "Connect")
+                        Text(connection.connected ? "Demo on" : "Try demo")
                             .font(NudgeType.rounded(12.5, .semibold))
                             .foregroundStyle(connection.connected ? Theme.life : Theme.base)
                             .padding(.horizontal, 14)
@@ -152,7 +152,7 @@ struct ConnectionRow: View {
                 }
 
                 if connection.connected {
-                    Text(connection.enables)
+                    Text("Illustrative capability: " + connection.enables + " No live access is authorized.")
                         .font(NudgeType.rounded(12))
                         .foregroundStyle(Theme.inkMuted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -216,12 +216,12 @@ struct AgentServiceTile: View {
             }
         }
         .buttonStyle(NudgeButtonStyle())
-        .accessibilityLabel("\(service.name), \(service.active ? "active" : "paused"), \(active) in motion")
+        .accessibilityLabel("\(service.name), demonstration, \(service.active ? "available" : "paused")")
     }
 
     private var tileStatus: String {
         if !service.active { return "Paused" }
-        if waiting > 0 { return "\(waiting) waiting · \(active) in motion" }
-        return active > 0 ? "\(active) in motion" : service.role
+        if waiting > 0 { return "Demo · \(waiting) proposals" }
+        return "Demo · \(service.role)"
     }
 }

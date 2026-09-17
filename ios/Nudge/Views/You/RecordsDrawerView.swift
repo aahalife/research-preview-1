@@ -152,6 +152,9 @@ struct RecordCategoryView: View {
                     .buttonStyle(NudgeButtonStyle())
                 }
 
+                if items.isEmpty {
+                    ContentUnavailableView("No source entries available", systemImage: "doc.text.magnifyingglass", description: Text("This sample story does not include records in this category. No other person's entries have been substituted."))
+                }
                 ForEach(items) { item in
                     recordRow(item)
                 }
@@ -260,7 +263,7 @@ private struct ConflictSheet: View {
     @Environment(\.dismiss) private var dismiss
     let item: RecordItem
 
-    @State private var asked = false
+    @State private var showReview: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -277,15 +280,11 @@ private struct ConflictSheet: View {
                 .foregroundStyle(Theme.ink.opacity(0.85))
                 .lineSpacing(3)
 
-            if asked {
-                Label("Sent — your care team will confirm. I'll close the loop here.", systemImage: "checkmark")
-                    .font(NudgeType.rounded(13.5, .medium))
-                    .foregroundStyle(Theme.life)
-            } else {
+            Group {
                 Button {
-                    asked = true
+                    showReview = true
                 } label: {
-                    Text("Ask my care team to confirm")
+                    Text("Prepare a clarification question")
                         .font(NudgeType.rounded(15, .semibold))
                         .foregroundStyle(Theme.base)
                         .frame(maxWidth: .infinity)
@@ -298,5 +297,10 @@ private struct ConflictSheet: View {
             Spacer()
         }
         .padding(.horizontal, 24)
+        .sheet(isPresented: $showReview) {
+            WorkflowReviewView(originID: item.id, title: "Clarify · \(item.title)",
+                               detail: "Could you help clarify the conflicting information for \(item.title)? \(item.conflictNote ?? "The sources differ.")",
+                               context: model.context(for: item))
+        }
     }
 }

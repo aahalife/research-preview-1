@@ -1049,6 +1049,21 @@ The mode boundary takes precedence over a task's local approval state. Clinical/
 
 **Release blockers:** Privacy/Legal/Product must approve storage/sync promises, conversation/audio/photo retention, export categories/format, deletion deadlines/exceptions, processor obligations, recovery/linking and account-access support. This section specifies outcomes, not a database or encryption implementation.
 
+## Contextual assistance and inspectable agent work
+
+### Acceptance Criteria
+- When a patient asks for help from an item, retain that selected item's identity, relevant content, source and date; never replace it with a generic topic or unrelated first item.
+- Before sending contextual information for AI processing, the patient can inspect what is attached, remove it, edit their question or return without sending. Entering assistance must not discard an existing unsent message.
+- The context used for a sent turn remains associated with that turn for review and retry. A later selection must not silently change the evidence behind an earlier answer or proposal.
+- Returning from assistance preserves the originating workflow and patient-created work. Scenario/account changes cannot carry the other patient's pending context into the new conversation.
+- Explain, suggest, prepare, approve, submit and receive are distinct outcomes. Generated text, fixture narratives and local rules must not masquerade as newly verified clinical facts or external receipts.
+- An agent proposal identifies the patient's intended task, its known basis, the exact proposed content and required patient decision. Unknown recipients, missing evidence, unsupported destinations and changed drafts remain unresolved rather than guessed.
+- Patients can edit, decline or save a proposal without sending. Review-only availability must remain clear at the consequential decision; local approval cannot create a delivery, booking, payment or dispensing success.
+- Paused or unavailable agent capabilities cannot execute a proposal. Existing completed history remains inspectable and is not erased by a pause.
+- Routine navigation, consent and entry remain usable without AI. Assistance appears because it addresses the current patient task, not merely because a feature has an AI label.
+
+The latest [re-scope attachment](https://r2-pub.rork.com/attachments/ra176ma71ass9gt2x7vv9.docx) reiterates retained AI and agentic capabilities. It does not approve new autonomous clinical authority, sponsor ranking, hidden profiling or external integration contracts.
+
 ## Platform consistency and release constraints
 
 ### Acceptance Criteria

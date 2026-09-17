@@ -15,6 +15,8 @@ nonisolated struct ReviewedWorkflow: Codable, Equatable, Identifiable {
     var status: Status = .draft
     var updatedAt: Date = .now
     var reviewedAt: Date? = nil
+    var context: CareContext? = nil
+    var agentTaskID: String? = nil
 
     mutating func edit(detail: String, recipient: String) {
         self.detail = detail

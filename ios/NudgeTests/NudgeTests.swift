@@ -6,6 +6,114 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct NudgeTests {
+    @Test func preparingContextDoesNotSendOrOverwriteDraft() {
+        let engine = CompanionEngine()
+        engine.setDraft("Keep my own words")
+        let selected = CareContext(id: "selected", scenario: "metabolic", title: "Selected result", source: "Sample source", detail: "Dated evidence", question: "Suggested question")
+        engine.prepare(context: selected)
+        #expect(engine.composerDraft == "Keep my own words")
+        #expect(engine.pendingContext == selected)
+        #expect(engine.turns.isEmpty && !engine.isThinking)
+        engine.removeContext()
+        #expect(engine.pendingContext == nil && engine.composerDraft == "Keep my own words")
+        engine.reset()
+    }
+
+    @Test func switchingContextUpdatesUntouchedQuestionButProtectsEditedWords() {
+        let engine = CompanionEngine()
+        let first = CareContext(id: "a", scenario: "metabolic", title: "A", source: "Sample", detail: "A", question: "Question A")
+        let second = CareContext(id: "b", scenario: "metabolic", title: "B", source: "Sample", detail: "B", question: "Question B")
+        engine.prepare(context: first)
+        engine.prepare(context: second)
+        #expect(engine.composerDraft == "Question B" && engine.pendingContext == second)
+        engine.setDraft("My edited question B")
+        engine.prepare(context: first)
+        #expect(engine.pendingContext == second && engine.replacementContext == first)
+        #expect(engine.composerDraft == "My edited question B")
+        engine.replaceDraftAndContext()
+        #expect(engine.pendingContext == first && engine.composerDraft == "Question A")
+        engine.reset()
+    }
+
+    @Test func sourceEntryReopensEditedDraftWithNewViewIdentity() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let model = AppModel(storageDirectory: directory)
+        let context = CareContext(id: "stable-med", scenario: model.pathway.rawValue, title: "Selected medicine", source: "Sample", detail: "Details", question: "Question")
+        var draft = model.workflowDraft(originID: UUID(), title: "Refill question", detail: "Original", context: context)
+        draft.edit(detail: "Patient edited words", recipient: "Selected team")
+        model.saveWorkflow(draft)
+        let reopened = model.workflowDraft(originID: UUID(), title: "Refill question", detail: "Original", context: context)
+        #expect(reopened.id == draft.id && reopened.detail == "Patient edited words")
+    }
+
+    @Test func contextualTurnAndPendingDraftRoundTrip() throws {
+        let context = CareContext(id: "medication-b", scenario: "metabolic", title: "Selected medication", source: "Sample list", detail: "No known dispense date", question: "A question")
+        var turn = ConversationTurn(role: .user, text: "Please explain")
+        turn.context = context
+        let snapshot = SanoUserData(pathway: "metabolic", conversation: [turn], composerDraft: "Unsent", pendingCareContext: context)
+        let decoded = try JSONDecoder().decode(SanoUserData.self, from: JSONEncoder().encode(snapshot))
+        #expect(decoded.conversation?.first?.context == context)
+        let engine = CompanionEngine()
+        engine.restore(turns: decoded.conversation ?? [], draft: decoded.composerDraft ?? "", context: decoded.pendingCareContext)
+        #expect(engine.pendingContext?.id == "medication-b")
+        engine.reset()
+        #expect(engine.pendingContext == nil)
+    }
+
+    @Test func selectedContextReachesTransportWithoutChangingTheSnapshot() async throws {
+        let transport = HeldChatTransport()
+        let engine = CompanionEngine(transport: transport)
+        let context = CareContext(id: "result-b", scenario: "metabolic", title: "Only this result", source: "Source B", detail: "Value B", question: "Explain")
+        engine.prepare(context: context)
+        engine.send("My question", orb: OrbState())
+        try await transport.waitForCallCount(1)
+        #expect(transport.receivedMessages.first?.last?.content.contains("Value B") == true)
+        #expect(engine.turns.first?.context == context)
+        #expect(engine.pendingContext == nil)
+        transport.finish(index: 0, text: "A response")
+        let deadline = Date.now.addingTimeInterval(2)
+        while engine.isThinking && Date.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
+        #expect(engine.turns.last?.context == context)
+    }
+
+    @Test func taskIdeaReviewDoesNotFabricateItsOutcome() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let model = AppModel(storageDirectory: directory)
+        let action = AgentAction(title: "Sample task", detail: "Prepare a question", outcomeLine: "Never sent", glyph: "doc.text", leavesDevice: true)
+        model.agentActions = [action]
+        let priorStoryCount = model.storyEvents.count
+        let draft = try #require(model.workflowForAction(action.id))
+        #expect(draft.status == .draft)
+        #expect(model.agentActions.first?.state == .proposed)
+        #expect(model.storyEvents.count == priorStoryCount)
+        #expect(model.quickLogAck == nil)
+    }
+
+    @Test func agentProposalCreatesOneDraftAndNeverCompletesExternalWork() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let model = AppModel(storageDirectory: directory)
+        model.workflows = []
+        model.agentServices = [.init(id: "scheduling", name: "Scheduling", role: "Prepare", glyph: "calendar", accent: .warm)]
+        model.agentTasks = [.init(id: "selected-task", agentID: "scheduling", title: "Prepare a visit question", detail: "Draft only", mode: .needsApproval, status: .waiting, sources: [], cadence: "Example", outcomeLine: "Never claim sent")]
+        let first = try #require(model.workflowForAgentTask("selected-task"))
+        let second = try #require(model.workflowForAgentTask("selected-task"))
+        #expect(first.id == second.id && model.workflows.count == 1)
+        #expect(first.recipient.isEmpty && first.status == .draft)
+        #expect(model.agentTasks.first?.status == .waiting)
+        model.declineAgentTask("selected-task")
+        #expect(model.agentTasks.count == 1)
+        #expect(model.workflows.first?.status == .declined)
+        #expect(model.workflowForAgentTask("selected-task")?.id == first.id)
+        model.agentServices[0].active = false
+        #expect(model.workflowForAgentTask("selected-task") == nil)
+    }
+
     @Test func bundledFieldsWeightsResolveWithoutSystemFallback() {
         NudgeFonts.registerAll()
         for name in ["FONTSPRINGDEMO-FieldsDisplayRegular", "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", "FONTSPRINGDEMO-FieldsDisplayMediumRegular", "FONTSPRINGDEMO-FieldsDisplayBold"] {
@@ -208,8 +316,10 @@ struct NudgeTests {
 @MainActor
 private final class HeldChatTransport: ChatTransport {
     private var continuations: [CheckedContinuation<String, any Error>] = []
+    var receivedMessages: [[AIChatMessage]] = []
     func stream(requestID: UUID, system: String, messages: [AIChatMessage], onDelta: @escaping @MainActor (String) -> Void) async throws -> String {
-        try await withCheckedThrowingContinuation { continuations.append($0) }
+        receivedMessages.append(messages)
+        return try await withCheckedThrowingContinuation { continuations.append($0) }
     }
     func waitForCallCount(_ count: Int) async throws {
         let deadline = Date.now.addingTimeInterval(2)

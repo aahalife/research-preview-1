@@ -1,103 +1,103 @@
 {
   "appContext": {
     "appName": "Rumi",
-    "category": "Patient care companion prototype",
-    "summary": "Native patient-care prototype. Refresh all ten previously accepted screen images after correcting Fields Medium/Semibold font loading and recoloring the Rumi mark green. Retain supplied brand and short captions. Real AI chat works; Fasten, social sign-in and clinical external actions remain unconnected.",
+    "category": "Patient visit and communication journey library",
+    "summary": "Chapter 2 in a comprehensive native feature library, beyond the initial ten slides. Capture Marcus/metabolic Demo. Show selected appointment → practical readiness → patient observations → real optional AI questions → reviewed brief → communication. Use supplied mint/blush/butter/forest and existing real-screen-plus-short-caption style. No live EHR, booking or provider receipt claims; don't fabricate unavailable screens.",
     "domainKeywords": [
-      "patient",
-      "sample care",
-      "Fields typography",
+      "appointment",
       "visit preparation",
-      "habit support",
-      "Fasten demonstration"
+      "patient questions",
+      "AI suggestions",
+      "care team",
+      "demo messages"
     ],
     "forbiddenInterpretations": [
-      "live Fasten connection",
-      "verified patient records",
-      "AI clinician",
-      "real EHR submission",
-      "Linden rename"
+      "AI doctor",
+      "verified booking",
+      "EHR delivery success",
+      "automated treatment",
+      "robot graphics"
     ]
   },
   "theme": {
-    "style": "A calm clinical-paper world: warm quiet off-white grounds washed with mint #4CC9AB, blush #F5BCB5 and butter #FFE27C, anchored by deep forest #00211A for contrast. Soft daylight diffuses across matte paper grain, gentle cotton-like gradients and rounded organic shapes, like morning light on a bedside table. Nothing clinical-cold and nothing loud: airy, reassuring, humane, with generous negative space at the top for headlines.",
-    "headlineFont": "font-family: 'Plus Jakarta Sans', sans-serif — @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap')",
+    "style": "Soft clinical-paper world built from mint, blush, butter and deep forest: calm matte gradients that feel like warm printed paper rather than glossy tech. Light is diffused and daylight-soft from the upper left, with gentle grain, subtle paper fiber texture and rounded organic shapes. Backgrounds stay quiet and airy so the real app screens and short captions carry the meaning — reassuring, human, never clinical-cold or robotic.",
+    "headlineFont": "font-family: 'Plus Jakarta Sans', sans-serif — @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap')",
     "headlineFontSize": 112,
     "mockupIds": {
       "iphone": "silver",
       "ipad": "silver"
     },
     "palette": {
-      "primary": "#F7F4EE",
-      "secondary": "#4CC9AB",
-      "accent": "#FFE27C"
+      "primary": "#DCF2E4",
+      "secondary": "#F7D9D5",
+      "accent": "#1F4436"
     },
     "layoutId": "hero-clipped"
   },
   "slides": [
     {
-      "label": "Today",
-      "backgroundPrompt": "Abstract digital art of soft overlapping cotton-paper planes curving gently across a warm off-white ground, tinted with mint green, pale blush and butter yellow washes. Broad diffused morning light from the top-left, calm and nearly empty in the upper third, fine paper grain and a whisper of depth-of-field blur at the outer edges. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/3721d93f-c1a5-45f5-bd1d-2db13ac00428.png"
+      "label": "Appointments list",
+      "backgroundPrompt": "Abstract digital art of soft overlapping rounded arcs sweeping gently from the lower left, rendered in pale mint green, blush pink and warm butter cream over an off-white matte base. Diffused daylight from the upper left with the top third calm and nearly plain for text, fine paper grain and subtle fiber texture throughout, shallow depth of field on the outer edges. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/8beb542d-389c-4d85-8f39-1d1b9655c42d.png"
     },
     {
-      "label": "Confirm sample profile",
-      "backgroundPrompt": "Abstract digital art of two wide arcing ribbons of matte mint green and soft blush sweeping from the lower-right corner across a warm ivory field. Low-contrast diffused light from the right, upper area open and pale for text, subtle grain texture and gentle shadow beneath each ribbon for quiet depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/14d6c75d-8dca-4d6e-824d-fb3d6f7e15f3.png"
+      "label": "Selected appointment",
+      "backgroundPrompt": "Abstract digital art centered on a single large soft blush pink orb of light diffusing outward into pale mint, surrounded by faint concentric halos. Light glows from the center-right and falls off into a calm cream upper region, with gentle grain, matte paper texture and soft vignette depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/e51290ef-a738-484c-9387-53f20b3dd767.png"
     },
     {
-      "label": "Choose sharing",
-      "backgroundPrompt": "Abstract digital art of large translucent frosted-glass ovals layered at soft offsets over a cream base, each edge catching a thin mint and butter-yellow highlight. Cool soft light entering from the upper-right, the top band pale and uncluttered, faint milky blur between layers creating airy depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/db900060-d9ca-4850-a052-b5097808c581.png"
+      "label": "Visit travel checklist",
+      "backgroundPrompt": "Abstract digital art of long horizontal ribbons of pale mint and butter yellow drifting across a cream field, edges feathered like soft fabric. Cool diffused light from the top with the upper third quiet and unbroken, subtle grain, layered translucent planes creating airy depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/cb80ac27-b261-4d5e-a31c-57f52265f7b5.png"
     },
     {
-      "label": "Sample import review",
-      "backgroundPrompt": "Abstract digital art of a wide horizontal gradient band of pale butter yellow melting into mint green across a warm paper-white expanse, with one soft blush halo pooling low-center. Even diffused daylight, calm and lighter toward the top, delicate speckled grain and a barely-there vignette at the corners. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/5f724e57-86f9-48b4-b55a-9add909c4f83.png"
+      "label": "Reschedule choice",
+      "backgroundPrompt": "Abstract digital art of two large smooth curved planes gently parting near the center, one pale mint and one blush pink, over a warm cream backdrop. Soft directional light from the left grazes the curved edges, upper area calm and lightly shadowed, fine matte grain and gentle depth of field. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/a9d605f0-a34d-4ab5-8f25-e5748af550d4.png"
     },
     {
-      "label": "Care hub",
-      "backgroundPrompt": "Abstract digital art of smooth rounded soft-body shapes stacked like pebbles in mint, blush and deep forest green, floating over a warm ivory ground. Sculptural side lighting from the left casting long gentle shadows, the upper third quiet and washed pale, matte clay texture with subtle depth-of-field blur behind. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/28b70730-5840-4266-ae99-0f5b150ad536.png"
+      "label": "Virtual visit readiness",
+      "backgroundPrompt": "Abstract digital art of layered frosted glass panels stacked at soft angles, tinted mint and cool ivory with thin blush edge highlights. Even diffused light from above, the top portion muted and hazy, delicate grain and soft shadow gaps between layers for quiet depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/fa43e3cf-d19a-44b2-9b1d-fda1c60d2352.png"
     },
     {
-      "label": "Visit preparation focus",
-      "backgroundPrompt": "Abstract digital art of a single wide beam of warm butter-yellow light sweeping diagonally across a soft mint-tinted cream field, edges dissolving into mist. Directional volumetric light from the lower-left, upper region calm and darker in muted sage, fine atmospheric grain and gradual blur toward the frame edges. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/d8d1aad0-e884-4341-8a9f-fb86d0d354c2.png"
+      "label": "Visit changes and concerns",
+      "backgroundPrompt": "Abstract digital art of gently rippling blush pink and butter cream waves rolling across the lower half of a soft mint field. Warm low-angle light from the bottom right, the upper third calm and cooler for text, visible paper grain and soft blurred edges creating handmade depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/68e55ff1-a931-4d19-a288-9e1c79be25b2.png"
     },
     {
-      "label": "Visit preparation review",
-      "backgroundPrompt": "Abstract digital art of gently folded silk-like sheets in pale blush and mint draping across a warm off-white background, their creases catching soft highlights. Overhead diffused studio light, the upper portion smooth and shadowed in deep forest-tinted sage, tactile fabric texture with shallow depth of field. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/ca9b21a1-14cc-47e3-90f8-eb45f5669839.png"
+      "label": "AI visit question suggestions",
+      "backgroundPrompt": "Abstract digital art of scattered small soft-edged rounded shapes floating in loose clusters across a cream and pale mint gradient, a few tinted butter yellow. Gentle top-left light with the upper region open and calm, faint grain, layered blur giving airy dimensional separation. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/b902d609-6ae9-4f29-9f8e-86e4f91cfc21.png"
     },
     {
-      "label": "Small step plan",
-      "backgroundPrompt": "Abstract digital art of a rising series of soft rounded blocks in mint green and butter yellow ascending gently across a warm ivory ground, each with a feathered shadow. Warm light from the upper-right, top band pale and open, matte paper grain with faint blush bloom in the lower left corner. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/43056f04-a61d-417c-b240-5bfc2d15e3c4.png"
+      "label": "Reviewed brief export",
+      "backgroundPrompt": "Abstract digital art of broad overlapping translucent sheets sliding diagonally, in pale mint, ivory and faint deep forest shadow tones. Soft raking light from the upper right catches each sheet edge, top area darkened slightly for contrast, matte grain and fine fiber texture with subtle depth blur. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/86721b39-c6b7-472d-9efb-b021140dfc00.png"
     },
     {
-      "label": "Rumi conversation",
-      "backgroundPrompt": "Abstract digital art of concentric soft ripples spreading outward in mint green and blush across a deep forest-to-cream gradient field. Gentle centered glow with cool light from above, the upper third deeper and calmer in forest green, velvety grain and soft blur at the outer rings. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/da5d36da-48a9-4f5a-9344-ec1970406ca8.png"
+      "label": "Care team people",
+      "backgroundPrompt": "Abstract digital art of several soft rounded blush pink and mint forms nestled side by side in a gentle row along the lower frame, over warm cream. Diffused daylight from the left, calm uncluttered upper third, delicate grain and soft shadow pooling beneath the forms for quiet depth. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/bc38814f-b804-4b62-9ef8-bfca0088b313.png"
     },
     {
-      "label": "Messages",
-      "backgroundPrompt": "Abstract digital art of slender flowing filaments of mint and butter-yellow light weaving loosely across a warm paper-white expanse, gathering into a soft blush glow near the bottom. Delicate backlighting from the lower-right, upper area quiet and nearly empty, fine dust-like grain and gentle depth-of-field fade at the edges. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
-      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/f3f266e3-1725-4b22-b541-8f7b198b494d.png"
+      "label": "Care team thread draft",
+      "backgroundPrompt": "Abstract digital art of smooth nested curves flowing inward toward a single warm butter glow at the lower center, rendered in mint, cream and deep forest shading. Light rises softly from below while the top region stays cool and calm, fine matte grain and gentle depth of field at the edges. 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/f313aa0a-0117-444b-84c9-ae430f9d8b09.png"
     }
   ],
   "headlines": {
     "en": {
-      "Today": "Your Day<br>In Focus",
-      "Confirm sample profile": "Confirm<br>Your Details",
-      "Choose sharing": "You Choose<br>What To Share",
-      "Sample import review": "See The<br>Sample Picture",
-      "Care hub": "Care Clearly<br>Organized",
-      "Visit preparation focus": "Start With<br>What Matters",
-      "Visit preparation review": "Review<br>Before Sharing",
-      "Small step plan": "A Step<br>That Fits",
-      "Rumi conversation": "Room To<br>Talk It Through",
-      "Messages": "Keep The<br>Thread Together"
+      "Appointments list": "Find The<br>Right Visit",
+      "Selected appointment": "One Visit<br>In Focus",
+      "Visit travel checklist": "Ready<br>To Arrive",
+      "Reschedule choice": "Review<br>Before You Decide",
+      "Virtual visit readiness": "Set Up<br>For Virtual",
+      "Visit changes and concerns": "Your Own<br>Observations",
+      "AI visit question suggestions": "Questions<br>You Choose",
+      "Reviewed brief export": "Take A<br>Reviewed Copy",
+      "Care team people": "Know<br>Your Team",
+      "Care team thread draft": "Keep It In<br>One Thread"
     }
   }
 }

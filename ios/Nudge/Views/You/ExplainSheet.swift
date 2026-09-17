@@ -29,7 +29,7 @@ struct SeriesExplainSheet: View {
                         .lineSpacing(3)
                     Button {
                         dismiss()
-                        model.openConversation(seed: series.id)
+                        model.openConversation(context: model.context(for: series))
                     } label: {
                         Text("Talk it through")
                             .font(NudgeType.rounded(14, .semibold))
@@ -41,7 +41,7 @@ struct SeriesExplainSheet: View {
                     .buttonStyle(NudgeButtonStyle())
                 }
 
-                ProvenanceChip(text: "\(series.provenance) · explained with your kidney function in mind")
+                ProvenanceChip(text: "Sample explanation · \(series.provenance)")
                     .padding(.bottom, 24)
             }
             .padding(.horizontal, 24)
@@ -83,9 +83,9 @@ struct ExplainSheet: View {
 
             Button {
                 dismiss()
-                model.openConversation(seed: item.title.lowercased())
+                model.openConversation(context: model.context(for: item))
             } label: {
-                Text("Ask me anything about this")
+                Text("Ask Rumi about this record")
                     .font(NudgeType.rounded(14, .semibold))
                     .foregroundStyle(Theme.base)
                     .padding(.horizontal, 20)
@@ -104,19 +104,19 @@ struct ExplainSheet: View {
     private var explanation: String {
         switch item.category {
         case .labs:
-            return "This is one of your lab results. The number on its own matters less than the direction it's moving and the company it keeps — I read it alongside your kidneys, your meds, and your history before I say anything about it."
+            return "This sample entry records a lab result. Its date, units and source matter. Rumi can help you frame a question about the supplied information; this entry alone is not a diagnosis."
         case .medications:
-            return "This is on your active list. I check it against everything else you take — including anything over-the-counter you tell me about — and I watch the refill rhythm so running out never sneaks up on you."
+            return "This is a sample medication entry, not confirmation of what you currently take. Check the source and any conflicting information. You can ask Rumi to help draft a question; no live interaction or pharmacy check has occurred."
         case .conditions:
-            return "This is part of your story, not a label. It shapes how I read every other number and which small moves matter most. Nothing here is news to your care team — and nothing about it changes what you're already doing well."
+            return "This sample condition belongs to the listed source and date. It is not a new diagnosis from Rumi. Ask about unfamiliar terms or information you want to clarify with your care team."
         case .immunizations:
-            return "Your protection record. I keep an eye on what's due and when — with your conditions, staying current earns you more than most people get from it."
+            return "This sample entry records an immunization. It may not be a complete vaccination history. Rumi can help you prepare a question about what is recorded; your clinician should confirm what is due."
         case .procedures:
-            return "A look-under-the-hood from your history. Results like this set the baseline I compare new signals against."
+            return "A procedure entry from the sample history. Review its date and available detail; an entry title is not the full procedure report."
         case .notes:
-            return "Your clinician's own words from a visit. Worth re-reading on the hard weeks — \"real progress\" was written about you."
+            return "This entry points to a sample clinical note. Rumi can explain only the text supplied here, not an unseen full note. Keep the original author's words separate from an AI explanation."
         case .documents:
-            return "Something you added yourself. It's part of the same story as everything else — searchable, shareable when you choose, and yours."
+            return "A sample document entry. Available title and details can be discussed; no absent scan or attachment has been read by AI."
         }
     }
 }
