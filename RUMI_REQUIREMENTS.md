@@ -295,6 +295,13 @@ The mode boundary takes precedence over a task's local approval state. Clinical/
 - Demo prefills, authorization, matching and imported records remain explicitly synthetic. No personal demographics are sent externally from Demo; vendor sandbox testing is separately identified. A demo match cannot be reused in regular mode.
 - Cancelling or previewing setup does not connect sources, grant consent, switch the active patient or replace saved records. Edited identifying information invalidates any previous association/consent decision affected by that change.
 
+**Vendor-test setup boundary**
+- Keep developer configuration checks separate from synthetic Demo imports and regular patient authorization. Checking setup sends no patient demographics, notes or record data and changes no active patient or saved work.
+- Keep private credentials and webhook signing secrets server-only. Test operations must reject live-mode credentials even when entered under test variable names.
+- Distinguish credential presence, format validation, public organization recognition, private-key authorization, registered return URL, verified signed delivery, authorized patient connection and completed import. None implies the next.
+- Verify webhook authenticity and freshness before using payload fields. Do not acknowledge clinical processing or follow download links until ownership, durable deduplication and ingestion are available. Browser return parameters do not establish ownership.
+- Register the return URL and webhook in the vendor's authorized developer account; obtain the endpoint-specific signing secret after registration. Do not invent a signing secret or silently replace configured credentials.
+
 **Connection and permission**
 - Identify supported sources and the information/use permissions sought before connection.
 - Verify authorization and patient matching before attaching external records. Ambiguous or mismatched identity cannot be silently accepted.

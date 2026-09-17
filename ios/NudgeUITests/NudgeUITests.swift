@@ -112,6 +112,25 @@ final class NudgeUITests: XCTestCase {
     }
 
     @MainActor
+    func testFastenSetupKeepsAuthorizationSeparateFromDemo() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "YES", "-nudge.pathway", "metabolic", "-nudge.music", "NO", "-nudge.sound", "NO"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab.care"].waitForExistence(timeout: 10))
+        app.buttons["tab.care"].tap()
+        app.buttons["care.Records & results"].tap()
+        let setup = app.buttons["records.fastenTestSetup"]
+        XCTAssertTrue(setup.waitForExistence(timeout: 5))
+        for _ in 0..<4 where !setup.isHittable { app.swipeUp() }
+        setup.tap()
+        XCTAssertTrue(app.staticTexts["fasten.setup.title"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["fasten.continue.0"].exists)
+        app.buttons["fasten.setup.close"].tap()
+        XCTAssertTrue(setup.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["fasten.setup.title"].exists)
+    }
+
+    @MainActor
     func testUnconnectedSignInDoesNotEnterApp() {
         let app = XCUIApplication()
         app.launchArguments = ["-nudge.hasOnboarded", "NO", "-nudge.music", "NO"]

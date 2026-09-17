@@ -6,6 +6,10 @@ An ordered reference for product walkthroughs, design review and presentations. 
 
 **Screenshot coverage: incomplete and paused.** Twenty accepted presentation slides are retained: the original ten-screen introduction plus ten new records/contextual-help screens. The visit chapter was cancelled; its ten staged raw captures are not accepted slides and do not close coverage. No further generation ran after cancellation. [The multi-chapter manifest](screenshots/library-captures.json) separates accepted assets from staged originals and preserves their source URLs; the tool's `deck.json`/`captures.json` describe only its latest run. All captures use synthetic information. No live Fasten/EHR capability is implied. The records chapter predates the final context-details change from inline expansion to a scrollable sheet; it remains dated evidence, not an exhaustive final-build visual check.
 
+### New setup screen — not captured
+
+**Records or Connections → Fasten test setup → check configuration → inspect setup addresses → Close.** This separate developer-facing screen sends no patient information and does not alter the local sample import. It distinguishes server credential configuration from authorization and completed import; browser authorization remains unavailable. Suggested caption: **“Check the connection setup without changing your records.”** No AI is needed for this deterministic setup task. This new screen has no accepted screenshot; the existing capture counts are unchanged.
+
 ## How to tell the Rumi story
 
 **The difference is continuity, not AI everywhere.** Start with the patient's job. Show the relevant evidence, the help that reduces effort, the decision that remains theirs, and the work they can return to. Present only implemented behavior as current; distinguish the longer connected-care vision.

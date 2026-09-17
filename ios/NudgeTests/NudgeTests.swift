@@ -6,6 +6,23 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct NudgeTests {
+    @Test func fastenSetupRejectsCrossOriginAndLiveEndpoints() throws {
+        let base = try #require(URL(string: "https://test.example"))
+        let returned = try #require(URL(string: "https://test.example/integrations/fasten/test/return"))
+        let webhook = try #require(URL(string: "https://test.example/integrations/fasten/test/webhook"))
+        let status = FastenSetupStatus(mode: "test", credentialsConfigured: true, organization: "active", privateKeyVerified: false,
+                                      webhookSecretConfigured: false, redirectConfigured: false, returnURL: returned, webhookURL: webhook,
+                                      authorizationEnabled: false, importEnabled: false)
+        #expect(status.hasValidEndpoints(for: base))
+        #expect(!status.privateKeyVerified && !status.importEnabled)
+        let other = try #require(URL(string: "https://other.example"))
+        #expect(!status.hasValidEndpoints(for: other))
+        let live = FastenSetupStatus(mode: "live", credentialsConfigured: true, organization: "active", privateKeyVerified: false,
+                                    webhookSecretConfigured: true, redirectConfigured: true, returnURL: returned, webhookURL: webhook,
+                                    authorizationEnabled: false, importEnabled: false)
+        #expect(!live.hasValidEndpoints(for: base))
+    }
+
     @Test func preparingContextDoesNotSendOrOverwriteDraft() {
         let engine = CompanionEngine()
         engine.setDraft("Keep my own words")

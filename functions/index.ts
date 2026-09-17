@@ -1,4 +1,6 @@
-interface Env {
+import { handleFasten, type FastenEnv } from "./fasten";
+
+interface Env extends FastenEnv {
   ELEVENLABS_API_KEY?: string;
 }
 
@@ -89,6 +91,10 @@ async function proxyTextToSpeech(request: Request, env: Env): Promise<Response> 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/integrations/fasten/")) {
+      return handleFasten(request, env);
+    }
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 

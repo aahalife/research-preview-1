@@ -5,6 +5,7 @@ struct FastenRecordsCard: View {
     @State private var showConnect: Bool = false
     @State private var expanded: Bool = false
     @State private var showLiveInfo: Bool = false
+    @State private var showTestSetup: Bool = false
     var body: some View {
         OrganicSurface {
             VStack(alignment: .leading, spacing: 12) {
@@ -34,6 +35,9 @@ struct FastenRecordsCard: View {
                     Button("Try a demo connection") { showConnect = true }.frame(minHeight: 44)
                         .accessibilityIdentifier("records.connectFasten")
                 }
+                Button("Fasten test setup") { showTestSetup = true }.frame(minHeight: 44)
+                    .font(NudgeType.rounded(13, .medium))
+                    .accessibilityIdentifier("records.fastenTestSetup")
                 Button("Connect my real records") { showLiveInfo = true }.frame(minHeight: 44)
                     .font(NudgeType.rounded(13, .medium))
             }.padding(18)
@@ -42,6 +46,7 @@ struct FastenRecordsCard: View {
         .sheet(isPresented: $showConnect) {
             FastenConnectionView(pathway: model.pathway) { model.demoRecordImport = $0; model.persistUserData() }
         }
+        .sheet(isPresented: $showTestSetup) { FastenSetupView() }
         .alert("Real connections aren't configured yet", isPresented: $showLiveInfo) {
             Button("OK", role: .cancel) { }
         } message: { Text("This build uses sample records. A verified account, Fasten tenant configuration and provider authorization are required before your records can be imported. No real data has been requested.") }

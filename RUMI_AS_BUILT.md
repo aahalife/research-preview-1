@@ -1,5 +1,15 @@
 # Rumi / Nudge: as-built reference and production gap audit
 
+## Current continuation — Fasten setup boundary
+
+Native **Records/Connections → Fasten test setup** is implemented with a cancellable, retryable metadata check and separate vendor-test labeling. It sends no patient/Demo content and makes no changes to saved imports. Native configuration comes only from the injected public Functions URL, without a fallback to a different project's service.
+
+`functions/fasten.ts` adds test-mode key-format validation, a sanitized public-organization lookup, registration/readiness addresses and a guarded webhook scaffold. Credentials remain server-only. Browser authorization, private-key validation, owned connection sessions, deduplication and record ingestion are not implemented by this continuation. Valid signed test events intentionally return 503 until those stages exist; nothing is silently acknowledged or downloaded. `standardwebhooks` 1.1.1 validates raw content and timestamps. The return page strips query parameters and never reports successful authorization/import. Existing voice handlers are unchanged; the Functions bundle was extended. Web app UI is unchanged; its existing test runner gained server-module coverage.
+
+The deployed `/status` probe sees both credential bindings and accepts their test-mode format after correcting an overly restrictive opaque-suffix validator. Public organization recognition remains unavailable/unverified. The endpoint-specific webhook secret and configured redirect are absent. See the [current setup handoff](RUMI_RESCOPE.md#fasten-setup-continuation--september-17) for exact registration addresses and next steps. No actual Fasten authorization or patient data collection occurred.
+
+Validation: native simulator build succeeded; `NudgeTests` + `NudgeUITests/NudgeUITests` passed **33 tests in 126 seconds**. The existing web runner passed **28 tests**, including **16 Fasten setup tests**. Web static checks/build and Functions deployment passed. Deployed probes verified status/readiness (200), unsigned delivery rejection (401), browser parameter stripping (303), return page (200), and retained `/ping` (200). These are setup safeguards, not end-to-end vendor evidence. Screenshots remain paused and unchanged.
+
 ## Current extension — full-feature contextual AI and presentation coverage
 
 This section supersedes the earlier contextual-selection and review limitations below, but not the outstanding external-service, clinical, privacy or release gates. Native only; web and voice Worker unchanged.
