@@ -134,10 +134,8 @@ struct MomentCard: View {
             if let id = moment.insightID { model.markInsightSeen(id) }
             dismissQuietly()
         case .habit:
-            if let journey = model.journeys.first, let habit = journey.habits.first {
-                model.keepHabit(journeyID: journey.id, habitID: habit.id)
-            }
-            dismiss()
+            model.openYou(.journeys)
+            dismissQuietly()
         case .task:
             model.openConversation(seed: "refill")
             dismissQuietly()

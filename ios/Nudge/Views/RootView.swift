@@ -6,6 +6,7 @@ import SwiftUI
 /// world, not just one corner of it.
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var scenePhase
     @Namespace private var orbSpace
 
     var body: some View {
@@ -26,25 +27,31 @@ struct RootView: View {
             }
             .opacity(model.showConversation ? 0 : 1)
 
-            // The companion is not a tab — it is everywhere.
-            if !model.showConversation && model.tab != .today {
+            if !model.showConversation {
                 VStack {
-                    HStack {
-                        Spacer()
-                        Button {
-                            Haptics.glass()
-                            SoundEngine.shared.glass()
-                            model.openConversation()
-                        } label: {
-                            RumiMarkView(size: 38)
-                                .padding(3)
-                                .modifier(CircularGlass())
-                        }
-                        .buttonStyle(NudgeButtonStyle())
-                        .accessibilityLabel("Talk with Rumi")
-                    }
-                    .padding(.trailing, 20)
                     Spacer()
+                    HStack(spacing: 10) {
+                        Spacer()
+                        Button { Haptics.glass(); model.openConversation() } label: {
+                            HStack(spacing: 8) {
+                                RumiMarkView(size: 30)
+                                Text("Rumi").font(NudgeType.rounded(15, .semibold))
+                            }
+                            .foregroundStyle(Theme.ink).padding(.horizontal, 16).frame(height: 50)
+                            .background(Theme.surface, in: .capsule)
+                            .overlay(Capsule().strokeBorder(Theme.edge, lineWidth: 1))
+                        }
+                        .accessibilityLabel("Talk with Rumi").accessibilityIdentifier("rumi.floating")
+                        Button { model.quickLogMedID = nil; model.showQuickLog = true } label: {
+                            Label("Log", systemImage: "plus").font(NudgeType.rounded(15, .semibold))
+                                .foregroundStyle(Theme.onAccent).padding(.horizontal, 18).frame(height: 50)
+                                .background(Theme.buttonFill, in: .capsule)
+                        }
+                        .accessibilityIdentifier("log.floating")
+                    }
+                    .buttonStyle(NudgeButtonStyle())
+                    .shadow(color: Theme.shadow.opacity(0.18), radius: 10, y: 4)
+                    .padding(.horizontal, 20).padding(.bottom, 92)
                 }
             }
 
@@ -86,6 +93,13 @@ struct RootView: View {
         }
         .fullScreenCover(isPresented: $model.showRecap) {
             RecapPlayerView()
+        }
+        .alert("Your latest changes aren't saved yet", isPresented: $model.storageError) {
+            Button("Try again") { model.persistUserData() }
+            Button("Keep working", role: .cancel) { }
+        } message: { Text("Your work is still open in this session. Please try saving again before closing the app.") }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background { model.companion.endSession(orb: model.orb); model.persistUserData() }
         }
         .onChange(of: model.showConversation) { _, open in
             if open {

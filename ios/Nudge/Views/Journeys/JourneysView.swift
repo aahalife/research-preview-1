@@ -6,6 +6,9 @@ struct JourneysView: View {
     @Environment(AppModel.self) private var model
     @State private var sponsorExplain: Program? = nil
     @State private var arcSelection: Int? = nil
+    @State private var selectedHabit: HabitSelection? = nil
+    @State private var showNewHabit: Bool = false
+    private struct HabitSelection: Identifiable { let journeyID: UUID; let id: UUID }
 
     var body: some View {
         ScrollView {
@@ -51,6 +54,9 @@ struct JourneysView: View {
                     .padding(.top, 6)
                 }
 
+                Button { showNewHabit = true } label: { Label("Shape a small step", systemImage: "plus.circle") }
+                    .frame(minHeight: 44).accessibilityIdentifier("journeys.newHabit")
+
                 ForEach(model.journeys) { journey in
                     journeyCard(journey)
                 }
@@ -77,6 +83,8 @@ struct JourneysView: View {
             .padding(.bottom, 120)
         }
         .scrollIndicators(.hidden)
+        .sheet(isPresented: $showNewHabit) { HabitPlanView() }
+        .sheet(item: $selectedHabit) { selection in HabitPlanView(journeyID: selection.journeyID, habitID: selection.id) }
         .sheet(item: $sponsorExplain) { program in
             SponsorExplainSheet(program: program)
                 .presentationDetents([.medium])
@@ -133,10 +141,11 @@ struct JourneysView: View {
         let keptToday = model.keptToday(journeyID: journey.id, habitID: habit.id)
         return HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(habit.title)
-                    .font(NudgeType.rounded(14.5, .medium))
-                    .foregroundStyle(Theme.ink)
-                Text(habit.contextLine)
+                Button { selectedHabit = .init(journeyID: journey.id, id: habit.id) } label: {
+                    Text(habit.title).font(NudgeType.rounded(14.5, .medium)).foregroundStyle(Theme.ink)
+                        .frame(minHeight: 44, alignment: .leading)
+                }
+                Text(habit.support?.paused == true ? "Paused · your progress stays" : habit.contextLine)
                     .font(NudgeType.rounded(12))
                     .foregroundStyle(Theme.inkMuted)
             }
@@ -168,6 +177,8 @@ struct JourneysView: View {
             .buttonStyle(NudgeButtonStyle())
             .animation(NudgeSpring.delight, value: keptToday)
             .accessibilityLabel(keptToday ? "Kept today" : "Mark kept")
+            .frame(minWidth: 44, minHeight: 44)
+            .disabled(habit.support?.paused == true)
         }
         .padding(.vertical, 4)
     }

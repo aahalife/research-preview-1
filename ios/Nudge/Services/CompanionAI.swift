@@ -1,73 +1,109 @@
 import Foundation
 
-/// Wire-format message for the OpenAI-compatible chat endpoint.
-nonisolated struct AIChatMessage: Codable {
+nonisolated struct AIChatMessage: Codable, Equatable {
     let role: String
     let content: String
 }
 
-nonisolated private struct StreamChunk: Decodable {
-    struct Choice: Decodable {
-        struct Delta: Decodable { let content: String? }
-        let delta: Delta?
-    }
-    let choices: [Choice]?
-}
-
 nonisolated enum CompanionAIError: Error {
-    case badResponse(Int)
-    case empty
+    case badResponse(Int), empty, incomplete, malformed
 }
 
-/// Streaming client for the companion's real brain — Claude Opus 4.8 through
-/// the Rork AI gateway. SSE parsed line-by-line; deltas land on the main actor.
-final class CompanionAI {
+/// OpenAI-compatible SSE parser. A truncated stream never becomes a completed action proposal.
+nonisolated struct ChatStreamDecoder {
+    private struct Chunk: Decodable {
+        struct Choice: Decodable {
+            struct Delta: Decodable { var content: String? }
+            var delta: Delta?
+            var finish_reason: String?
+        }
+        var choices: [Choice]?
+        var error: ErrorPayload?
+        struct ErrorPayload: Decodable { var message: String? }
+    }
+    private var eventLines: [String] = []
+    private(set) var full: String = ""
+    private(set) var isComplete: Bool = false
+    private var stopped: Bool = false
 
-    /// Streams a completion. `onDelta` receives raw text fragments as they
-    /// arrive. Returns the full assembled text.
-    func stream(
-        system: String,
-        messages: [AIChatMessage],
-        onDelta: @escaping @MainActor (String) -> Void
-    ) async throws -> String {
-        var request = URLRequest(url: URL(string: "\(AppConfig.toolkitURL)/v2/vercel/v1/chat/completions")!)
+    mutating func consume(_ line: String) throws -> String? {
+        if line.isEmpty { return try dispatch() }
+        if line.hasPrefix("data:") {
+            let value = line.dropFirst(5)
+            eventLines.append(String(value.first == " " ? value.dropFirst() : value))
+        }
+        return nil
+    }
+
+    private mutating func dispatch() throws -> String? {
+        guard !eventLines.isEmpty else { return nil }
+        let data = eventLines.joined(separator: "\n")
+        eventLines = []
+        if data == "[DONE]" { isComplete = true; return nil }
+        guard let bytes = data.data(using: .utf8), let chunk = try? JSONDecoder().decode(Chunk.self, from: bytes) else { throw CompanionAIError.malformed }
+        if chunk.error != nil { throw CompanionAIError.badResponse(502) }
+        guard let choice = chunk.choices?.first else { return nil }
+        if let reason = choice.finish_reason {
+            guard reason == "stop" else { throw CompanionAIError.incomplete }
+            stopped = true
+        }
+        if let delta = choice.delta?.content, !delta.isEmpty { full += delta; return delta }
+        return nil
+    }
+
+    mutating func finish() throws -> String {
+        _ = try dispatch()
+        guard isComplete || stopped else { throw CompanionAIError.incomplete }
+        guard !full.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw CompanionAIError.empty }
+        return full
+    }
+}
+
+final class CompanionAI: ChatTransport {
+    private let session: URLSession
+    init(session: URLSession = .shared) { self.session = session }
+
+    func stream(requestID: UUID, system: String, messages: [AIChatMessage], onDelta: @escaping @MainActor (String) -> Void) async throws -> String {
+        guard let url = URL(string: "\(AppConfig.toolkitURL)/v2/vercel/v1/chat/completions"), url.scheme == "https" else { throw CompanionAIError.malformed }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.setValue(requestID.uuidString, forHTTPHeaderField: "Idempotency-Key")
         request.setValue("Bearer \(AppConfig.toolkitKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
         request.timeoutInterval = 45
-
-        var payloadMessages: [[String: String]] = [["role": "system", "content": system]]
-        payloadMessages.append(contentsOf: messages.map { ["role": $0.role, "content": $0.content] })
-
-        let body: [String: Any] = [
+        let payload: [String: Any] = [
             "model": AppConfig.chatModel,
-            "messages": payloadMessages,
-            "stream": true,
-            "temperature": 0.75,
-            "max_tokens": 700,
+            "messages": [["role": "system", "content": system]] + messages.map { ["role": $0.role, "content": $0.content] },
+            "stream": true, "temperature": 0.55, "max_tokens": 900
         ]
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let (bytes, response) = try await URLSession.shared.bytes(for: request)
-        if let http = response as? HTTPURLResponse, http.statusCode != 200 {
-            throw CompanionAIError.badResponse(http.statusCode)
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        let (bytes, response) = try await session.bytes(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw CompanionAIError.badResponse((response as? HTTPURLResponse)?.statusCode ?? 0)
         }
-
-        var full = ""
-        let decoder = JSONDecoder()
-        for try await line in bytes.lines {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            guard trimmed.hasPrefix("data: ") else { continue }
-            let json = String(trimmed.dropFirst(6))
-            guard !json.isEmpty, json != "[DONE]" else { continue }
-            guard let data = json.data(using: .utf8),
-                  let chunk = try? decoder.decode(StreamChunk.self, from: data),
-                  let delta = chunk.choices?.first?.delta?.content, !delta.isEmpty
-            else { continue }
-            full += delta
-            await onDelta(delta)
+        guard http.value(forHTTPHeaderField: "Content-Type")?.contains("text/event-stream") == true else { throw CompanionAIError.malformed }
+        var decoder = ChatStreamDecoder()
+        // Preserve blank SSE separators explicitly; AsyncLineSequence can omit empty lines.
+        var lineBytes: [UInt8] = []
+        for try await byte in bytes {
+            try Task.checkCancellation()
+            if byte == 10 {
+                if lineBytes.last == 13 { lineBytes.removeLast() }
+                guard let line = String(bytes: lineBytes, encoding: .utf8) else { throw CompanionAIError.malformed }
+                lineBytes.removeAll(keepingCapacity: true)
+                if let delta = try decoder.consume(line) { onDelta(delta) }
+                if decoder.isComplete { break }
+            } else {
+                lineBytes.append(byte)
+                guard lineBytes.count < 262_144 else { throw CompanionAIError.malformed }
+            }
         }
-        guard !full.isEmpty else { throw CompanionAIError.empty }
-        return full
+        if !lineBytes.isEmpty {
+            guard let line = String(bytes: lineBytes, encoding: .utf8) else { throw CompanionAIError.malformed }
+            if let delta = try decoder.consume(line) { onDelta(delta) }
+        }
+        try Task.checkCancellation()
+        return try decoder.finish()
     }
 }

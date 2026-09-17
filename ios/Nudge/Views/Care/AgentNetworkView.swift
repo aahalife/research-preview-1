@@ -9,6 +9,7 @@ struct AgentNetworkView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var path: [String] = []
+    @State private var reviewedWorkflow: ReviewedWorkflow? = nil
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -18,6 +19,19 @@ struct AgentNetworkView: View {
                     VStack(alignment: .leading, spacing: 18) {
                         header
                         intelligenceCard
+                        if !model.workflows.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Your saved drafts").font(NudgeType.serif(22))
+                                ForEach(model.workflows) { workflow in
+                                    Button { reviewedWorkflow = workflow } label: {
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text(workflow.title).font(NudgeType.rounded(15, .semibold))
+                                            Text(workflow.status.rawValue).font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted)
+                                        }.padding(16).frame(maxWidth: .infinity, alignment: .leading).background(Theme.surface, in: .rect(cornerRadius: 18))
+                                    }
+                                }
+                            }
+                        }
 
                         if !model.agentTasksWaiting.isEmpty {
                             waitingSection
@@ -41,6 +55,7 @@ struct AgentNetworkView: View {
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top) { topBar }
         }
+        .sheet(item: $reviewedWorkflow) { item in WorkflowReviewView(originID: item.originID, title: item.title, detail: item.detail) }
         .onAppear {
             if let focus = model.agentNetworkFocusID {
                 path = [focus]

@@ -29,6 +29,11 @@ import Observation
     var youPath: NavigationPath = NavigationPath()
     var youSection: YouView.Section = .story
     var messageDrafts: [String: String] = [:]
+    var demoRecordImport: DemoRecordImport? = nil
+    var visitPreps: [String: AppointmentPrep] = [:]
+    var habitCheckIns: [HabitCheckIn] = []
+    var workflows: [ReviewedWorkflow] = []
+    var storageError: Bool = false
 
     func openYou(_ destination: YouDestination) {
         youPath = NavigationPath()
@@ -194,7 +199,10 @@ import Observation
     /// never a mute database write.
     var quickLogAck: String? = nil
 
-    init() {
+    private let storageDirectory: URL
+
+    init(storageDirectory: URL = .documentsDirectory) {
+        self.storageDirectory = storageDirectory
         hasOnboarded = UserDefaults.standard.bool(forKey: "nudge.hasOnboarded")
         tonePreference = UserDefaults.standard.string(forKey: "nudge.tone") ?? "Straight talk"
         epsilonConsent = UserDefaults.standard.object(forKey: "nudge.epsilon") as? Bool ?? false
@@ -253,7 +261,7 @@ import Observation
 
         // Everything the user has created comes back — the log, the guide,
         // the held moments, the remembered notes.
-        if let saved = PersistenceService.load(pathway: savedPathway.rawValue) {
+        if let saved = PersistenceService.load(pathway: savedPathway.rawValue, directory: storageDirectory) {
             entries = saved.entries
             logs = saved.logs
             memories = saved.memories
@@ -263,6 +271,13 @@ import Observation
             requests = saved.requests
             careDocuments = saved.documents
             messageDrafts = saved.messageDrafts ?? [:]
+            demoRecordImport = saved.demoRecordImport
+            appointments = saved.appointments ?? appointments
+            visitPreps = saved.visitPreps ?? [:]
+            journeys = saved.journeys ?? journeys
+            habitCheckIns = saved.habitCheckIns ?? []
+            workflows = saved.workflows ?? []
+            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "")
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for billIndex in bills.indices where saved.paidBillKeys.contains(bills[billIndex].key) {
                 bills[billIndex].status = .paid
@@ -275,8 +290,9 @@ import Observation
     }
 
     /// Persists everything the user owns. Cheap enough to call on every write.
-    func persistUserData() {
-        PersistenceService.save(SanoUserData(
+    @discardableResult
+    func persistUserData() -> Bool {
+        let saved = PersistenceService.save(SanoUserData(
             pathway: pathway.rawValue,
             entries: entries,
             logs: logs,
@@ -288,8 +304,18 @@ import Observation
             documents: careDocuments,
             paidBillKeys: bills.filter { $0.status == .paid }.map(\.key),
             derivedJourneyGoals: Array(derivedJourneyGoals),
-            messageDrafts: messageDrafts
-        ))
+            messageDrafts: messageDrafts,
+            demoRecordImport: demoRecordImport,
+            appointments: appointments,
+            visitPreps: visitPreps,
+            journeys: journeys,
+            habitCheckIns: habitCheckIns,
+            conversation: companion.turns,
+            composerDraft: companion.composerDraft,
+            workflows: workflows
+        ), directory: storageDirectory)
+        storageError = !saved
+        return saved
     }
 
     private func persistProfile() {
@@ -302,7 +328,14 @@ import Observation
 
     func switchPathway(_ newPathway: CarePathway) {
         guard newPathway != pathway else { return }
-        persistUserData()
+        companion.endSession(orb: orb)
+        guard persistUserData() else { return }
+        companion.reset()
+        demoRecordImport = nil
+        visitPreps = [:]
+        habitCheckIns = []
+        workflows = []
+        memory = []
         carePath = NavigationPath()
         messagesPath = NavigationPath()
         youPath = NavigationPath()
@@ -344,7 +377,7 @@ import Observation
             agentTasks = AgentNetwork.agentTasks(for: newPathway)
             reportSentKeys = []
         }
-        if let saved = PersistenceService.load(pathway: newPathway.rawValue) {
+        if let saved = PersistenceService.load(pathway: newPathway.rawValue, directory: storageDirectory) {
             entries = saved.entries
             logs = saved.logs
             memories = saved.memories
@@ -354,12 +387,18 @@ import Observation
             requests = saved.requests
             careDocuments = saved.documents
             messageDrafts = saved.messageDrafts ?? [:]
+            demoRecordImport = saved.demoRecordImport
+            appointments = saved.appointments ?? appointments
+            visitPreps = saved.visitPreps ?? [:]
+            journeys = saved.journeys ?? journeys
+            habitCheckIns = saved.habitCheckIns ?? []
+            workflows = saved.workflows ?? []
+            companion.restore(turns: saved.conversation ?? [], draft: saved.composerDraft ?? "")
             derivedJourneyGoals = Set(saved.derivedJourneyGoals)
             for index in bills.indices where saved.paidBillKeys.contains(bills[index].key) {
                 bills[index].status = .paid
             }
         }
-        companion.reset()
     }
 
     // MARK: - Actions
@@ -380,7 +419,7 @@ import Observation
     }
 
     func closeConversation() {
-        companion.endSession(orb: orb)
+        persistUserData()
         withAnimation(NudgeSpring.gentle) { showConversation = false }
     }
 
@@ -389,7 +428,9 @@ import Observation
         guard let journeyIndex = journeys.firstIndex(where: { $0.id == journeyID }),
               let habitIndex = journeys[journeyIndex].habits.firstIndex(where: { $0.id == habitID })
         else { return }
-        journeys[journeyIndex].habits[habitIndex].keptDates.append(.now)
+        guard journeys[journeyIndex].habits[habitIndex].support?.paused != true,
+              !keptToday(journeyID: journeyID, habitID: habitID) else { return }
+        recordHabitCheckIn(journeyID: journeyID, habitID: habitID, outcome: .kept, note: "")
         orb.celebrate()
         Haptics.bloom()
         SoundEngine.shared.bloom()
@@ -919,11 +960,12 @@ import Observation
         agentTasks.insert(AgentTask(
             id: "appt-\(id.uuidString)", agentID: "scheduling",
             title: "Confirmed \(appointments[index].with)",
-            detail: "Locked the time and I'm holding the trip plan and visit prep ready for the day.",
+            detail: "Demo confirmation saved locally. No office or calendar was contacted.",
             mode: .automatic, status: .done,
             sources: [AgentSource("Google Calendar", "gcal")],
             cadence: "Just now",
-            outcomeLine: "Booked — and on your calendar."), at: 0)
+            outcomeLine: "Demo confirmation · not a real booking"), at: 0)
+        persistUserData()
         Haptics.success()
         SoundEngine.shared.bloom()
     }
@@ -932,6 +974,9 @@ import Observation
         guard let index = appointments.firstIndex(where: { $0.id == id }) else { return }
         appointments[index].date = date
         appointments[index].status = .confirmed
+        appointments[index].trip = nil
+        visitPreps[id.uuidString]?.invalidateReview()
+        persistUserData()
         appointments.sort { $0.date < $1.date }
         Haptics.success()
         SoundEngine.shared.bloom()
@@ -943,6 +988,7 @@ import Observation
         let appt = Appointment(with: with, date: date, location: location,
                                prepReady: false, kind: kind, status: .confirmed)
         appointments.append(appt)
+        persistUserData()
         appointments.sort { $0.date < $1.date }
         Haptics.success()
         SoundEngine.shared.bloom()

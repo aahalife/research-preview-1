@@ -1,14 +1,12 @@
 import SwiftUI
 import CoreText
 
-/// Two-voice typography. The serif voice is Fraunces — a warm, deeply human
-/// face with old-style soul; it owns meaning moments. Rounded sans owns
-/// function. Never both voices at the same hierarchy level on one surface.
+/// Fields Display owns headings; rounded system type owns functional copy and data.
 enum NudgeType {
-    /// The display voice — Hermione, a curved, deeply human serif reserved
+    /// The supplied Fields display voice, reserved
     /// for the wordmark, screen titles and chapter-scale moments only.
     static func display(_ size: CGFloat) -> Font {
-        .custom("HermioneFREE", size: size)
+        .custom("FONTSPRINGDEMO-FieldsDisplayRegular", size: size, relativeTo: .largeTitle)
     }
 
     /// The serif voice — warmth and gravity. Headlines, story chapters,
@@ -16,12 +14,12 @@ enum NudgeType {
     static func serif(_ size: CGFloat, _ weight: Font.Weight = .semibold) -> Font {
         let name: String
         switch weight {
-        case .bold, .heavy, .black: name = "Fraunces-Bold"
-        case .semibold: name = "Fraunces-SemiBold"
-        case .medium: name = "Fraunces-Medium"
-        default: name = "Fraunces-Regular"
+        case .bold, .heavy, .black: name = "FONTSPRINGDEMO-FieldsDisplayBold"
+        case .semibold: name = "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular"
+        case .medium: name = "FONTSPRINGDEMO-FieldsDisplayMediumRegular"
+        default: name = "FONTSPRINGDEMO-FieldsDisplayRegular"
         }
-        return .custom(name, size: size)
+        return .custom(name, size: size, relativeTo: .title2)
     }
 
     /// Serif italic — for a single warm aside, never long passages.
@@ -53,6 +51,11 @@ enum NudgeFonts {
             "Fraunces-400", "Fraunces-500", "Fraunces-600", "Fraunces-700",
             "Fraunces-400-italic", "HermioneFREE",
         ]
+        for weight in ["regular", "medium", "semibold", "bold", "extrabold", "black"] {
+            if let url = Bundle.main.url(forResource: "fontspring-demo-fieldsdisplay-\(weight)", withExtension: "otf") {
+                CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+            }
+        }
         for file in files {
             guard let url = Bundle.main.url(forResource: file, withExtension: "ttf") else { continue }
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)

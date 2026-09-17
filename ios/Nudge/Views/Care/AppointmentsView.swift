@@ -66,7 +66,7 @@ struct AppointmentRow: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "sparkles")
                                     .font(.system(size: 8.5, weight: .semibold))
-                                Text("Prep ready")
+                                Text("Visit prep")
                                     .font(NudgeType.rounded(10.5, .medium))
                             }
                             .foregroundStyle(Theme.warm)
@@ -172,11 +172,12 @@ struct AppointmentDetailView: View {
                             }
                             .buttonStyle(NudgeButtonStyle())
                         }
-                        if appointment.prepReady {
+                        if appointment.status != .cancelled {
                             NavigationLink(value: CareDestination.visitPrep(appointment.id)) {
                                 prepCard
                             }
                             .buttonStyle(NudgeButtonStyle())
+                            .accessibilityIdentifier("appointment.prepare")
                         }
                     }
                     .padding(.horizontal, 20)

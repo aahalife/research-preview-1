@@ -67,7 +67,7 @@ Rumi helps patients understand health information, record daily experiences and 
 
 **Status:** working functional requirements. The requester approved staged implementation of the connected-care plan, including all seven additions. That approval does not approve unresolved clinical, legal, privacy, security or numerical defaults, or authorize live release. The [as-built reference](RUMI_AS_BUILT.md) records current functionality and gaps. The [change specification](RUMI_RESCOPE.md) covers scope, design, draft UI copy, assets, engineering, backend work and migration. It also owns the [proposed navigation map](RUMI_RESCOPE.md#proposed-information-architecture).
 
-The requester approved one compendium as the third of three review documents. This is an exception to the supplied guide's one-page-per-feature format. Each named section still owns its feature's rules. Shared rules appear once, with links from dependent features. Keep the attachment's feature names and order.
+The requester approved one evolving functional compendium rather than separate feature files. The latest request also adds a [visual feature and screen library](RUMI_SCREEN_LIBRARY.md); the [working specification](RUMI_RESCOPE.md) and [implementation audit](RUMI_AS_BUILT.md) retain separate ownership. This is an exception to the supplied guide's one-page-per-feature format. Each named section still owns its feature's rules. Shared rules appear once, with links from dependent features. Keep the attachment's feature names and order.
 
 No Confluence access or current Figma reference was available. Reconcile existing feature and IA pages before publishing or splitting this file. Do not create competing requirements pages.
 
@@ -287,11 +287,22 @@ The mode boundary takes precedence over a task's local approval state. Clinical/
 
 ### Acceptance Criteria
 
+**Onboarding and profile confirmation**
+- Offer record connection during first use, including a clearly identified demonstration path. Patients can skip connection and finish unrelated setup; returning later preserves permitted work.
+- Prefill only information actually provided by the chosen identity provider, preserving field provenance. First name, last name, date of birth and other source-required matching fields can be confirmed or corrected before use. Missing date of birth, legal name, address or other attributes must not be invented or inferred from social data.
+- Social sign-in authenticates an application account, not ownership of a medical record. Demographic confirmation alone never grants record access. Patient association requires the connected source's authorized portal or approved identity-proofing and consent process.
+- Collect only attributes required by the chosen access path. Additional address or identity verification is requested when the service requires it, not through an unnecessary general onboarding questionnaire. Provider credentials and identity documents use the approved authorization surface, not simulated credential fields.
+- Demo prefills, authorization, matching and imported records remain explicitly synthetic. No personal demographics are sent externally from Demo; vendor sandbox testing is separately identified. A demo match cannot be reused in regular mode.
+- Cancelling or previewing setup does not connect sources, grant consent, switch the active patient or replace saved records. Edited identifying information invalidates any previous association/consent decision affected by that change.
+
 **Connection and permission**
 - Identify supported sources and the information/use permissions sought before connection.
 - Verify authorization and patient matching before attaching external records. Ambiguous or mismatched identity cannot be silently accepted.
 - Support cancel, denied permission, expired/revoked access, reconnect and disconnect without discarding unrelated user-entered information.
 - Display connection state separately from data freshness and import success; a signed-in source can still have no available records.
+- For Fasten-supported sources, authorization, record collection and ingestion are separate observable steps. Show category-level availability, partial results and missing/pending categories without claiming a complete history. A browser return or authorization success is not proof of completed ingestion.
+- Only authenticated, source-confirmed results may advance a connected import. Duplicate/out-of-order notifications do not duplicate clinical items or attach them to another patient. Interrupted/expired collection has a recoverable state; never synthesize a successful receipt or record.
+- Each successful import can be inspected by source, scope, receipt time and original event dates; removal/disconnection explains its effect on retained history and does not delete unrelated manual work.
 - Platform-specific health permissions reflect actual granted categories; a local toggle cannot stand in for authorization.
 
 **Clinical information quality — shared owner**
@@ -668,6 +679,12 @@ The mode boundary takes precedence over a task's local approval state. Clinical/
 - Group habits under patient-chosen journey themes; each habit belongs to one journey and may also link to a plan goal or program.
 - Acceptance offers reminder days/time or none. Repeated non-keeps may prompt a smaller, optional habit without judgment.
 - Offer a weekly, skippable and disableable review with one reflective question, not scores or rankings. Ending a journey preserves readable history and stops its reminders.
+- Help the patient link a chosen action to their own reason, an existing routine/event cue, a stated obstacle and an optional smaller fallback. A rotating schedule must not be forced into a fixed clock-time cue.
+- An optional doability rating is the patient's self-report, not an inferred psychological trait, a clinical score or eligibility criterion. Low confidence invites a smaller choice, never automatic pressure or an increased goal.
+- Check-ins distinguish the intended action, a smaller alternative, a barrier and a deliberate skip. Each retains its dated context and relevant plan version; accepting a plan is not evidence the action occurred. Mistaken check-ins can be corrected or undone without affecting other habits.
+- Adaptation uses the person's stated barrier and reported outcome. The patient can retain, edit, pause or decline a suggested adjustment. Silence, non-use and setbacks are not failure, lack of motivation or consent to outreach.
+- Keep patient statements, hypotheses and AI suggestions distinct. The person's correction takes precedence in future personalization. No assistant suggestion or demographic stereotype can be promoted to patient evidence or commitment.
+- Any inferred-profile factor requires attributable evidence, stated uncertainty, purpose-limited use, correction and approved retention/deletion. Sensitive psychological classification, scoring, confidence/decay thresholds, automated outreach and learning-policy promotion remain subject to separate privacy/clinical/quality approval. The supplied behavioral-engine writeup does not itself approve these policies or establish implementation.
 
 **Edge/blocking states:** Plan changes, timezone changes, late entries and pausing/removing a journey require agreed behavior. Product/Clinical must approve eligible clinical-plan derivations and history correction rules. Garden/celebration are retained creative concepts, not specified visual implementations; meaningful progress information remains accessible without them.
 
@@ -878,6 +895,10 @@ The mode boundary takes precedence over a task's local approval state. Clinical/
 
 **Contextual conversation — shared owner**
 - Provide conversation entry from relevant clinical/lifestyle/task surfaces; preserve selected patient/entity/time and return destination.
+- Provide a consistently reachable lower-screen companion entry throughout the main app without obscuring navigation, input or critical review controls. Conversation remains optional; direct care workflows remain available.
+- Retain the unsent composer and completed conversation within their declared identity/mode scope. Dismissal returns to the originating task; stopping generation is a distinct action. After interruption or relaunch, a partial answer is identified as incomplete, never silently presented as complete.
+- Rapid sends, cancellation, reconnection and late responses cannot overwrite a newer reply, duplicate the current patient message, apply an obsolete proposal or mutate another scenario's history. Retry is associated with the intended patient message and preserves ordering.
+- Transport/provider errors have an explicit retry or non-chat recovery route. A static/scripted offline response cannot pretend to be a generated answer, clinical reassurance or evidence of synced records. No action is extracted from an incomplete response.
 - Each response addresses the patient's current message in its permitted context. A previous turn or hidden prompt cannot replace the current message or cause a duplicate response.
 - Use only permitted, attributed context under [Terms & Privacy Consent](#terms--privacy-consent), [Records Connection](#records-connection) and [Visible Editable Memory](#visible-editable-memory). Missing facts are not replaced with fixture values.
 - Ground clinical explanations in the selected evidence; distinguish quoted/source facts, AI interpretation and uncertainty. Model wording alone cannot establish diagnosis, authorization or execution.
@@ -919,6 +940,10 @@ The mode boundary takes precedence over a task's local approval state. Clinical/
 ### Acceptance Criteria
 
 **Patient preparation**
+- Offer a reversible guided route for the selected appointment: patient priority, changes/symptoms, medication concerns, questions and practical barriers, then review. Each step may be skipped; progress survives leaving and reopening that visit.
+- AI assistance is optional and uses only the permitted selected-visit context and the patient's supplied answers. Explain external processing before using entered information. Suggestions remain separate until selected; never invent symptoms, a medication change, a diagnosis or a clinician's instruction.
+- Patients can choose existing Guide questions explicitly, add their own and prioritize them. A question in the general Guide does not silently become part of every appointment.
+- Review applies to the exact content and appointment/recipient revision. Editing or rescheduling invalidates affected review status; other appointment drafts remain unchanged. Export is a patient-controlled handoff, not proof of sending, EHR acceptance or clinician review.
 - Select or confirm patient, provider/recipient, appointment where applicable and report time range; never substitute a fixture persona name or first appointment.
 - Include the approved categories of records, observations, medications, everyday logs and Guide questions, with source/date and clear inclusion/exclusion meaning.
 - Use the selected interval in all time-bound report sections. Label ongoing medication or condition information from outside that interval as background context. Do not count it as an observation within the interval.
@@ -1045,7 +1070,7 @@ The attachment supplies feature names but no approved clinical, legal or financi
 
 Before implementing affected features, approve the launch population and region, patient/delegated access, live service coverage, account recovery and linking. Clinical must approve rules, overlapping-risk handling, record corrections and AFB thresholds/fallbacks. Communication and virtual-visit coverage, sponsor policy and account retention/rights also need decisions.
 
-AFB's combined AI/rules scope, the three-document format, the seven additions, separate Demo/regular use, retained contextual secondary capabilities and the approved navigation direction are confirmed. The revised Functional Requirements and Design Context govern further reconciliation; specialist rules and proposed numerical defaults remain unapproved. The change specification owns navigation and presentation decisions.
+AFB's combined AI/rules scope, the evolving working/functional/visual document package, the seven additions, optional connected onboarding, patient-controlled habit support, separate Demo/vendor-test/regular use, retained contextual secondary capabilities and the approved navigation direction are confirmed. The revised Functional Requirements and Design Context govern further reconciliation; specialist rules and proposed numerical defaults remain unapproved. The change specification owns navigation and presentation decisions.
 
 This repository draft does not replace an unchecked Confluence or Figma page. Reconcile existing feature pages and the IA before publication. Keep one evolving requirements page per feature and link dependent features to it. Do not add competing versioned pages or regulatory IDs.
 

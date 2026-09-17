@@ -26,7 +26,9 @@ struct RecordsDrawerView: View {
                         .frame(minHeight: 44)
                 }
 
-                DisclosureGroup("Sources") {
+                FastenRecordsCard()
+
+                DisclosureGroup("Sample sources") {
                 VStack(spacing: 9) {
                     ForEach(model.sources) { source in
                         HStack {

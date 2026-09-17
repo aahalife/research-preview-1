@@ -11,6 +11,7 @@ struct ConnectionsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 header
+                FastenRecordsCard()
 
                 group(title: "Google", subtitle: "Context and sending, with your permission",
                       items: model.connections.filter { $0.group == .google })

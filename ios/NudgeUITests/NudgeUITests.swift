@@ -17,10 +17,14 @@ final class NudgeUITests: XCTestCase {
         scenario.tap()
         XCTAssertTrue(scenario.isSelected)
         app.buttons["onboarding.continue"].tap()
+        XCTAssertTrue(app.buttons["onboarding.connectRecords"].waitForExistence(timeout: 5))
+        app.buttons["onboarding.continue"].tap()
         XCTAssertTrue(app.buttons["onboarding.skip"].waitForExistence(timeout: 5))
+        app.buttons["onboarding.back"].tap()
         app.buttons["onboarding.back"].tap()
         XCTAssertTrue(scenario.waitForExistence(timeout: 5))
         XCTAssertTrue(scenario.isSelected)
+        app.buttons["onboarding.continue"].tap()
         app.buttons["onboarding.continue"].tap()
         app.buttons["onboarding.skip"].tap()
         XCTAssertTrue(app.buttons["tab.today"].waitForExistence(timeout: 10))
@@ -32,6 +36,55 @@ final class NudgeUITests: XCTestCase {
         screenshot.name = "Warm Today after short onboarding"
         screenshot.lifetime = .keepAlways
         add(screenshot)
+    }
+
+    @MainActor
+    func testDemoConnectionNeedsBirthdayAndConsent() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "NO", "-nudge.music", "NO", "-nudge.sound", "NO", "-nudge.pathway", "metabolic"]
+        app.launch()
+        XCTAssertTrue(app.buttons["onboarding.continue"].waitForExistence(timeout: 10))
+        app.buttons["onboarding.continue"].tap()
+        app.buttons["onboarding.continue"].tap()
+        app.buttons["onboarding.connectRecords"].tap()
+        XCTAssertTrue(app.buttons["fasten.continue.0"].waitForExistence(timeout: 5))
+        app.buttons["fasten.continue.0"].tap()
+        XCTAssertTrue(app.staticTexts["fasten.error"].waitForExistence(timeout: 5))
+        let birthday = app.buttons["fasten.sampleDOB"]
+        if !birthday.isHittable { app.swipeUp() }
+        birthday.tap()
+        app.buttons["fasten.continue.0"].tap()
+        XCTAssertTrue(app.buttons["fasten.continue.1"].waitForExistence(timeout: 5))
+        let disabled = NSPredicate(format: "enabled == false")
+        let waitForDisabled = XCTNSPredicateExpectation(predicate: disabled, object: app.buttons["fasten.continue.1"])
+        XCTAssertEqual(XCTWaiter.wait(for: [waitForDisabled], timeout: 5), .completed)
+        let consent = app.switches["fasten.consent"]
+        XCTAssertTrue(consent.waitForExistence(timeout: 5))
+        if !consent.isHittable { app.swipeUp() }
+        consent.tap()
+        XCTAssertTrue(app.buttons["fasten.continue.1"].isEnabled)
+        app.buttons["fasten.continue.1"].tap()
+        XCTAssertTrue(app.buttons["fasten.continue.3"].waitForExistence(timeout: 10))
+        let image = XCTAttachment(screenshot: app.screenshot()); image.name = "Fasten demo import review"; image.lifetime = .keepAlways; add(image)
+        app.buttons["fasten.continue.3"].tap()
+        XCTAssertTrue(app.buttons["onboarding.connectRecords"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    func testFloatingRumiAndComposerSurviveClosing() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-nudge.hasOnboarded", "YES", "-nudge.music", "NO", "-nudge.sound", "NO"]
+        app.launch()
+        XCTAssertTrue(app.buttons["rumi.floating"].waitForExistence(timeout: 10))
+        app.buttons["tab.care"].tap()
+        XCTAssertTrue(app.buttons["rumi.floating"].exists)
+        app.buttons["rumi.floating"].tap()
+        let composer = app.textFields["chat.composer"]
+        XCTAssertTrue(composer.waitForExistence(timeout: 5))
+        composer.tap(); composer.typeText("A draft to keep")
+        app.buttons["chat.close"].tap()
+        app.buttons["rumi.floating"].tap()
+        XCTAssertEqual(app.textFields["chat.composer"].value as? String, "A draft to keep")
     }
 
     @MainActor
@@ -62,6 +115,7 @@ final class NudgeUITests: XCTestCase {
         XCTAssertTrue(app.buttons["onboarding.continue"].waitForExistence(timeout: 5))
         app.buttons["onboarding.continue"].tap()
         app.buttons["onboarding.scenario.oncology"].tap()
+        app.buttons["onboarding.continue"].tap()
         app.buttons["onboarding.continue"].tap()
         app.buttons["onboarding.skip"].tap()
         let original = app.buttons["settings.scenario.metabolic"]

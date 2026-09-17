@@ -94,8 +94,8 @@ struct CareTeamMember: Identifiable, Equatable {
     let org: String
 }
 
-struct Appointment: Identifiable, Equatable {
-    let id = UUID()
+struct Appointment: Identifiable, Equatable, Codable {
+    var id = UUID()
     let with: String
     var date: Date
     let location: String

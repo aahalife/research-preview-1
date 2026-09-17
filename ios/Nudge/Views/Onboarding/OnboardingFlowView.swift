@@ -8,7 +8,7 @@ struct OnboardingFlowView: View {
     var isPreview: Bool = false
 
     enum Stage: Int, CaseIterable {
-        case welcome, scenario, preferences
+        case welcome, scenario, records, preferences
     }
 
     @State private var stage: Stage = .welcome
@@ -16,6 +16,8 @@ struct OnboardingFlowView: View {
     @State private var tone: String = "Straight talk"
     @State private var music: Bool = false
     @State private var showSignInNotice: Bool = false
+    @State private var showConnection: Bool = false
+    @State private var pendingImport: DemoRecordImport? = nil
 
     var body: some View {
         ZStack {
@@ -27,6 +29,7 @@ struct OnboardingFlowView: View {
                         switch stage {
                         case .welcome: welcome
                         case .scenario: scenarios
+                        case .records: records
                         case .preferences: preferences
                         }
                     }
@@ -46,6 +49,9 @@ struct OnboardingFlowView: View {
             tone = model.tonePreference
             music = model.musicOn
         }
+        .sheet(isPresented: $showConnection) {
+            FastenConnectionView(pathway: selectedPathway) { pendingImport = $0 }
+        }
         .alert("Sign-in isn't connected yet", isPresented: $showSignInNotice) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -57,7 +63,7 @@ struct OnboardingFlowView: View {
         HStack {
             if stage != .welcome {
                 Button {
-                    move(to: stage == .preferences ? .scenario : .welcome)
+                    move(to: Stage(rawValue: stage.rawValue - 1) ?? .welcome)
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .medium))
@@ -80,7 +86,7 @@ struct OnboardingFlowView: View {
                 .accessibilityLabel("Close welcome preview")
                 .accessibilityIdentifier("onboarding.close")
             } else {
-                Text("\(stage.rawValue + 1) of 3")
+                Text("\(stage.rawValue + 1) of 4")
                     .font(NudgeType.rounded(12, .medium))
                     .foregroundStyle(Theme.inkMuted)
             }
@@ -93,7 +99,7 @@ struct OnboardingFlowView: View {
                 GeometryReader { proxy in
                     Capsule()
                         .fill(Theme.gold)
-                        .frame(width: proxy.size.width * CGFloat(stage.rawValue + 1) / 3, height: 2)
+                        .frame(width: proxy.size.width * CGFloat(stage.rawValue + 1) / 4, height: 2)
                 }
                 .frame(height: 2)
                 .padding(.horizontal, 24)
@@ -154,6 +160,7 @@ struct OnboardingFlowView: View {
         let selected = selectedPathway == pathway
         return Button {
             Haptics.tick()
+            if selectedPathway != pathway { pendingImport = nil }
             selectedPathway = pathway
         } label: {
             HStack(spacing: 14) {
@@ -185,6 +192,25 @@ struct OnboardingFlowView: View {
         .buttonStyle(NudgeButtonStyle())
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier("onboarding.scenario.\(pathway.rawValue)")
+    }
+
+    private var records: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            heading("Your records, together.", detail: "See how Fasten can bring authorized health information into one place. Connecting is optional.")
+            OrganicSurface {
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("Fasten Connect", systemImage: "link").font(NudgeType.serif(22))
+                    Text(pendingImport == nil ? "Confirm a prefilled sample profile, choose what to share, and see an import arrive." : "\(pendingImport?.items.count ?? 0) sample items ready to keep when you finish setup.")
+                        .font(NudgeType.rounded(15)).foregroundStyle(Theme.inkMuted)
+                    Button(pendingImport == nil ? "Try the connection" : "Review connection again") { showConnection = true }
+                        .buttonStyle(.borderedProminent).tint(Theme.buttonFill).controlSize(.large)
+                        .accessibilityIdentifier("onboarding.connectRecords")
+                    Text("Demonstration only. Real imports need authorized Fasten access, provider sign-in or identity verification, and your consent.")
+                        .font(NudgeType.rounded(12)).foregroundStyle(Theme.inkMuted)
+                }.padding(20)
+            }
+            Text("You can revisit this in Care → Records & results.").font(NudgeType.rounded(14)).foregroundStyle(Theme.inkMuted)
+        }
     }
 
     private var preferences: some View {
@@ -239,7 +265,8 @@ struct OnboardingFlowView: View {
             Button {
                 switch stage {
                 case .welcome: move(to: .scenario)
-                case .scenario: move(to: .preferences)
+                case .scenario: move(to: .records)
+                case .records: move(to: .preferences)
                 case .preferences: finish(applyPreferences: true)
                 }
             } label: {
@@ -279,6 +306,7 @@ struct OnboardingFlowView: View {
         switch stage {
         case .welcome: return "Explore the demo"
         case .scenario: return "Continue"
+        case .records: return pendingImport == nil ? "Continue without connecting" : "Continue"
         case .preferences: return isPreview ? "Done" : "Open Today"
         }
     }
@@ -316,8 +344,11 @@ struct OnboardingFlowView: View {
     private func finish(applyPreferences: Bool) {
         guard !isPreview else { dismiss(); return }
         model.switchPathway(selectedPathway)
+        guard model.pathway == selectedPathway else { return }
+        if let pendingImport { model.demoRecordImport = pendingImport }
         if applyPreferences { model.musicOn = music }
         model.completeOnboarding(values: "", barrier: "", tone: applyPreferences ? tone : model.tonePreference)
+        model.persistUserData()
         if model.musicOn { SoundEngine.shared.playBed(.ambient, fade: 2) }
         Haptics.success()
     }

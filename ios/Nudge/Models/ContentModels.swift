@@ -44,10 +44,11 @@ struct CurrentsPiece: Identifiable, Equatable {
 }
 
 /// One turn in the unified conversation.
-struct ConversationTurn: Identifiable, Equatable {
-    enum Role: Equatable { case user, companion }
+nonisolated struct ConversationTurn: Identifiable, Equatable, Codable {
+    enum Role: String, Equatable, Codable { case user, companion }
+    enum Delivery: String, Codable { case complete, streaming, interrupted, failed }
 
-    enum Rich: Equatable {
+    enum Rich: Equatable, Codable {
         case none
         case trend(String)                                  // LabSeries id
         case habitProposal(title: String, context: String)
@@ -60,11 +61,15 @@ struct ConversationTurn: Identifiable, Equatable {
         case program(title: String)
     }
 
-    let id = UUID()
+    var id = UUID()
     let role: Role
     var text: String
     var rich: Rich = .none
     var richResolved: Bool = false
     /// True while tokens are still arriving — drives the streaming shimmer.
     var streaming: Bool = false
+    var delivery: Delivery = .complete
+    var declined: Bool = false
+    var replyTo: UUID? = nil
+    var createdAt: Date = .now
 }

@@ -138,7 +138,7 @@ struct TripStep: Identifiable, Equatable {
 
 /// The wayfinding "trip plan" (§4.4.3) — depart-by, route, and the pre-visit
 /// checklist; or a readiness flow for a telehealth visit.
-struct TripPlan: Equatable {
+struct TripPlan: Equatable, Codable {
     let departBy: Date
     let travelMinutes: Int
     let routeHint: String

@@ -65,16 +65,18 @@ struct Insight: Identifiable, Equatable {
 
 /// One thing the user is working on. Never called "goals", "streaks",
 /// or "compliance".
-struct AtomicHabit: Identifiable, Equatable {
-    let id = UUID()
-    let title: String
-    let contextLine: String
+struct AtomicHabit: Identifiable, Equatable, Codable {
+    var id = UUID()
+    var title: String
+    var contextLine: String
     /// No streak fields. Ever.
     var keptDates: [Date]
+    var support: HabitSupportPlan? = nil
 }
 
-struct Journey: Identifiable, Equatable {
-    let id = UUID()
+
+struct Journey: Identifiable, Equatable, Codable {
+    var id = UUID()
     let title: String
     let why: String
     var habits: [AtomicHabit]

@@ -6,19 +6,7 @@ struct TodayCanvasView: View {
     var orbSpace: Namespace.ID
 
     var body: some View {
-        ZStack {
-            scroll
-
-            // The '+' floats on its own layer — outside the scroll's offset and
-            // melt effects, so it is always exactly where the finger expects.
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    plusButton
-                }
-            }
-        }
+        scroll
     }
 
     private var scroll: some View {
@@ -28,12 +16,6 @@ struct TodayCanvasView: View {
                     .padding(.top, 6)
 
                 VStack(spacing: 8) {
-                    Button { model.openConversation() } label: {
-                        RumiMarkView(size: 66, animated: true)
-                            .matchedGeometryEffect(id: "orb", in: orbSpace)
-                    }
-                    .buttonStyle(NudgeButtonStyle())
-                    .accessibilityLabel("Talk with Rumi")
                     Text(Date.now.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
                         .font(NudgeType.rounded(12))
                         .foregroundStyle(Theme.inkMuted)
@@ -103,14 +85,6 @@ struct TodayCanvasView: View {
                     lifeStrip.padding(.top, 22)
                 }
 
-                Button { model.openConversation() } label: {
-                    Label("Ask Rumi", systemImage: "bubble.left")
-                        .font(NudgeType.rounded(14, .medium))
-                        .foregroundStyle(Theme.warm)
-                        .frame(minHeight: 44)
-                }
-                .buttonStyle(NudgeButtonStyle())
-                .padding(.top, 20)
 
                 // Generous tail so the last row always clears the floating dock
                 // and the whole page scrolls freely from anywhere on screen.
