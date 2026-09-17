@@ -1,0 +1,13 @@
+{
+  "projectId": "8bj7q7lzrlxpwebjl7tla",
+  "observedDate": "2026-09-17",
+  "source": "Rork listExistingAssets response",
+  "imageCount": 58,
+  "urlPattern": "https://rork.app/pa/8bj7q7lzrlxpwebjl7tla/<uniqueKey>",
+  "originalPrompts": "Not exposed by the inspected listing; do not infer original prompts or rights from filenames.",
+  "libraryAudioVideo3D": "None listed. Local bundled audio and video do exist and are in asset_inventory.csv.",
+  "uniqueKeys": [
+    "leaf_rake_with_pile", "glowing_clay_orb", "soft_editorial_3d", "resistance_band_clay", "tree_path_sunset_walk", "blister_pack_tablets", "grilled_salmon_lemon_greens", "glowing_orb_in_leaves", "dumbbells_towel_wellness", "oatmeal_bowl_blueberries", "calendar_heart_stethoscope", "soft_editorial_studio_2", "vegetable_omelette_plate", "lips_mouth_tender", "broom_dustpan", "clay_dumbbells", "pilates_ring_and_mat", "hands_planting_sprout", "yogurt_parfait_glass", "soft_editorial_studio", "hand_sparkles_tingling", "pastel_gradient_glow_bg", "gift_box_sprout", "cozy_dinner_table", "grain_bowl_chicken_quinoa", "terracotta_cream_sneakers", "yoga_mat_bolster", "clay_treadmill", "leg_cramp_muscle", "ceramic_bowl_glow", "hiking_boots_walking_pole", "thread_unwinding_light", "clay_stairs_glow", "clay_figure_dancing", "yoga_mat_rolled", "open_folder_documents", "lentil_soup_bowl", "belly_stomach_relief", "hands_supporting_knee", "water_ripples_goggles", "walking_shoes_stride", "leg_quad_extension", "clay_figure_stretching", "clay_bicycle", "clay_figure_tai_chi", "knee_joint_pain", "medicine_bottle_tablets", "medicine_bottle_tablets_2", "notebook_speech_bubble_star", "spiral_light_mist", "medicine_bottle_pills", "clay_head_silhouette_glow", "moon_waves_stars_sleep", "standing_desk_workspace", "hinge_joint_clay", "joint_swelling_glow", "kettlebell_clay", "thermometer_warmth"
+  ],
+  "remoteOnlyVariantsNotProvenUsed": ["soft_editorial_studio_2", "medicine_bottle_tablets_2"]
+}

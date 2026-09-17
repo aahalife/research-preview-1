@@ -1,5 +1,17 @@
 # Rumi: re-scope and change specification
 
+## Privia web implementation and verified handoff — September 17
+
+The approved web-first extension is implemented in a separate Elena workspace, preserving earlier patient data and native source. Entry routes `/`, `/care`, `/messages`, `/you` use `PriviaProvider`; `/legacy` explicitly mounts the earlier prototype separately. The new navigation centers Log as a sheet action and keeps a separate floating Rumi. The supplied Linden 02 image guided opaque warm-white cards, diffuse mint/blush/butter light, forest text and Fields demo headings; production font rights remain unresolved.
+
+The app now connects patient-confirmed memory/pacing, bounded read-only AI proposals, actual local sample inbox/calendar searches, review-first messages/calendar events, the selected visit guide, direct corrected logs, personal support and SMS/call transcript previews. AI cannot place orders, approve drafts or execute external actions. Privacy-sensitive outbound sample text/calendar content is allowlisted. Calls are transcript simulations, not speech or telephony. Current live integrations and native feature parity remain outside this stage.
+
+The complete one-page Agentic Flows PDF was extracted (16 pre-visit, 10 during-visit, 12 post-visit steps); see `tmp/agentic-flows-extracted.txt`. Its automatic writeback/monitoring/quality closure/ride/refill/caregiver flows remain reference scope, not implemented services.
+
+The [standalone Word handoff](handoff/Rumi_Developer_Handoff.docx) and [reproducible source](handoff/RUMI_DEVELOPER_HANDOFF.md) replace raw historical-doc conversion as the developer starting point. They identify native/web differences, current/proposed system ownership, endpoint contracts, 174 packaged asset/reference files, all 43 scope rows and exact production migration/release boundaries. [Verification artifacts](handoff/verification.json) identify checks actually run; Rork manages repository synchronization, with no manual commit/push claim.
+
+Web validation: managed static checks/build and 68 tests passed. Browser walkthrough, reload and four viewport checks passed; native and Functions source remained unchanged. Twelve new key web captures are separate from the accepted native ledger; supplementary live AI evidence is separately labeled. Production claims still require owned clinical/Google/channel access, security/privacy/legal/clinical review and device/Release checks.
+
 ## Switchable AI connection — September 17
 
 Source: [Chat portal internals](https://r2-pub.rork.com/attachments/sci45ty8gxzig2r6hrfkj.pdf), retained at `tmp/chat-portal-internals.pdf` and fully text-extracted. The user says the server artefact is outdated but authentication remains the same. No deployed Rumi host/server URLs, host session contract or current frame traces were supplied. This work does not change Fasten, the Functions deployment, web UI or paused screenshot production.

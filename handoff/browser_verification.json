@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-17",
+  "platform": "Chromium via Playwright",
+  "controlJourney": {"screens": 12, "pageErrors": 0, "relaunchTranscriptRestoration": true},
+  "viewports": [
+    {"width": 320, "height": 740, "horizontalOverflow": false, "pageErrors": 0, "logDraftRecovery": true, "escapeDismissal": true},
+    {"width": 390, "height": 844, "horizontalOverflow": false, "pageErrors": 0, "logDraftRecovery": true, "escapeDismissal": true},
+    {"width": 768, "height": 1024, "horizontalOverflow": false, "pageErrors": 0, "logDraftRecovery": true, "escapeDismissal": true},
+    {"width": 1365, "height": 900, "horizontalOverflow": false, "pageErrors": 0, "logDraftRecovery": true, "escapeDismissal": true}
+  ],
+  "limitations": ["Not Safari, a physical phone or an exhaustive screen-reader audit", "AI calls in automated unit tests are mocked; separate live AI verification is explicitly labeled", "No native or Functions deployment changes"]
+}

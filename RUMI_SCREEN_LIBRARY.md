@@ -1,6 +1,14 @@
 # Rumi — feature, journey and screen library
 
-**Native iPhone edition · September 17, 2026**
+**Native iPhone library + separate Privia web chapter · September 17, 2026**
+
+## Privia web chapter — new, separately captured
+
+[Web capture manifest](screenshots/privia-web/manifest.json) and `screenshots/capture_privia.py` describe twelve real Chromium captures: Today, sample sources, missing order, practice-message review, original email evidence, calendar comparison, saved sample event, reviewed guide, direct log, smaller personal step, SMS clarification and return to the shared app thread. Patient: Elena, 52, synthetic. No real sends, bookings or clinical review are shown. These are inspected captures, not user-approved presentation slides, and do not replace the native ledger. Supplementary live-AI captures/report are maintained separately from the deterministic control walkthrough.
+
+The [Word handoff](handoff/Rumi_Developer_Handoff.docx) embeds the chapter and explains real versus simulated behavior. The broader native index below remains intact; the focused Elena demo is not 43-feature parity. Browser tests and live-model smoke are not production clinical validation.
+
+## Earlier native library
 
 An ordered reference for product walkthroughs, design review and presentations. Each journey names its feature, screens, patient actions and outcome. The separate [working document](RUMI_RESCOPE.md) owns implementation decisions; [functional requirements](RUMI_REQUIREMENTS.md) own expected behavior. This library describes the current native app unless a screen is explicitly marked planned or legacy. Web has not received this native refinement.
 

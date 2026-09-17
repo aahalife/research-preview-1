@@ -1,12 +1,7 @@
-import { SanoApp } from "../sano/SanoApp";
-import { SanoProvider } from "../sano/store";
+import { PriviaApp, DemoUnavailable } from "../privia/PriviaApp";
+import { PriviaProvider } from "../privia/store";
+import { DEMO_ENABLED } from "../privia/model";
 
-const Index = () => {
-  return (
-    <SanoProvider>
-      <SanoApp />
-    </SanoProvider>
-  );
-};
+const Index = () => DEMO_ENABLED ? <PriviaProvider><PriviaApp /></PriviaProvider> : <DemoUnavailable />;
 
 export default Index;

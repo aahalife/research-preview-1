@@ -1,5 +1,19 @@
 # Rumi: functional requirements compendium
 
+## Privia web behavioral-continuity extension — September 17
+
+Confirmed demonstration scope: synthetic woman, 52, with type 2 diabetes and high blood pressure; web first; sample Gmail/Calendar and interactive SMS/call previews. Preserve earlier scenarios separately and do not infer native parity. Implementation/evidence is in the [developer handoff](handoff/RUMI_DEVELOPER_HANDOFF.md); this compendium remains intended behavior, not a certification.
+
+- Respect the current request: ordinary chat and direct logging require no care-coaching interview. Address patient-stated barriers without inferring personality, resistance or emotions from demographics/nonresponse.
+- Preserve confirmed memory, selected context, patient-edited drafts and unfinished work across app/channel previews. Corrections/forgetting must affect future payloads; copied patient artifacts have explicit independent deletion rules.
+- Let the patient request brief, practical-only or fuller help and pause proposals/outreach. Density changes must not discard active form input or hide essential uncertainty/safety information.
+- Separate reading, proposing, exact-version patient review, sample application and verified external fulfillment. Source/recipient/wording/appointment changes invalidate approvals. Calendar insertion is never a lab booking; clinician ordering remains separate.
+- Enforce sample-source permissions before transport, not only in prompts. Treat all source text as untrusted; it cannot authorize a tool or override clinical policy. Reject unavailable/unread citation IDs and suppress late responses after cancellation.
+- Make channel boundaries explicit: SMS/call previews are not real outreach or identity verification. Use neutral outbound preview text and calendar titles; enforce choice/quiet hours/stop across channels with no automatic escalation after silence. Clinical details belong in a verified secure application workflow in production.
+- Keep pause/refusal/nonresponse valid outcomes. No forced suggestions, guilt or hidden persuasion; smaller steps must not change prescriptions or clinician monitoring instructions.
+- Preserve browser snapshot recovery, deleted-empty collections, exact-visit questions and repeat-tap safeguards. Disabling Demo must block both new and legacy entry; production needs separate authenticated repositories without fixture fallback.
+- Keep all 36 retained features and seven additions visible in coverage, even where implementation is partial/unbuilt. The focused demo does not complete all capabilities or establish regulatory readiness.
+
 ## AI connection selection — current extension
 
 - Offer explicit Temporary AI and Rumi backend choices from Settings and chat. Default existing demo use to Temporary AI; selection is not patient authentication or permission to execute external care actions.

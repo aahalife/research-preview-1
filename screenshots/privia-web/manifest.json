@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-17",
+  "platform": "web / Chromium",
+  "viewport": "390 × 844 @2x",
+  "acceptance": "Captured and inspected; not user-approved presentation slides",
+  "runtimeErrors": [],
+  "relaunchVerified": true,
+  "screens": [
+    {
+      "file": "01-today.png",
+      "caption": "One visit, her questions, and a conversation she can return to.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "02-sources.png",
+      "caption": "Choose sample evidence separately; this is not Google authorization.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "03-order-missing.png",
+      "caption": "An unconfirmed order leads to a question, not a fabricated booking.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "04-message-review.png",
+      "caption": "Her stated concern becomes an editable practice question; no real message is sent.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "05-email-evidence.png",
+      "caption": "Read the exact sample email; preparation remains unconfirmed.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "06-calendar-comparison.png",
+      "caption": "A real local overlap check compares three sample times; no slot is reserved.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "07-saved-calendar.png",
+      "caption": "Only a private title and time are saved; a calendar event is not a lab booking.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "08-reviewed-guide.png",
+      "caption": "Her questions and one selected observation stay attached to the same appointment.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "09-direct-log.png",
+      "caption": "A direct reading entry needs no AI conversation and makes no medical assessment.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "10-smaller-step.png",
+      "caption": "A difficult routine can become a smaller practical step, without changing prescribed care.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "11-sms-continuity.png",
+      "caption": "Sample SMS clarifies an incomplete reading and acknowledges without echoing health details.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    },
+    {
+      "file": "12-return-to-app.png",
+      "caption": "Return to the shared thread; sample acknowledgments are visibly distinct from live AI.",
+      "patient": "Elena · synthetic",
+      "ai": "No fabricated AI replies",
+      "source": "http://localhost:8080"
+    }
+  ]
+}

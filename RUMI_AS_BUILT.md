@@ -1,6 +1,18 @@
 # Rumi / Nudge: as-built reference and production gap audit
 
-## Current continuation — switchable AI
+## Current continuation — Privia web journey and developer handoff
+
+The new web entry is an isolated **Elena, 52, synthetic** Privia-focused workspace in `web/src/privia`. `/legacy` retains earlier scenarios and their storage without importing them into Elena. The native iOS app and Functions implementation are unchanged by this stage. The default web experience now has Today/Care/Messages/You, centered Log sheet, separate floating Rumi, Fields demo typography and the mint/blush/butter/forest surface treatment.
+
+Implemented: confirmed editable memory, response pace/pause, bounded read-only AI coordination using Rork Toolkit `anthropic/claude-sonnet-4.6`, sample Gmail search/evidence and Calendar conflict checking, separate exact-version-reviewed sample calendar/messages, exact-visit guide and text export, direct logs/correction/undo, optional support plan and shared SMS/call **transcript previews**. Explicit stage controls introduce the fictional order, practice response and after-visit plan. No live clinical, Google, SMS or telephone connection is claimed. New web source privacy, stale-reply and review gates do not retroactively correct legacy prototype handlers.
+
+Persistence uses `rumi.privia.elena.v1`, schema validation and write-before-publish saves. Corrupt snapshots are protected, another-tab changes lock stale writes, revocation/forgetting/observation correction excludes affected old context, unanswered questions and drafts survive reload. `VITE_RUMI_DEMO_ENABLED=false` gates both web entry providers; it is a kill switch, not production mode.
+
+Delivery: [Word handoff](handoff/Rumi_Developer_Handoff.docx), [editable source](handoff/RUMI_DEVELOPER_HANDOFF.md), [asset inventory](handoff/asset_inventory.csv) and [verification](handoff/verification.json). The Word handoff covers both platforms separately, current/proposed service ownership, endpoints, all 43 scope rows, assets/provenance, demo-disable steps and release gaps. It is not a raw conversion of the historical sections below.
+
+Validation: web managed checks/build passed; **68 tests** passed (39 Privia, one demo-disable regression and 28 existing). The 12-screen browser walkthrough ran through actual controls with zero page errors and reload continuity. Four viewport checks (320, 390, 768 and 1365px) verified no horizontal overflow, Escape dismissal and log draft recovery. Live browser-AI verification required a disposable test-browser certificate override for the sandbox's missing trust chain; application TLS behavior was not weakened. See the separate live report for actual responses. Native tests/builds below are historical, not rerun in this web stage. Accepted native captures remain unchanged; new web captures are separate, not user-approved slides.
+
+## Earlier continuation — switchable AI
 
 Native Settings and conversation now expose **AI connection → Temporary AI / Rumi backend**. Existing gateway behavior defaults to Temporary AI. `RumiAIRouter` owns both routes and all existing text-generation callers, including visit prep; voice refuses temporary audio services in backend mode. Provider workspaces preserve turns, composer, context and separate server client IDs within scenario storage. Legacy chat migrates into Temporary AI only. New endpoint/host sessions create a separate backend workspace; prior conversations have a read-only archive. Storage failure blocks changing the selection. Background/provider exit clears host credentials; active work is cancelled and late output cannot update a different workspace.
 

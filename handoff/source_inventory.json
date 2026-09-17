@@ -1,0 +1,938 @@
+[
+  {
+    "path": "functions/fasten.ts",
+    "sha256": "3c65e0d3dd609a63e01a3919e480dba0bdb1cff00b79c6afdcb1046770267e56"
+  },
+  {
+    "path": "functions/index.ts",
+    "sha256": "fdd74eb13ae4b2842c625a10e548110a4a9e48fa9cfcd65c738fad1206a1c7ee"
+  },
+  {
+    "path": "ios/Nudge/ContentView.swift",
+    "sha256": "f0b58b13925d586fb67259c52ee7c0ae8dab91377caecce3aae4e43b24135845"
+  },
+  {
+    "path": "ios/Nudge/Models/AgentActivity.swift",
+    "sha256": "fc751b3c283514078f6c761f33715ebed93461991195a31e24320c49a9d41f40"
+  },
+  {
+    "path": "ios/Nudge/Models/AgentNetwork.swift",
+    "sha256": "b25fae29c576b0be6751afdd3453e5c5bc262ef7e484bd97a0cd3cee6601825f"
+  },
+  {
+    "path": "ios/Nudge/Models/AppointmentPrep.swift",
+    "sha256": "73f1c0710fb55d659c1b27b0e7415e03036ff4363cd323c444e9e8c2001cb249"
+  },
+  {
+    "path": "ios/Nudge/Models/CareContext.swift",
+    "sha256": "b32c9c841cf17c7cec653b1f578fb4795326e74f198d2ab69abaee7b90bd374e"
+  },
+  {
+    "path": "ios/Nudge/Models/CareHubFixtures.swift",
+    "sha256": "8541a5d5ab833101e964d22ee5849576e4790ce05628f5ff202454a75d50d6e5"
+  },
+  {
+    "path": "ios/Nudge/Models/CareHubModels.swift",
+    "sha256": "b949f41ee33ca2ccf4bec15f430e4ef71091ef90c6e3bd5d12d4fae44e2f64ee"
+  },
+  {
+    "path": "ios/Nudge/Models/CareProfile.swift",
+    "sha256": "9056a2c9e23c38ab227f7fe9fb3a81e8e3d062c5769c127a22064cc1c80b5664"
+  },
+  {
+    "path": "ios/Nudge/Models/ContentModels.swift",
+    "sha256": "56b00ed1a917ae00497a03a3c2b35ecd38454eb13b78f50dea3105b22f7f01d3"
+  },
+  {
+    "path": "ios/Nudge/Models/DemoRecordImport.swift",
+    "sha256": "eea0405745fc85deb42417771651483f16feccf56849c08e7c3572b52a96a3e4"
+  },
+  {
+    "path": "ios/Nudge/Models/EngagementModels.swift",
+    "sha256": "fd9f8e47749b3f641e192ea7c94669633c2b10bcf1064c84fa174dab02894f6d"
+  },
+  {
+    "path": "ios/Nudge/Models/FastenSetupStatus.swift",
+    "sha256": "02f381eaa5aab63955b3380a141d8106671e999410ba9ee6e33d17510385eec2"
+  },
+  {
+    "path": "ios/Nudge/Models/HabitCheckIn.swift",
+    "sha256": "3ec7df2e8c8ce78bbcb62b3150c30e253ae3c42bbb262a7ac35a9938610a9293"
+  },
+  {
+    "path": "ios/Nudge/Models/HabitSupportPlan.swift",
+    "sha256": "ef773aeaa6269df2b437e06d22640b7293121b20603cac0181454054c785a984"
+  },
+  {
+    "path": "ios/Nudge/Models/LifeModels.swift",
+    "sha256": "8d1a9181bb076f6067a68dae54e12d7b800d6ff3b48e36b956b61155e0bf7733"
+  },
+  {
+    "path": "ios/Nudge/Models/MarcusFixtures.swift",
+    "sha256": "0634090cfd890654d95fd83482ef15333788ea6ca5ad05ba55dca96da4c0d2d8"
+  },
+  {
+    "path": "ios/Nudge/Models/PersonaFixtures.swift",
+    "sha256": "4f4e64daed558ee51bc6a56b35ed982a25f8f253c28f4e7da31cec0002fda079"
+  },
+  {
+    "path": "ios/Nudge/Models/RecordConnectionProfile.swift",
+    "sha256": "2a53aaa129cdb3a8918beb9d17ab9fc728fc3d51ecb9f113bcb6a31d8886f267"
+  },
+  {
+    "path": "ios/Nudge/Models/RecordModels.swift",
+    "sha256": "1ead15d78d2d269510651535dec93af476e233992f7d6b0431bd904362ab5453"
+  },
+  {
+    "path": "ios/Nudge/Models/ReviewedWorkflow.swift",
+    "sha256": "952b668da93c259bacb835d2c0ef57aa8b2a15bf97c76f27004adeb89bd1fc06"
+  },
+  {
+    "path": "ios/Nudge/Models/RumiAISettings.swift",
+    "sha256": "801c88813fa95b52bcb2ba0c58a11d9791a7d91fa77807d6dda444fe5b292b5b"
+  },
+  {
+    "path": "ios/Nudge/NudgeApp.swift",
+    "sha256": "1f2fa8d1d3c3d4dd783821d40728d688c0d522c50bb94a40e4f6dcb60767defa"
+  },
+  {
+    "path": "ios/Nudge/Services/ChatTransport.swift",
+    "sha256": "8ef3ca33177cb0a1bc6d72a4c0b4528f42aee3a2d80ed5e3e1427448a4cb8627"
+  },
+  {
+    "path": "ios/Nudge/Services/CompanionAI.swift",
+    "sha256": "d2c60cb1805b7c3132e584e6438a3748ab98412d7123e582059fcfe026533e2c"
+  },
+  {
+    "path": "ios/Nudge/Services/FastenSetupService.swift",
+    "sha256": "4cccb73fc0a9398fd43410ecb3c11bdeea2087d6136f1e7bbb79d962c2210928"
+  },
+  {
+    "path": "ios/Nudge/Services/PersistenceService.swift",
+    "sha256": "8be61482845ab7341f8e88758038ccf821f17ce9bdf7404e906421f2365776d3"
+  },
+  {
+    "path": "ios/Nudge/Services/RumiAIRouter.swift",
+    "sha256": "fef1b3a2f63ded9994c64d9f06a6e1ac29913d9cf5742aabf6739c64b06004e4"
+  },
+  {
+    "path": "ios/Nudge/Services/RumiSocketConnection.swift",
+    "sha256": "adb81b5e4c59a36fd03ae9a5128564fa2d16c7fa5ef55dbb4f4444e5d85e33d4"
+  },
+  {
+    "path": "ios/Nudge/Services/RumiTokenProvider.swift",
+    "sha256": "e6715ad8fb55986e808651f4adbe3fe76562b4224d3aca52a2792328360864f6"
+  },
+  {
+    "path": "ios/Nudge/Services/RumiWebSocketTransport.swift",
+    "sha256": "b404a52e2506be9052c867803105530af1b8098fab958f97a4fd0cff78227204"
+  },
+  {
+    "path": "ios/Nudge/Services/RumiWireProtocol.swift",
+    "sha256": "24a2152056612aebba2030ad4ef4c982bc55713a35b64f2d2486251107de75d5"
+  },
+  {
+    "path": "ios/Nudge/Services/SoundEngine.swift",
+    "sha256": "353a35780630811c211f5ab507c12d005d2ad3a651f0f5751aa17eb738d318e7"
+  },
+  {
+    "path": "ios/Nudge/Services/SubjectLifter.swift",
+    "sha256": "019cc7c64c1527d4b2f20d4c54083b653001e5bc0431b91f760823ab28bf4244"
+  },
+  {
+    "path": "ios/Nudge/Services/VoiceSession.swift",
+    "sha256": "d26416ec51da940d07afb3ff74d258fa03764295d450c65c7ca7964f543b373b"
+  },
+  {
+    "path": "ios/Nudge/Shaders/Effects.metal",
+    "sha256": "e80bfbea66d863fb2777839a68481ef43019d9a9fd809dd051f00375d0c1acef"
+  },
+  {
+    "path": "ios/Nudge/Shaders/LivingGradient.metal",
+    "sha256": "549e5816468ad2db0679cd302364fb5551d99780b2189709dc6e87d3cf8fadeb"
+  },
+  {
+    "path": "ios/Nudge/Shaders/Orb.metal",
+    "sha256": "641a2da3cbeb6b9c329ae0c0f99f2ad34a4557dca6e147a13b8eee5790d1a3ca"
+  },
+  {
+    "path": "ios/Nudge/Utilities/AppConfig.swift",
+    "sha256": "d43f4650d115f23db5d7a04071ff074ad441ae267bb66ce7c1fe17391733e087"
+  },
+  {
+    "path": "ios/Nudge/Utilities/Glossary.swift",
+    "sha256": "c11badc2beb771cde9f66d2e6a1fd806db7bc8b899cb0b11430b0259d393c3fc"
+  },
+  {
+    "path": "ios/Nudge/Utilities/Haptics.swift",
+    "sha256": "c5b070638cd2d21af4457f4409fda6cf7074c9971afc617f7c594ea1740a5b79"
+  },
+  {
+    "path": "ios/Nudge/Utilities/NudgeSpring.swift",
+    "sha256": "4585521bcdf7d64a47131df70c6c2845a348be41cf267aecc2631a57bd5729b6"
+  },
+  {
+    "path": "ios/Nudge/Utilities/NudgeType.swift",
+    "sha256": "486a584dee53887c17616d4c6f44dee5ff7c382a435c9e1449995a57ea5539de"
+  },
+  {
+    "path": "ios/Nudge/Utilities/Theme.swift",
+    "sha256": "cb0161b1eb25aa7694352cae558ead790ea1a9d2f0d43ecb3b14d280480013c6"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/AppModel+AIConnection.swift",
+    "sha256": "c6f47ab3cb65ad8b57dfa20a1bcef782bbbc0eb1fdf5cbcfa1778c5b14a09641"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/AppModel+CareContinuity.swift",
+    "sha256": "ea063824aeeb40a5ed3530921ec3518a0f5b1043191dab045f12b85b1763e7f8"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/AppModel+Context.swift",
+    "sha256": "f5e06ce00ce4939c9f3299293842707be81e80fd916553dd418b2762328fb43f"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/AppModel.swift",
+    "sha256": "ab7336ec7ec181132a1a5bc818be6f93d39a2ab0fd03c1af55262b2b8f9691b5"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/CompanionEngine.swift",
+    "sha256": "6e3a6eb71b4a08e667b36c9cc1552f75ea1e263f9c0aca89210375ed8088f6fa"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/FastenSetupViewModel.swift",
+    "sha256": "fe9552252bb592d488c38817e8bd78b671cbc059be22f122f2afbfc95cb4d247"
+  },
+  {
+    "path": "ios/Nudge/ViewModels/OrbState.swift",
+    "sha256": "578595c01366010c18e89e0a88883e43275df5c43419f998b8ff198d54df9fb1"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/AgentNetworkView.swift",
+    "sha256": "27ae2453d4497149b66f84745c5e13f06feb02e3995feb41f1cdde45f9bd276c"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/AppointmentsView.swift",
+    "sha256": "704921f1cc60a3b554bcb9d0a0993f933606a78f6fb788fa64a6c4e6caeb051a"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/BillsView.swift",
+    "sha256": "b43da697d189c4f3901d190337c595349d319828d89898269d7843cbee172954"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/CareHubView.swift",
+    "sha256": "036286d2a345f70be89884f066871bce2af98f3553dff28243dabea343ecdfec"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/CarePlanView.swift",
+    "sha256": "adf913f1529f22560f2697e48589ec19692f619f084f6752815d14a345293afb"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/CareRouteView.swift",
+    "sha256": "b9b9b53e48e7abfeec0be6337f40f9fe6ef0e0eabcf0d6723b192ac392a95889"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/ConnectionsView.swift",
+    "sha256": "8f68f15dd0f0db033897597ee0c848799dd8dcf097013c50a39c5ac072667558"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/DocumentsView.swift",
+    "sha256": "4ebe0808ed526c13a6b077177372e376cb1bb017556d71d038438588d8e92b8a"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/FastenRecordsCard.swift",
+    "sha256": "420d395d1dcf4189a9854e76b233ee0495275a190c6ed245f66a60310c437ea0"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/FastenSetupView.swift",
+    "sha256": "d49078adfddf5c8066122b3682c64920611c2284524f51c276bbc64207329f9c"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/MessagesView.swift",
+    "sha256": "8e486b535d963d7b65fe91e76e9de01d91f91ba0645cbb022a65794b9d0aad1c"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/ReportsView.swift",
+    "sha256": "6fc5e1a234b0a3dd21072655f2410560d93d6c63e3a640c9377f3d1ec53595f1"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/RequestsView.swift",
+    "sha256": "5779dd31152724f084b3d2a0c6f894c42d45237945f4e6ebbede16d475dbf87e"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/SavingsView.swift",
+    "sha256": "bd75ebc7c75d394cb692cd5e55d7f656f21f72e10629861826b643279f5cb0c2"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/VisitPrepView.swift",
+    "sha256": "a07c2c1b62b6909ba057df242a0f97a7f1c23ff4715ff2f602921435efdd097b"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/WalletView.swift",
+    "sha256": "7f40d424ee0e07b3a7dac7964da7d6ce4da8216c214a87599dabc320cf9340ce"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/WorkflowLibraryView.swift",
+    "sha256": "c99d01cdf457b980677318560118e3cbb2c91d5ed7448511ac69a2e7a046f88b"
+  },
+  {
+    "path": "ios/Nudge/Views/Care/WorkflowReviewView.swift",
+    "sha256": "a910c52038a385059de47cf01cf4a25fbdb2cb9ad7b9966fcc742ebcad415731"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/CareContextView.swift",
+    "sha256": "5f88852d2e0f01661913e386c5b71ec6e4373e45ac52739204e87afdc061622c"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/Chips.swift",
+    "sha256": "903f222922d9794fbbd2d1c0f305c2e5d36e82386779fb5b0c894543bf69e7e5"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/GlassSurface.swift",
+    "sha256": "3a92fd050dc65eefcbb40cc17a55b3f9778ceb690c86975bcdea69e2618cd275"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/GlowChart.swift",
+    "sha256": "9271973ece5e80ea558a4a00dbe409bbf31da9d85ab0e99eca4b6cdf9b9dfa44"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/LightGardenView.swift",
+    "sha256": "4169807175b2a7cd3382117aebb7911d38afdbdf90427ec9c873cf97d4047eb2"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/LivingGradientView.swift",
+    "sha256": "fbcc663361bd39a6aca3e0b136173328ca07a8f69e7cb59bfb7d18e3e5bcb845"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/MeltModifier.swift",
+    "sha256": "41f942b96c4a623e6fcda8b7ae6209261fc1823e8cb10a3dd5f17a7d282dad19"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/MemoryOrbView.swift",
+    "sha256": "96c882428432a868f1c0fa2715f81dd8a83c90fd8b9549a4c29d5681cd2e90ae"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/NudgeDock.swift",
+    "sha256": "59365e9b27a93293600e48aafc2c42a9c58dc6904c143e9a61f72e65fe876f2d"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/OrbView.swift",
+    "sha256": "3c4d82abdd2b54c26abb9530235a432873c973b6fc22bdcc7bd02ad9f2c92bc0"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/ProgressiveBlur.swift",
+    "sha256": "298c30f0aaa17717fd00a9821bb7b8015fc452c063dcf4bfa853965733defe7c"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/RippleEffect.swift",
+    "sha256": "8e72a538bf0f01427963a388af0fd95378d02cc85f26f4eb741af12a7f256a44"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/RumiMarkView.swift",
+    "sha256": "d3a1898e4107c16af55d50e76f499157b99441b408ea87635cc5e501a902fe32"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/SceneVisual.swift",
+    "sha256": "ab62350d64cbde942907b89cad07ecfc577af87f348ec2ba31ae7a2c171b6fab"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/TideView.swift",
+    "sha256": "5434dda801eb55b181d7eadb34beb3af3d77a964b1412df340458c8fe9a0bfe1"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/VideoOrbView.swift",
+    "sha256": "a751fabcc349ce92a0d6a9c37d2d4d30e579272eff9d38b45e2c933064e3b5e6"
+  },
+  {
+    "path": "ios/Nudge/Views/Components/VoiceGradientGlow.swift",
+    "sha256": "c3dfcf25c67ae3d53dd53c5d2659f800095a831a144fdb2bbf5ae4cde7a5d203"
+  },
+  {
+    "path": "ios/Nudge/Views/Conversation/ConversationView.swift",
+    "sha256": "cc6d82618967d1c4582038d59f827f7a6ceceeb85c39481dc720521ed8794864"
+  },
+  {
+    "path": "ios/Nudge/Views/Conversation/VoiceModeView.swift",
+    "sha256": "7f3a4110e821a37ce068fc234cdd3d266ab1bb34253f38c1185ef6a1ada976fc"
+  },
+  {
+    "path": "ios/Nudge/Views/Currents/CurrentsPlayerSheets.swift",
+    "sha256": "dec4622fa115db01712760bb40c15b3aee4927c1df8dbe2a4fae5634a2972d14"
+  },
+  {
+    "path": "ios/Nudge/Views/Currents/CurrentsView.swift",
+    "sha256": "8523f105568dc947472b5ab9752efaff21a916d91c6b6c454bf9103503395c78"
+  },
+  {
+    "path": "ios/Nudge/Views/Insights/InsightsHubView.swift",
+    "sha256": "4aa954b0b042f7998e3e145f62a9b4781f79498681f98f70ef0dcbda3d7beb9a"
+  },
+  {
+    "path": "ios/Nudge/Views/Journeys/HabitPlanView.swift",
+    "sha256": "4e93c5e3a8305aed001ea85f8a397a9500006eef8453c7cc42f1c716bf510238"
+  },
+  {
+    "path": "ios/Nudge/Views/Journeys/JourneysView.swift",
+    "sha256": "c502986215234fa538f28227355178174b2a4bdd2655d32501d839ffdaaec161"
+  },
+  {
+    "path": "ios/Nudge/Views/Life/LifeCatalogView.swift",
+    "sha256": "f9ea07c2552bbcfcd4fbfd04d3a8639911546c346e3841b99dde628b8c9bd3e6"
+  },
+  {
+    "path": "ios/Nudge/Views/Log/BodyMapView.swift",
+    "sha256": "276d4a3e8ef465df159a2d437b94f3f69ee557f0caea5da7f8bcd179849590f3"
+  },
+  {
+    "path": "ios/Nudge/Views/Log/LibraryPicker.swift",
+    "sha256": "73d94c9babb69698467fbfeda3ed35ae0153787a5db296ef96499f2fe2db3099"
+  },
+  {
+    "path": "ios/Nudge/Views/Log/QuickLogView.swift",
+    "sha256": "43ebed2638bd7f18a97a5a5644bcb8afc0d0a3a1b37c84e96a2556495b30cab5"
+  },
+  {
+    "path": "ios/Nudge/Views/Meds/MedDetailView.swift",
+    "sha256": "2e6c93b4ac672ec3d56d75889b20cf99aa153152a2c5bd311705a9fcd5b92f67"
+  },
+  {
+    "path": "ios/Nudge/Views/Meds/MedicationsView.swift",
+    "sha256": "123eb8e7d1be6882dbeabb91fa880fe1a43f46d7acce81ddab04b7a14e0d2015"
+  },
+  {
+    "path": "ios/Nudge/Views/Onboarding/FastenConnectionView.swift",
+    "sha256": "5365f3c2ecfde8b3623068c3c33282deda3c37084103b8525e3e7683e723392f"
+  },
+  {
+    "path": "ios/Nudge/Views/Onboarding/OnboardingConversationView.swift",
+    "sha256": "9f82ecbf253a7ea15a68ae1c26e592bd976dc198d8eb98164231dfa8fc47dd86"
+  },
+  {
+    "path": "ios/Nudge/Views/Onboarding/OnboardingFlowView.swift",
+    "sha256": "dd320d6ebfa9e239d109f949e390af9980bf75a1ed60832530f71705d56f62c2"
+  },
+  {
+    "path": "ios/Nudge/Views/Onboarding/RecordConnectView.swift",
+    "sha256": "14ad92009654b2e96191c1e538dcf2a00493f918f779120c6605980781c21436"
+  },
+  {
+    "path": "ios/Nudge/Views/RootView.swift",
+    "sha256": "d462eb6e11fb4ae1ac4858c81f0c84f02c1678496664dfc3859c6f7607885e53"
+  },
+  {
+    "path": "ios/Nudge/Views/Settings/AIConnectionView.swift",
+    "sha256": "5caeddaf4b028af341b8b82556e31c443ee6656e7b2e20ca9115c15b982ee7ee"
+  },
+  {
+    "path": "ios/Nudge/Views/Settings/PrivacyCenterView.swift",
+    "sha256": "48be696b2d26cb132d6ff266257033f4930e56505fc5c63303d8a624cf8076fb"
+  },
+  {
+    "path": "ios/Nudge/Views/Settings/SavedAIConversationView.swift",
+    "sha256": "fc59575bdee3b22bd7fb081ac138e75ffee9569d506fe5ce09391eef031d8e4f"
+  },
+  {
+    "path": "ios/Nudge/Views/Settings/SettingsView.swift",
+    "sha256": "b31f3dfc0a74db41abda10621e0c8eff1766a4d9fd48d61eb9114191f4d21a1e"
+  },
+  {
+    "path": "ios/Nudge/Views/Today/MomentCard.swift",
+    "sha256": "3d46ee3449552c0ff9bd01b6d6e885ad2bd20ff902cf36d53a92697aec8b78de"
+  },
+  {
+    "path": "ios/Nudge/Views/Today/TodayCanvasView.swift",
+    "sha256": "0edb78a34d445ad3e07bdcd60e2397e39a0a1a893e4f90a4ec36b6580939f730"
+  },
+  {
+    "path": "ios/Nudge/Views/Today/TodayMetricsView.swift",
+    "sha256": "1b30002a6af08054c52f83b3498b3f93d83c9ef7bb4e7e1d630872aa0fbc38d7"
+  },
+  {
+    "path": "ios/Nudge/Views/Today/TodayUpdatesView.swift",
+    "sha256": "b7d4843571efa6399387c99fc083be039c0cf61098b8bc2996ce3afd29a1584f"
+  },
+  {
+    "path": "ios/Nudge/Views/Today/TodayVisitCard.swift",
+    "sha256": "3528810a7520c9bfca9cd8592212f12d410e2b69bf8099ff761b1e42fb0d80d1"
+  },
+  {
+    "path": "ios/Nudge/Views/You/CareTeamView.swift",
+    "sha256": "e6f9315aa823b69a0e03d27d832e79284aa9b458dfa3483c1c2680411489420d"
+  },
+  {
+    "path": "ios/Nudge/Views/You/ConditionOverviewView.swift",
+    "sha256": "1cf79a0f5200ffd7ef65e05081e265ffa04a49b50f3b363add349cbcea1a5e8d"
+  },
+  {
+    "path": "ios/Nudge/Views/You/DiscussionGuideView.swift",
+    "sha256": "2600d869ae08997174f006eff337a6d050ec8e0e6ff0e2b182d2aa7af403d9f1"
+  },
+  {
+    "path": "ios/Nudge/Views/You/ExplainSheet.swift",
+    "sha256": "a63535d5beb74b70557cc60a987da45c106fe5b27592ad4ff79f1cf665d541e2"
+  },
+  {
+    "path": "ios/Nudge/Views/You/LabDetailView.swift",
+    "sha256": "f05a128bc116b908e376e73017183b69f5c2c081800fe79a30a229ca5717fb5a"
+  },
+  {
+    "path": "ios/Nudge/Views/You/RecapPlayerView.swift",
+    "sha256": "5b7a6e0dbb68a207119d2f826a614e6bdc0a8444a7f671832aee2329993395e4"
+  },
+  {
+    "path": "ios/Nudge/Views/You/RecordsDrawerView.swift",
+    "sha256": "fbf4a65149303df8b55095e4029606ddbbd5ed9e4009569b137b13119dc280f4"
+  },
+  {
+    "path": "ios/Nudge/Views/You/StoryTimelineView.swift",
+    "sha256": "3f41d3ff25f7c5241ae2475af87d835b10edb9b424039de65d2e24bf9a18946a"
+  },
+  {
+    "path": "ios/Nudge/Views/You/YouRouteView.swift",
+    "sha256": "ee8b55a7b21509d5be4da30e2a15c771a83876ec14ebf8a78bd72189d7027820"
+  },
+  {
+    "path": "ios/Nudge/Views/You/YouView.swift",
+    "sha256": "b8b11d3e45611a075a26c4777f2c957806a6bcfca51023907b4a79953961f5b1"
+  },
+  {
+    "path": "web/src/App.css",
+    "sha256": "a0715e0a09edbd0fbde65816a75e0fa0fc8b314c5260c0768c19bf3aac22621a"
+  },
+  {
+    "path": "web/src/App.tsx",
+    "sha256": "7ecf08ae7c0e2745a1f97e9bf03f3af6dee437c11156f1c7b3eac884fd232812"
+  },
+  {
+    "path": "web/src/components/NavLink.tsx",
+    "sha256": "17a4a7982ae97403dc0f61d3d47c4f4c94ba5d32c211e64e05591da4a361973b"
+  },
+  {
+    "path": "web/src/components/ui/accordion.tsx",
+    "sha256": "a50a059b30bfac620ec1135d88f897f15c8926677b2ad7d4a04d5be77cdcae7e"
+  },
+  {
+    "path": "web/src/components/ui/alert-dialog.tsx",
+    "sha256": "5ad70e0bb293e860dbc9a8889cde051148da5339131dcec98c56871870da1a20"
+  },
+  {
+    "path": "web/src/components/ui/alert.tsx",
+    "sha256": "457744ca7793a22070733e0b9824d1123ba9517cff893394fc064547d60efcf3"
+  },
+  {
+    "path": "web/src/components/ui/aspect-ratio.tsx",
+    "sha256": "d72c73d629e37995a0a71647d851d68d6fdcd7ec120797f36ab83a8ee89f2cab"
+  },
+  {
+    "path": "web/src/components/ui/avatar.tsx",
+    "sha256": "e146d55bdf2a62e5bbb1ec1ce59e42f2e605bffe403cfa5595a3029d3fabdb27"
+  },
+  {
+    "path": "web/src/components/ui/badge.tsx",
+    "sha256": "3cba4b6c8672219f2284315ac920d1f2e05703e9dfb34e049b6b57f64cb78305"
+  },
+  {
+    "path": "web/src/components/ui/breadcrumb.tsx",
+    "sha256": "806d880e06b3420760e1dec6d7db788afcf214c7fc6392c54208715691d7f296"
+  },
+  {
+    "path": "web/src/components/ui/button.tsx",
+    "sha256": "91f9dea90d6d6b8a1cc7d81f827e869c4ba0e24ec3e2266ce2c4596b8e142fba"
+  },
+  {
+    "path": "web/src/components/ui/calendar.tsx",
+    "sha256": "7c1924c434c8e4a948c7c57e8cac989b05ae69fa905f39304412ca3c8cfce50b"
+  },
+  {
+    "path": "web/src/components/ui/card.tsx",
+    "sha256": "bdfb74248321c52e89c2129d9d8088a56a3e33dd7850a7c9b0563a7b5ac937a0"
+  },
+  {
+    "path": "web/src/components/ui/carousel.tsx",
+    "sha256": "4c4ce921dbdce2c7b676d4921559ce9fa2853d82bfbcef6ff959021ed3c0f228"
+  },
+  {
+    "path": "web/src/components/ui/chart.tsx",
+    "sha256": "e4f2dd926f105b4e34eac1f1c42597158b0b068f30c7c41fe5c2e363f207fd3b"
+  },
+  {
+    "path": "web/src/components/ui/checkbox.tsx",
+    "sha256": "2d7bc07a4e47e58f2858ae97973705effc7183a530a4468bc8416714f4c7151d"
+  },
+  {
+    "path": "web/src/components/ui/collapsible.tsx",
+    "sha256": "fbe07841b794e0d7d08e87ddaaafadf1dc0c63ecc8389cd2c5b4a0a3f5500df1"
+  },
+  {
+    "path": "web/src/components/ui/command.tsx",
+    "sha256": "1393156ec06fb90a7ad4e4fcb4d59685ad6410f259a3a288a1668f01de161765"
+  },
+  {
+    "path": "web/src/components/ui/context-menu.tsx",
+    "sha256": "98c8a6b179ff1ff5cf470a2fc093d4df4de31de5725dd561b525a1b6bde31b0e"
+  },
+  {
+    "path": "web/src/components/ui/dialog.tsx",
+    "sha256": "622dcad7e56a999eb8c2987472cfb5726c7e0a94c464f5f449845bb8107c257b"
+  },
+  {
+    "path": "web/src/components/ui/drawer.tsx",
+    "sha256": "3739cdfc80503412db604efb3ac0149db5f7cd5fec18508839d18dec195720e1"
+  },
+  {
+    "path": "web/src/components/ui/dropdown-menu.tsx",
+    "sha256": "c866bfdc09377a35a89c60797a712fae81acde8ded8755c24c420ec0673557e3"
+  },
+  {
+    "path": "web/src/components/ui/form.tsx",
+    "sha256": "ee0b53792d3d346c68335750b9f4caf943c8d42fc4189df28add8f1929d3f142"
+  },
+  {
+    "path": "web/src/components/ui/hover-card.tsx",
+    "sha256": "84f56709d8afe9ec11aa99d6c4b93adcde31c769895f522f47510f254c10b9bb"
+  },
+  {
+    "path": "web/src/components/ui/input-otp.tsx",
+    "sha256": "6fb3f1ab4ab0411d9c393ce8b728de80c7fa39059b397e6dbbcb0bd60f3dbb4c"
+  },
+  {
+    "path": "web/src/components/ui/input.tsx",
+    "sha256": "aacef8933fe99ab553e12a82c874a23c97e2b5602eb6f00018454fa0a8d4f7f2"
+  },
+  {
+    "path": "web/src/components/ui/label.tsx",
+    "sha256": "60e6e1e52635bbdc57ea0a7344a9ec222a886061512b01faa78a16e8618e2f87"
+  },
+  {
+    "path": "web/src/components/ui/menubar.tsx",
+    "sha256": "6e7a2e75822cf76a0e48a8a44b8143db1a8dd167d7149236d734e19282b8ed49"
+  },
+  {
+    "path": "web/src/components/ui/navigation-menu.tsx",
+    "sha256": "988bc072de79c7a1c5f0797496b53d9e53ab2325a598b10b0ad6c72c858b8eff"
+  },
+  {
+    "path": "web/src/components/ui/pagination.tsx",
+    "sha256": "ab1c8b1ada0e11f3367d213c9e61b7053c242a6e63e867e5c07bdfece9b04e9b"
+  },
+  {
+    "path": "web/src/components/ui/popover.tsx",
+    "sha256": "b1901bb0ede4e7fa01fc541a4459ceaec072d1b45e5ba09d55c38baf2aaa8d14"
+  },
+  {
+    "path": "web/src/components/ui/progress.tsx",
+    "sha256": "2b857c7e654fe5ec458c588f9358a913cc9bb4d20a4c04336b395e7bd2064a09"
+  },
+  {
+    "path": "web/src/components/ui/radio-group.tsx",
+    "sha256": "10a30a382fe5466b5f8955c26158ee57aae1b6f1ca876164c1e4af5e747e6761"
+  },
+  {
+    "path": "web/src/components/ui/resizable.tsx",
+    "sha256": "475291c90e96ce394ff28fcbf83d19c90ae16f77ea5f3af2a42321b000bc6dea"
+  },
+  {
+    "path": "web/src/components/ui/scroll-area.tsx",
+    "sha256": "5a7ac1b3143bc2a497e273ddfdb0e5307695eaf4262b7b7184edb80d2b931323"
+  },
+  {
+    "path": "web/src/components/ui/select.tsx",
+    "sha256": "e5929a941be409ee438c7966556cbf27159e425bab7ebd34aed99f5a5d9fe86c"
+  },
+  {
+    "path": "web/src/components/ui/separator.tsx",
+    "sha256": "885aedf958185582f098f37d4e994ac452fe342611993af8689eec5791c7020a"
+  },
+  {
+    "path": "web/src/components/ui/sheet.tsx",
+    "sha256": "1edce6bc3cb7ced90db6f80385515c0d7337acdcc2e090a34f24cd414123cf41"
+  },
+  {
+    "path": "web/src/components/ui/sidebar.tsx",
+    "sha256": "120b3b2d6a211cd3b1ea23441c24372d057fefa902a8db44a8fc36befb77d8a4"
+  },
+  {
+    "path": "web/src/components/ui/skeleton.tsx",
+    "sha256": "a229c310b9cbcb01ddd5e580865a6f14a19061aff7f6a97ef82a40b6a83583a4"
+  },
+  {
+    "path": "web/src/components/ui/slider.tsx",
+    "sha256": "a5c8c99b2efa44aea201dbbcaca77c960e2c46458bfdb019f30d8d61208f11d3"
+  },
+  {
+    "path": "web/src/components/ui/sonner.tsx",
+    "sha256": "720fa5658777a469a3096e2fbb59b8f3453c744aab53a35d9ad47c873177b4ca"
+  },
+  {
+    "path": "web/src/components/ui/switch.tsx",
+    "sha256": "36b3c1c839ae8fcda6747888577039a81c8f6279eb5b9c0a1e2a3ff59e429d7e"
+  },
+  {
+    "path": "web/src/components/ui/table.tsx",
+    "sha256": "fab18d9eeb84781f534330ff4b2c2cbe3a93f9bdf5c449debff2f682a83a4876"
+  },
+  {
+    "path": "web/src/components/ui/tabs.tsx",
+    "sha256": "3b3976338502b1a3eb8595ae0153b114a96d872abc0932b33a694674fab9fb9a"
+  },
+  {
+    "path": "web/src/components/ui/textarea.tsx",
+    "sha256": "1b43012d40d2fc4363ddee86c0988f6668cd2dc8d5a022352fd950d5ad340d0d"
+  },
+  {
+    "path": "web/src/components/ui/toast.tsx",
+    "sha256": "19c758d4976d0c9336b601ed832a75ea029c6865275c1d644d0b37dfe96df8e9"
+  },
+  {
+    "path": "web/src/components/ui/toaster.tsx",
+    "sha256": "decf9ee48966ebe901cb653d528e5fe0557c32056daeede245e2b3c9a6b5932f"
+  },
+  {
+    "path": "web/src/components/ui/toggle-group.tsx",
+    "sha256": "6500db904916cfa27a53390e027782dcca64ae067191315f764b9f2821e78dba"
+  },
+  {
+    "path": "web/src/components/ui/toggle.tsx",
+    "sha256": "3c67154cb3428fd632191a291ccffaf1aea51697cf4130c43a2a24442950d55b"
+  },
+  {
+    "path": "web/src/components/ui/tooltip.tsx",
+    "sha256": "b17855037aa274ad67854a292637504d525af01f157fbb4c51ed5b8f95d6f7a3"
+  },
+  {
+    "path": "web/src/components/ui/use-toast.ts",
+    "sha256": "d48c4c490e5101aa42ceed9b8ca49642d66152ba11daf7ee6c29bee0f5172c37"
+  },
+  {
+    "path": "web/src/hooks/use-mobile.tsx",
+    "sha256": "21eff740f9e5c965c7f0782925a7e8f67ddfcdf0f58b6613550f99c3e1c454e9"
+  },
+  {
+    "path": "web/src/hooks/use-toast.ts",
+    "sha256": "2ad9056073e904c80e15de83142d02a6167036e2040c53ae796fcf59f7a1fcfd"
+  },
+  {
+    "path": "web/src/index.css",
+    "sha256": "0bdf259332eb02914141880285107b0337d8f4492bcf6d44d5089e3c2802f9cc"
+  },
+  {
+    "path": "web/src/lib/utils.ts",
+    "sha256": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27"
+  },
+  {
+    "path": "web/src/main.tsx",
+    "sha256": "0a08b46bd50e2378c66a598b543a05891ef76f7f789f6b91bb0b1760488c8240"
+  },
+  {
+    "path": "web/src/pages/Index.tsx",
+    "sha256": "58359ffd747305f688f7a2372b3caeafc6bcadff9ca7cd0e056b57e2226e9210"
+  },
+  {
+    "path": "web/src/pages/Legacy.tsx",
+    "sha256": "26c913fcddbf90c16aa2b248bb0155a3162642ec7016282ee81eb84e6915ac3b"
+  },
+  {
+    "path": "web/src/pages/NotFound.tsx",
+    "sha256": "0074437a2b5b2b9df1a396790a71ade5befbb46c05adebedc57e0574671a1ff5"
+  },
+  {
+    "path": "web/src/privia/Conversation.tsx",
+    "sha256": "8b97f037293ee9d0e61ce8d707be47a055422909db4afb0be0862e79e4d577f0"
+  },
+  {
+    "path": "web/src/privia/DemoControls.tsx",
+    "sha256": "9a2809084634757c0bf3ee12c51cd84f7888a7801fba17bfd1160edd50d950e8"
+  },
+  {
+    "path": "web/src/privia/Personal.tsx",
+    "sha256": "1634d6dc9d3cf7e3e57f2d927a321ea901b37945142ce37cf85e358c306ed237"
+  },
+  {
+    "path": "web/src/privia/PriviaApp.tsx",
+    "sha256": "a2a77349ecf3d31304fd5cf8b8c59e31aff77f222a80ea2602c9ab60496e4191"
+  },
+  {
+    "path": "web/src/privia/Workspaces.tsx",
+    "sha256": "0dc2046588e9c073908f5c6b57aa77ff119d4e40b98afa11c5e0ad8887026393"
+  },
+  {
+    "path": "web/src/privia/ai.ts",
+    "sha256": "5e3d8152b9369b297429282f658a8cdeede6f786412138c111c8b3a15cc5a4d2"
+  },
+  {
+    "path": "web/src/privia/model.ts",
+    "sha256": "79ed1669b19c25bf0a1df38fde7bf61eb08038f8d93aeef73ffbfdf76e2831ed"
+  },
+  {
+    "path": "web/src/privia/privia.css",
+    "sha256": "0a60f95a76b32aefcf6f9c8da63489f8e1193f56288c39a1edaccb6b1680b668"
+  },
+  {
+    "path": "web/src/privia/store.tsx",
+    "sha256": "b48c415c8ccd987f0e7c5bc31b30ccc9937c2dbf062c3e5dcabd511a6881b288"
+  },
+  {
+    "path": "web/src/privia/ui.tsx",
+    "sha256": "e6158cc6fbc714d9a6a54aa4a696799c50182e6af07c681c7a9dd13963fa88cd"
+  },
+  {
+    "path": "web/src/sano/SanoApp.tsx",
+    "sha256": "ea6e76c7177cb3900bf78fe1e21b48d2a01ef4022bd0fb3717d06f0275b14538"
+  },
+  {
+    "path": "web/src/sano/agentNetwork.ts",
+    "sha256": "82e54e0fd689b8502417b901d7d14e7f94dd96b4c441396152a4be95a2a41af4"
+  },
+  {
+    "path": "web/src/sano/ai.ts",
+    "sha256": "13f02f42fe1c4d69a6a05d1df9156cf925aac327952d6437d88cd9998245af09"
+  },
+  {
+    "path": "web/src/sano/careBundles.ts",
+    "sha256": "8be453a4f4b138f3c0fac539fa2d737038bf9c5a8d5af2bccc86da26f48f5835"
+  },
+  {
+    "path": "web/src/sano/fixtures.ts",
+    "sha256": "5b2a82efb37d24c34bc1b0d7e3d6be3d7cf2ae2f86cf000cb4d6f2df81a55584"
+  },
+  {
+    "path": "web/src/sano/lifeLibrary.ts",
+    "sha256": "ffaf94eee51243150ea68ec1f936a0ed326b743e365481c31f644b9f6ea0391a"
+  },
+  {
+    "path": "web/src/sano/navigation.ts",
+    "sha256": "39eaeb42575ae7b9ad2b89258e0bfaebaa79ad7548ddc929127e395d7115d16e"
+  },
+  {
+    "path": "web/src/sano/screens/AgentNetwork.tsx",
+    "sha256": "03bea88664135ed5012cd549a9e11efed0239d9c6545b21036d38dbda5f94a49"
+  },
+  {
+    "path": "web/src/sano/screens/Care.tsx",
+    "sha256": "20383577379466330bec9f05b70f79edb35679998485df5efe56364b3392b4b0"
+  },
+  {
+    "path": "web/src/sano/screens/Conversation.tsx",
+    "sha256": "6b7d6af605925608beb889d4bdaa05fb66feefb2374fd63981b8056c1d9201ee"
+  },
+  {
+    "path": "web/src/sano/screens/Currents.tsx",
+    "sha256": "00ab7e0337787f5fd899d3d9de7af0a89d11bdbdc5477348db90a9878223f096"
+  },
+  {
+    "path": "web/src/sano/screens/Journeys.tsx",
+    "sha256": "5514f88804409495b21605fea6c253d82201ab9cf9aec139467b6c737d47f2b3"
+  },
+  {
+    "path": "web/src/sano/screens/Onboarding.tsx",
+    "sha256": "139e5ddcdea6da6009724d05571d58a602b02d6f7341ab01d7466d527cdb0bef"
+  },
+  {
+    "path": "web/src/sano/screens/QuickLog.tsx",
+    "sha256": "48c40250db3e3b99eb05da2db5bd5212adbef3a28846300473910a62d3bdc856"
+  },
+  {
+    "path": "web/src/sano/screens/Recap.tsx",
+    "sha256": "13cfeef14c9bff8139ab0d9e3c022c2ac9a3f1d69d2cd32ef63aefbf0fd605d7"
+  },
+  {
+    "path": "web/src/sano/screens/Settings.tsx",
+    "sha256": "1793ecdfca2d10d3ec9bcada39eb05c34bd1a6042f44ec02ccf6749343aa265b"
+  },
+  {
+    "path": "web/src/sano/screens/Today.tsx",
+    "sha256": "8454bf5c3431c666c57b1b9fae1dd93d6e87a983341935c11c6625266e48b5c3"
+  },
+  {
+    "path": "web/src/sano/screens/You.tsx",
+    "sha256": "a0f435ab5db59ec35a05519b49f60bfb8e8e09b0fbfac72c5a43ae6352217743"
+  },
+  {
+    "path": "web/src/sano/screens/nav.tsx",
+    "sha256": "86d46bb9d91dc7e2d4aaa9fa5bfb74b416f9296839d0a614226c5c8d42d728c6"
+  },
+  {
+    "path": "web/src/sano/screens/shared.tsx",
+    "sha256": "61ebb28622e1373b4b4af75419cfd2acb25a8379ae17933ec84d24e5f6cce0ec"
+  },
+  {
+    "path": "web/src/sano/sound.ts",
+    "sha256": "bbdc5a89233862a09695df9189da99428790daec4396636044d55efec97f820c"
+  },
+  {
+    "path": "web/src/sano/store.tsx",
+    "sha256": "eec6dfdf911e2059d210168d60f0ff25d11c06d76d91da9cb87d0d04f6ff990b"
+  },
+  {
+    "path": "web/src/sano/theme.ts",
+    "sha256": "70e58c7599a168e2423ed2e9f40e993657ddd31bb9941b01adcf5d004ed4e97d"
+  },
+  {
+    "path": "web/src/sano/types.ts",
+    "sha256": "baf02184886479e0b77fabae3f774a42de92c398b02259cdc48ad033d41d501d"
+  },
+  {
+    "path": "web/src/sano/ui/DataViz.tsx",
+    "sha256": "2ede66f9954f666f2282219a9185d641b851da659517cf8a72bcafbcb59bf88e"
+  },
+  {
+    "path": "web/src/sano/ui/DeviceOverlay.tsx",
+    "sha256": "a5256c7d72043d8aa662cd6a3d68ba563161025eabfa94a1e9a89c83a8a88dfd"
+  },
+  {
+    "path": "web/src/sano/ui/Dock.tsx",
+    "sha256": "de3f96eb7c62c5c1f1e4443200828fefede1bf84f574e0d08a5f75186f62a427"
+  },
+  {
+    "path": "web/src/sano/ui/Glass.tsx",
+    "sha256": "db4ef5ccb129a23932e62a7cfc4d02a4be1bfc4cd5bcd80c979423de0544907d"
+  },
+  {
+    "path": "web/src/sano/ui/Icon.tsx",
+    "sha256": "7f0abfefdb5c9450e0341f3d87509346fd709a32a5af3c8eb4f0364ed0372caa"
+  },
+  {
+    "path": "web/src/sano/ui/LivingGradient.tsx",
+    "sha256": "5cd27a19973f4d11d11cb9233c24407b73fe613f49d10b5d3d8889d55ff5babb"
+  },
+  {
+    "path": "web/src/sano/ui/Orb.tsx",
+    "sha256": "e56c4998e901f9209deb5fab8ca4316e69383af37fa0ed1228e753f91f8fb12a"
+  },
+  {
+    "path": "web/src/sano/ui/Sheet.tsx",
+    "sha256": "690fde9ef2678b93bda3f87a892ccc6f900c557998d66fcf2daea2b450c288ec"
+  },
+  {
+    "path": "web/src/test/calendar.test.tsx",
+    "sha256": "750dcd88103666f5b79fbc144ed0724bc8b1b50dcfc2ac3a9681590c723af598"
+  },
+  {
+    "path": "web/src/test/example.test.ts",
+    "sha256": "f0278cbf0875cdc304f02ceebbc62e93e2690a1c284d7ff2ebbae509e4d70349"
+  },
+  {
+    "path": "web/src/test/fasten.test.ts",
+    "sha256": "330168730f1d62086d24e18d2d6aa5191534956382a88209e602613fd29d3f32"
+  },
+  {
+    "path": "web/src/test/navigation.test.tsx",
+    "sha256": "2db76f2e687109afcbeca7995767d578d0b35d8351bcc36544205d08092d914f"
+  },
+  {
+    "path": "web/src/test/privia-disabled.test.tsx",
+    "sha256": "3406c933fcf83fd70070f1db5fa38a5bdb04d8a10c2709bdfbbd694e65b068cd"
+  },
+  {
+    "path": "web/src/test/privia.test.tsx",
+    "sha256": "e7be8fca7d498e53165d18679e81e634f1cb95df151dcc3c8a1e339fcafc6b1b"
+  },
+  {
+    "path": "web/src/test/setup.ts",
+    "sha256": "1e69f34a877ad6f11f2342436f51522c5a06a609dc254b68c930352cbec4644d"
+  },
+  {
+    "path": "web/src/vite-env.d.ts",
+    "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-17",
+  "source": "https://8bj7q7lzrlxpwebjl7tla-web.rork.live",
+  "statuses": [
+    200,
+    200
+  ],
+  "replyCount": 2,
+  "syntheticReplies": [
+    {
+      "text": "That makes a lot of sense — putting things off is really common, and you don't need a reason to justify it. It's okay to just sit with that for now.\n\nIf there's anything specific about it that's on your mind — practical, logistical, or otherwise — I'm happy to help when you're ready. No pressure either way.",
+      "suggestion": null
+    },
+    {
+      "text": "That's a really useful thing to share with your practice — they may have options that can help. Here's a draft you can edit before doing anything with it.",
+      "suggestion": {
+        "kind": "message",
+        "title": "Question for your practice about blood draw support",
+        "text": "Hi, I wanted to let you know that I felt faint during my last blood draw. Before I schedule my next one, could you let me know what support options are available to help me feel more comfortable? Thank you.",
+        "sourceIds": []
+      }
+    }
+  ],
+  "sandboxCertificateBypass": true,
+  "noAppTLSChange": true,
+  "screens": [
+    {
+      "file": "13-live-concern.png",
+      "caption": "Live AI respects the request not to jump straight to scheduling.",
+      "patient": "Elena · synthetic",
+      "source": "https://8bj7q7lzrlxpwebjl7tla-web.rork.live",
+      "ai": "Actual gateway reply; supplementary fresh browser run"
+    },
+    {
+      "file": "14-live-draft.png",
+      "caption": "A stated concern leads to a reviewable draft, not a fabricated arrangement.",
+      "patient": "Elena · synthetic",
+      "source": "https://8bj7q7lzrlxpwebjl7tla-web.rork.live",
+      "ai": "Actual gateway reply; supplementary fresh browser run"
+    }
+  ],
+  "scope": "Synthetic app conversation only. Not full clinical or telephone validation."
+}

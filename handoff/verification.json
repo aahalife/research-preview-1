@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-17",
+  "docx": "handoff/Rumi_Developer_Handoff.docx",
+  "docxSha256": "fbd1b383d129174dfd58fe6459fc589838bc6f8f003c15625e71521042af5f30",
+  "docxBytes": 2883867,
+  "sectionsVerified": 15,
+  "featureRowsVerified": 43,
+  "embeddedImages": 14,
+  "assetRowsVerified": 174,
+  "brokenLocalLinks": [],
+  "qmsExact": true,
+  "pdfPages": 38,
+  "pdfTextBoundsPassed": true,
+  "layoutReview": "All rendered-page contact sheets inspected; content/figure bounds checked. This is document QA, not clinical approval",
+  "webBuild": "Managed static checks/build passed; see current session delivery update for final checkpoint",
+  "webTests": "68 passed (39 Privia + 1 disabled-entry + 28 existing); no native tests rerun",
+  "nativeBuild": "Not rerun; iOS source unchanged",
+  "liveClinicalIntegrations": "Not verified",
+  "manualCommit": "Not performed; Rork managed sync",
+  "remotePush": "Not observed",
+  "liveAI": {
+    "replyCount": 2,
+    "statuses": [
+      200,
+      200
+    ],
+    "sandboxCertificateBypass": true,
+    "noAppTLSChange": true
+  },
+  "browserEvidence": "handoff/browser_verification.json"
+}
